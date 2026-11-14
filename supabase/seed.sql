@@ -155,3 +155,42 @@ values
 on conflict (id) do nothing;
 commit;
 -- T18 FIN.
+-- T09 INICIO: pedidos listos con tareas abiertas para el repartidor demo. Solo local/demo.
+-- Pagos simulados (sin pey). Uno de bajo valor ($84.00) y uno alto ($1,156.00) que el
+-- voluntario nuevo no ve (regla: hasta $500.00 con menos de 3 entregas).
+begin;
+update public.organizaciones
+set direccion_publica = 'Mercado de ejemplo, local 12, Ciudad de México', latitud = 19.4270, longitud = -99.1677
+where id = 'f2000000-0000-0000-0000-000000000002' and direccion_publica is null;
+insert into public.solicitudes (id, organizacion_id, tienda_id, titulo, descripcion, estado, publicada_en, es_ejemplo)
+values
+  ('f9200000-0000-0000-0000-000000000001', 'f2000000-0000-0000-0000-000000000001', 'f2000000-0000-0000-0000-000000000002', 'Leche y pañales — ejemplo', 'Solicitud ficticia para el recorrido del repartidor.', 'publicada', now(), true)
+on conflict (id) do nothing;
+insert into public.solicitud_articulos (id, solicitud_id, articulo_id, cantidad)
+values
+  ('f9300000-0000-0000-0000-000000000001', 'f9200000-0000-0000-0000-000000000001', 'f8100000-0000-0000-0000-000000000003', 10),
+  ('f9300000-0000-0000-0000-000000000002', 'f9200000-0000-0000-0000-000000000001', 'f8100000-0000-0000-0000-000000000001', 10)
+on conflict (id) do nothing;
+insert into public.pagos (id, solicitud_id, tienda_id, monto_centavos, metodo, metadata)
+values
+  ('f9400000-0000-0000-0000-000000000001', 'f9200000-0000-0000-0000-000000000001', 'f2000000-0000-0000-0000-000000000002', 8400, 'qr', '{"ejemplo": true}'),
+  ('f9400000-0000-0000-0000-000000000002', 'f9200000-0000-0000-0000-000000000001', 'f2000000-0000-0000-0000-000000000002', 115600, 'qr', '{"ejemplo": true}')
+on conflict (id) do nothing;
+insert into public.pago_articulos (pago_id, solicitud_articulo_id, unidades)
+values
+  ('f9400000-0000-0000-0000-000000000001', 'f9300000-0000-0000-0000-000000000001', 3),
+  ('f9400000-0000-0000-0000-000000000002', 'f9300000-0000-0000-0000-000000000002', 4)
+on conflict do nothing;
+update public.solicitud_articulos sa set unidades_pagadas = pa.unidades
+from public.pago_articulos pa
+where pa.solicitud_articulo_id = sa.id and pa.pago_id in
+  ('f9400000-0000-0000-0000-000000000001', 'f9400000-0000-0000-0000-000000000002')
+  and sa.unidades_pagadas = 0;
+update public.pagos set estado = 'pagado', pagado_en = now()
+where id in ('f9400000-0000-0000-0000-000000000001', 'f9400000-0000-0000-0000-000000000002')
+  and estado = 'creado';
+-- Como la tienda al marcar listo: genera el código y la tarea abierta (T09).
+update public.pedidos set estado = 'listo'
+where solicitud_id = 'f9200000-0000-0000-0000-000000000001' and estado = 'preparando';
+commit;
+-- T09 FIN.
