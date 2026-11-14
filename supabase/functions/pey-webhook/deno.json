@@ -1,0 +1,12 @@
+{
+  "compilerOptions": { "strict": true },
+  "imports": {
+    "postgres": "npm:postgres@3.4.7",
+    "@supabase/supabase-js": "npm:@supabase/supabase-js@2.49.4"
+  },
+  "tasks": {
+    "check": "deno check index.ts handler_test.ts integration_test.ts",
+    "test": "deno test handler_test.ts",
+    "test:db": "deno test --allow-env --allow-net=127.0.0.1:54322,127.0.0.1:54321 integration_test.ts"
+  }
+}
