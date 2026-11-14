@@ -35,8 +35,23 @@ export function Button(props: AsButton | AsLink) {
   )
 
   if (typeof rest.href === 'string') {
+    const linkProps = rest as AnchorHTMLAttributes<HTMLAnchorElement>
+    const disabled = linkProps['aria-disabled'] === true || linkProps['aria-disabled'] === 'true'
     return (
-      <a className={classes} {...(rest as AnchorHTMLAttributes<HTMLAnchorElement>)}>
+      <a
+        className={classes}
+        {...linkProps}
+        href={disabled ? undefined : linkProps.href}
+        role={linkProps.role ?? (disabled ? 'link' : undefined)}
+        tabIndex={disabled ? -1 : linkProps.tabIndex}
+        onClick={(event) => {
+          if (disabled) {
+            event.preventDefault()
+            return
+          }
+          linkProps.onClick?.(event)
+        }}
+      >
         {content}
       </a>
     )

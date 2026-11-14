@@ -36,6 +36,9 @@ export function SystemGallery() {
           Sistema de <span className="highlight highlight--yellow">diseño</span>
         </h1>
         <p className="page-lead">Tokens y componentes base. Cambia el modo con el botón de arriba.</p>
+        <p className="page-lead">
+          Superficies neutras como base, rojo para la acción principal y amarillo y lima en detalles.
+        </p>
 
         <section className="gallery-section">
           <h2 className="section-title">Color</h2>
@@ -69,6 +72,7 @@ export function SystemGallery() {
             <Button variant="ghost">Fantasma</Button>
             <Button icon={<IconHeart />}>Con ícono</Button>
             <Button disabled>Deshabilitado</Button>
+            <Button href="#/" aria-disabled="true">Enlace deshabilitado</Button>
           </div>
           <Button size="lg" block>
             Botón grande de ancho completo

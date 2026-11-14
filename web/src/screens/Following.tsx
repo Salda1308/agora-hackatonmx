@@ -19,7 +19,7 @@ export function Following() {
           title="Aún no sigues ninguna causa"
           description="Cuando sigas una, aquí verás su avance y cada entrega confirmada."
           action={
-            <Button variant="accent" href={paths.directory}>
+            <Button href={paths.directory}>
               Explorar solicitudes
             </Button>
           }

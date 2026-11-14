@@ -12,6 +12,7 @@
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  scroll-padding-block: var(--space-4) calc(var(--dock-height) + var(--space-9) + env(safe-area-inset-bottom, 0px));
 }
 
 body {
@@ -25,7 +26,6 @@ body {
   line-height: var(--leading-normal);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  transition: background-color var(--duration-base) var(--ease-out);
 }
 
 h1,
@@ -57,6 +57,12 @@ button,
 input {
   font: inherit;
   color: inherit;
+}
+
+button,
+a,
+input {
+  -webkit-tap-highlight-color: transparent;
 }
 
 :focus-visible {

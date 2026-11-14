@@ -31,14 +31,13 @@ export function Home() {
           Ayuda que <span className="highlight">se ve</span>, unidad por unidad.
         </h1>
         <p className="hero__lead">
-          Organizaciones verificadas piden lo que necesitan en unidades con precio fijo. Tú eliges cuántas pagar y ves la
-          barra avanzar.
+          Elige unidades para una organización verificada. Paga directo a la tienda y sigue cada entrega.
         </p>
         <div className="hero__coco">
           <Coco size={168} />
           <p className="hero__bubble">¡Hola! Soy Coco. Te acompaño en cada paso.</p>
         </div>
-        <Button variant="accent" size="lg" block href={paths.directory}>
+        <Button size="lg" block href={paths.directory}>
           Ver solicitudes
         </Button>
       </section>
@@ -49,15 +48,15 @@ export function Home() {
           <SampleBadge />
         </div>
         <div className="stats">
-          <Card tone="yellow" className="stat">
+          <Card className="stat">
             <span className="stat__value">{totals.paid}</span>
             <span className="stat__label">unidades pagadas</span>
           </Card>
-          <Card tone="lime" className="stat">
+          <Card className="stat">
             <span className="stat__value">{SAMPLE_REQUESTS.length}</span>
             <span className="stat__label">solicitudes abiertas</span>
           </Card>
-          <Card tone="ink" className="stat stat--wide">
+          <Card className="stat stat--wide">
             <span className="stat__value">{Math.round((totals.delivered / totals.total) * 100)}%</span>
             <span className="stat__label">de lo pedido ya se entregó</span>
           </Card>
@@ -75,7 +74,7 @@ export function Home() {
           ))}
         </div>
 
-        <Card tone="ink" padding="lg" className="how">
+        <Card padding="lg" className="how">
           <h2 className="how__title">
             Cómo <span className="highlight highlight--lime">funciona</span>
           </h2>

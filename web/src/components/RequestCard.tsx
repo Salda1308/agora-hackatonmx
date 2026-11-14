@@ -12,10 +12,10 @@ export function RequestCard({ request }: { request: SampleRequest }) {
     <Card href={paths.request(request.id)} className="request-card" aria-label={`${request.title}, ${request.org}`}>
       <div className="request-card__top">
         <div className="request-card__chips">
-          <Chip tone="yellow">{request.category}</Chip>
-          {request.recurring ? <Chip tone="outline">Cada mes</Chip> : null}
+          <Chip>{request.category}</Chip>
+          {request.recurring ? <Chip>Cada mes</Chip> : null}
         </div>
-        <ProgressRing value={totals.paid} max={totals.total} label="Avance de la solicitud" size={64} stroke={8} />
+        <ProgressRing value={totals.paid} max={totals.total} label="Avance de la solicitud" size={64} stroke={6} tone="ink" />
       </div>
       <h3 className="request-card__title">{request.title}</h3>
       <p className="request-card__org">
@@ -33,7 +33,7 @@ export function RequestCard({ request }: { request: SampleRequest }) {
             value={item.paid}
             max={item.total}
             detail={`${item.paid}/${item.total}`}
-            tone={item.paid >= item.total ? 'lime' : 'primary'}
+            tone={item.paid >= item.total ? 'lime' : 'ink'}
           />
         ))}
       </div>

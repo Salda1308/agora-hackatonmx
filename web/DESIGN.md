@@ -12,12 +12,24 @@ Guía corta para las tareas de frontend. Web móvil primero: una columna de hast
 
 ## Reglas
 - Usa los tokens semánticos (`--color-primary`, `--color-text`, `--space-4`, `--radius-lg`...), no los `--palette-*` ni valores sueltos.
-- Colores: rojo Coco (acción principal), amarillo pico (acento y resaltados), lima (completo o entregado), azul (secundario), tinta (dock y bloques oscuros), crema (fondo claro).
+- Superficies neutras dominantes: crema en claro, tinta casi negra en oscuro. Un acento protagonista por pantalla: rojo Coco en la acción principal y la mascota. Amarillo y lima en trazos, pasos y estados pequeños; azul disponible como variante, sin añadirlo por defecto a las pantallas.
+- No combinar grandes tarjetas rojas, amarillas y lima en la misma vista. Los tonos de `Card` se conservan para usos puntuales y para la galería. Estadísticas, categorías y metadatos usan superficies neutras.
 - Estados de unidad: `--color-status-pending`, `--color-status-paid`, `--color-status-ready`, `--color-status-delivered`.
-- Tipografía: Nunito Variable (SIL OFL 1.1, paquete `@fontsource-variable/nunito`). Titulares en peso 900 con una o dos palabras resaltadas (`.highlight`).
+- Tipografía: Nunito Variable (SIL OFL 1.1, paquete `@fontsource-variable/nunito`). Titulares en peso 900, escala contenida y un trazo discreto para resaltar (`.highlight`). Texto secundario con contraste, sin bajar opacidad.
 - Área táctil mínima de 48 px (`--tap-min`).
 - Todo dato de ejemplo se marca en pantalla con `<SampleBadge />` y vive en `src/data/sample.ts`.
 - Coco acompaña inicio, estados vacíos y confirmaciones. Los textos no sugieren que Ágora sea un producto oficial de pey ni de CoDi.
+
+## Pulido D3 y base para Capacitor
+
+- Todos los nombres de tokens, componentes y variantes de D1 se mantienen; la paleta base y el asset de Coco no cambian. Los ajustes son de uso de color, escala, sombras y semánticos de superficie/foco.
+- Las barras y aros de las pantallas usan `tone="ink"` para dar protagonismo al avance por contraste. Lima acompaña completos y entregas. El detalle incluye la barra global de unidades y el avance por artículo; el pago de ejemplo continúa deshabilitado.
+- El dock conserva su acción roja. La página activa usa texto claro y un indicador, sin un segundo acento amarillo. El contenido tiene espacio inferior y `scroll-padding` para poder desplazarse por encima del dock.
+- `.app` protege safe-area superior y lateral; dock y espacio inferior contemplan `safe-area-inset-bottom`. Conservar `viewport-fit=cover`. El wrapper nativo deberá exponer estos valores; verificar también en dispositivos reales al integrar Capacitor.
+- Filtros seleccionables, botones y enlaces de navegación tienen al menos 48 px. Los chips informativos no son controles y pueden ser más pequeños. Las categorías desplazan horizontalmente dentro de su propia fila, sin overflow de página.
+- Foco visible en ambos temas, incluido el dock oscuro. Estados hover solo añaden contraste/contorno; el deshabilitado es neutro y no responde al hover. Un `Button` con `href` y `aria-disabled="true"` retira el destino y no navega ni recibe foco por Tab.
+- Al cambiar de tema, texto y fondo cambian juntos, sin un fundido del fondo que pueda dejar texto claro sobre un fondo todavía claro (o al revés). Las microinteracciones conservan transformaciones breves.
+- Mantener superficies con un solo borde sutil, sombras reservadas para dock/hover y Coco sin animación continua en estados vacíos. La galería conserva ejemplos de todas las variantes de color con muestras pequeñas.
 
 ## Componentes base
 | Componente | Uso |

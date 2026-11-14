@@ -33,7 +33,7 @@
   --color-text: var(--palette-ink-900);
   --color-text-muted: var(--palette-ink-500);
   --color-border: var(--palette-cream-200);
-  --color-focus: var(--palette-blue-500);
+  --color-focus: var(--color-text);
 
   --color-primary: var(--palette-red-500);
   --color-primary-strong: var(--palette-red-700);
@@ -81,10 +81,10 @@
   --text-lg: 1.125rem;
   --text-xl: 1.375rem;
   --text-2xl: 1.75rem;
-  --text-display: clamp(2.5rem, 11vw, 3.75rem);
-  --text-hero: clamp(3rem, 15vw, 5rem);
+  --text-display: clamp(2rem, 8.5vw, 2.75rem);
+  --text-hero: clamp(2.5rem, 10.5vw, 3.25rem);
 
-  --leading-tight: 1.02;
+  --leading-tight: 1.1;
   --leading-snug: 1.2;
   --leading-normal: 1.5;
 
@@ -112,9 +112,9 @@
   --dock-height: 72px;
 
   /* Sombras y movimiento */
-  --shadow-sm: 0 1px 2px rgb(13 17 48 / 0.06), 0 2px 8px rgb(13 17 48 / 0.06);
-  --shadow-md: 0 6px 24px rgb(13 17 48 / 0.12);
-  --shadow-dock: 0 10px 30px rgb(13 17 48 / 0.28);
+  --shadow-sm: 0 1px 3px rgb(13 17 48 / 0.04);
+  --shadow-md: 0 4px 16px rgb(13 17 48 / 0.08);
+  --shadow-dock: 0 6px 20px rgb(13 17 48 / 0.18);
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --duration-fast: 140ms;
@@ -129,18 +129,18 @@
   :root:not([data-theme='light']) {
     --color-bg: var(--palette-ink-900);
     --color-surface: var(--palette-ink-800);
-    --color-surface-2: var(--palette-ink-700);
+    --color-surface-2: color-mix(in srgb, var(--palette-ink-900) 88%, var(--palette-white));
     --color-text: var(--palette-cream-50);
     --color-text-muted: var(--palette-ink-300);
     --color-border: rgb(255 250 241 / 0.1);
-    --color-focus: var(--palette-yellow-400);
+    --color-focus: var(--color-text);
     --color-primary-soft: rgb(220 31 46 / 0.22);
     --color-accent-soft: rgb(255 201 22 / 0.18);
     --color-lime-soft: rgb(189 220 27 / 0.18);
     --color-blue-soft: rgb(48 71 255 / 0.25);
     --color-ink: var(--palette-cream-50);
     --color-on-ink: var(--palette-ink-900);
-    --color-dock: var(--palette-ink-700);
+    --color-dock: var(--palette-ink-800);
     --color-track: rgb(255 250 241 / 0.14);
     --color-status-pending: var(--palette-ink-500);
     --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.3);
@@ -153,18 +153,18 @@
 :root[data-theme='dark'] {
   --color-bg: var(--palette-ink-900);
   --color-surface: var(--palette-ink-800);
-  --color-surface-2: var(--palette-ink-700);
+  --color-surface-2: color-mix(in srgb, var(--palette-ink-900) 88%, var(--palette-white));
   --color-text: var(--palette-cream-50);
   --color-text-muted: var(--palette-ink-300);
   --color-border: rgb(255 250 241 / 0.1);
-  --color-focus: var(--palette-yellow-400);
+  --color-focus: var(--color-text);
   --color-primary-soft: rgb(220 31 46 / 0.22);
   --color-accent-soft: rgb(255 201 22 / 0.18);
   --color-lime-soft: rgb(189 220 27 / 0.18);
   --color-blue-soft: rgb(48 71 255 / 0.25);
   --color-ink: var(--palette-cream-50);
   --color-on-ink: var(--palette-ink-900);
-  --color-dock: var(--palette-ink-700);
+  --color-dock: var(--palette-ink-800);
   --color-track: rgb(255 250 241 / 0.14);
   --color-status-pending: var(--palette-ink-500);
   --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.3);

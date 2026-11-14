@@ -48,8 +48,8 @@ export function RequestDetail({ id }: { id: string }) {
           <ThemeToggle />
         </div>
         <div className="detail-hero__chips">
-          <Chip tone="ink">{request.category}</Chip>
-          {request.recurring ? <Chip tone="outline">Cada mes</Chip> : null}
+          <Chip>{request.category}</Chip>
+          {request.recurring ? <Chip>Cada mes</Chip> : null}
         </div>
         <h1 className="detail-hero__title">{request.title}</h1>
         <p className="detail-hero__org">
@@ -63,8 +63,8 @@ export function RequestDetail({ id }: { id: string }) {
             value={totals.paid}
             max={totals.total}
             label="Unidades pagadas"
-            size={140}
-            stroke={14}
+            size={120}
+            stroke={12}
             tone="ink"
             caption="pagado"
           />
@@ -74,6 +74,12 @@ export function RequestDetail({ id }: { id: string }) {
             <span className="detail-hero__updated">Actualizado {request.updated}</span>
           </div>
         </div>
+        <ProgressBar
+          label="Unidades pagadas"
+          value={totals.paid}
+          max={totals.total}
+          tone="ink"
+        />
       </section>
 
       <div className="screen__body">
@@ -91,7 +97,7 @@ export function RequestDetail({ id }: { id: string }) {
                   label="Unidades pagadas"
                   value={item.paid}
                   max={item.total}
-                  tone={done ? 'lime' : 'primary'}
+                  tone={done ? 'lime' : 'ink'}
                 />
                 <div className="item-card__chips">
                   {done ? (
@@ -99,10 +105,10 @@ export function RequestDetail({ id }: { id: string }) {
                       Completo
                     </Chip>
                   ) : (
-                    <Chip tone="red">Faltan {item.total - item.paid}</Chip>
+                    <Chip>Faltan {item.total - item.paid}</Chip>
                   )}
-                  <Chip tone="blue">Listas {item.ready}</Chip>
-                  <Chip tone="outline">Entregadas {item.delivered}</Chip>
+                  <Chip>Listas {item.ready}</Chip>
+                  <Chip>Entregadas {item.delivered}</Chip>
                 </div>
               </Card>
             )
