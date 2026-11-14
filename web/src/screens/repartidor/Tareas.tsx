@@ -10,6 +10,7 @@ import { formatoPesos } from '../fundacion/api'
 import { Marco } from '../fundacion/Marco'
 import { cargarDisponibles, cargarMiTarea, cargarNivel, liberarTarea, tomarTarea } from './api'
 import type { ArticuloTarea, MiTarea, Nivel, TareaDisponible } from './api'
+import { PasosEntrega } from './Entrega'
 
 interface Datos {
   activa: MiTarea | null
@@ -83,7 +84,8 @@ export function Tareas() {
       ) : datos === null ? (
         <p className="rep-muted" role="status">Cargando…</p>
       ) : datos.activa ? (
-        <TareaActiva tarea={datos.activa} ocupado={ocupado !== null} onLiberar={() => void liberar(datos.activa!.id)} />
+        <TareaActiva tarea={datos.activa} ocupado={ocupado !== null} onLiberar={() => void liberar(datos.activa!.id)}
+          onCambio={recargar} />
       ) : (
         <>
           {datos.nivel.limite_centavos !== null ? (
@@ -132,7 +134,9 @@ export function Tareas() {
   )
 }
 
-function TareaActiva({ tarea, ocupado, onLiberar }: { tarea: MiTarea; ocupado: boolean; onLiberar: () => void }) {
+function TareaActiva({ tarea, ocupado, onLiberar, onCambio }: {
+  tarea: MiTarea; ocupado: boolean; onLiberar: () => void; onCambio: () => void
+}) {
   const mapa = tarea.tienda_latitud !== null && tarea.tienda_longitud !== null
     ? `https://www.openstreetmap.org/?mlat=${tarea.tienda_latitud}&mlon=${tarea.tienda_longitud}#map=17/${tarea.tienda_latitud}/${tarea.tienda_longitud}`
     : null
@@ -158,6 +162,7 @@ function TareaActiva({ tarea, ocupado, onLiberar }: { tarea: MiTarea; ocupado: b
 
       <Articulos articulos={tarea.articulos} />
       <p className="rep-muted">Entrega a <strong>{tarea.destino_nombre}</strong> · {formatoPesos(tarea.total_centavos)}</p>
+      <PasosEntrega tarea={tarea} onCambio={onCambio} />
 
       {tarea.estado === 'asignada' ? (
         <Button variant="ghost" block disabled={ocupado} onClick={onLiberar}>

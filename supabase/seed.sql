@@ -206,3 +206,25 @@ update public.pedidos set estado = 'listo'
 where solicitud_id = 'f9200000-0000-0000-0000-000000000001' and estado = 'preparando';
 commit;
 -- T09 FIN.
+
+-- T10 INICIO: otro pedido listo de bajo valor para repetir la entrega con foto y código
+-- (repartidor demo recoge y entrega; fundación demo confirma). Pago simulado, sin pey.
+begin;
+insert into public.pagos (id, solicitud_id, tienda_id, monto_centavos, metodo, metadata)
+values
+  ('fa400000-0000-0000-0000-000000000001', 'f9200000-0000-0000-0000-000000000001', 'f2000000-0000-0000-0000-000000000002', 5600, 'qr', '{"ejemplo": true}')
+on conflict (id) do nothing;
+insert into public.pago_articulos (pago_id, solicitud_articulo_id, unidades)
+values ('fa400000-0000-0000-0000-000000000001', 'f9300000-0000-0000-0000-000000000001', 2)
+on conflict do nothing;
+update public.solicitud_articulos sa set unidades_pagadas = sa.unidades_pagadas + pa.unidades
+from public.pago_articulos pa
+join public.pagos p on p.id = pa.pago_id
+where pa.solicitud_articulo_id = sa.id and pa.pago_id = 'fa400000-0000-0000-0000-000000000001'
+  and p.estado = 'creado';
+update public.pagos set estado = 'pagado', pagado_en = now()
+where id = 'fa400000-0000-0000-0000-000000000001' and estado = 'creado';
+update public.pedidos set estado = 'listo'
+where solicitud_id = 'f9200000-0000-0000-0000-000000000001' and estado = 'preparando';
+commit;
+-- T10 FIN.

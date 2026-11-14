@@ -1,0 +1,42 @@
+/* Recepción de entregas (T10). Estilos propios para no tocar fundacion.css. */
+
+.rec-section {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.rec-heading {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-black);
+}
+
+.rec-item {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.rec-foto {
+  display: block;
+  width: 100%;
+  max-height: 320px;
+  object-fit: cover;
+  border-radius: var(--radius-lg);
+}
+
+.rec-lines {
+  margin: 0;
+  padding-left: var(--space-4);
+}
+
+.rec-form {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.rec-input {
+  font-size: var(--text-xl);
+  letter-spacing: 0.2em;
+  text-align: center;
+  text-transform: uppercase;
+}
