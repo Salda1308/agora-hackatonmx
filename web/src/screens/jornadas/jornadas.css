@@ -1,0 +1,132 @@
+/* Jornadas de voluntariado (T18). Solo tokens semánticos; móvil primero. */
+
+.jor-muted {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+.jor-error {
+  color: var(--color-primary-strong);
+  font-weight: var(--font-weight-bold);
+}
+
+.jor-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-4);
+}
+.jor-list--tight {
+  gap: var(--space-3);
+}
+
+.jor-item {
+  display: grid;
+  gap: var(--space-3);
+}
+.jor-item__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.jor-item__title {
+  font-size: var(--text-lg);
+  line-height: var(--leading-snug);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.jor-fact {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  overflow-wrap: anywhere;
+}
+.jor-fact svg {
+  flex: none;
+  width: 20px;
+  height: 20px;
+}
+
+.jor-form {
+  display: grid;
+  gap: var(--space-4);
+}
+.jor-field {
+  display: grid;
+  gap: var(--space-2);
+  font-weight: var(--font-weight-bold);
+}
+.jor-field input,
+.jor-field textarea {
+  min-height: var(--tap-min);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-weight: var(--font-weight-regular);
+  min-width: 0;
+}
+.jor-field input:focus-visible,
+.jor-field textarea:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 1px;
+}
+.jor-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.jor-row {
+  display: grid;
+  gap: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+}
+.jor-row__copy {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.jor-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.jor-done {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+  text-align: center;
+}
+
+.jor-constancia {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  border: 2px solid var(--color-text);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+.jor-constancia__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+.jor-constancia__name {
+  font-size: var(--text-xl);
+  line-height: var(--leading-snug);
+  overflow-wrap: anywhere;
+}
+
+@media print {
+  .jor-constancia button {
+    display: none;
+  }
+}

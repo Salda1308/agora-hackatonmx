@@ -127,3 +127,31 @@ values ('f1700000-0000-0000-0000-000000000001', 'f2000000-0000-0000-0000-0000000
   'Una ayuda pequeña también mueve mucho. Aquí compartiremos las novedades de nuestra comunidad. Esta publicación es ficticia y no acredita entregas.', true, true)
 on conflict (id) do nothing;
 -- T17 FIN.
+-- T18 INICIO: jornadas de voluntariado de ejemplo. Solo local/demo.
+-- Contactos ficticios; la lista de inscritos solo la ve la fundación.
+begin;
+insert into public.jornadas
+  (id, organizacion_id, titulo, descripcion, requisitos, ubicacion, inicia_en, termina_en, cupos, es_ejemplo)
+values
+  ('f1800000-0000-0000-0000-000000000001', 'f2000000-0000-0000-0000-000000000001',
+   'Tarde de lectura con abuelos — ejemplo', 'Leer y platicar con las personas residentes.',
+   'Mayores de 16 años. Ropa cómoda.', 'Ciudad de México (ubicación de ejemplo)',
+   (date_trunc('day', now() at time zone 'America/Mexico_City') + interval '7 days 16 hours') at time zone 'America/Mexico_City', (date_trunc('day', now() at time zone 'America/Mexico_City') + interval '7 days 19 hours') at time zone 'America/Mexico_City', 12, true),
+  ('f1800000-0000-0000-0000-000000000002', 'f5000000-0000-0000-0000-000000000001',
+   'Limpieza del albergue — ejemplo', 'Lavar áreas comunes y ordenar la bodega.',
+   'Guantes y agua. Mayores de 18 años.', 'Ciudad de México (ubicación de ejemplo)',
+   (date_trunc('day', now() at time zone 'America/Mexico_City') + interval '5 days 9 hours') at time zone 'America/Mexico_City', (date_trunc('day', now() at time zone 'America/Mexico_City') + interval '5 days 13 hours') at time zone 'America/Mexico_City', 3, true),
+  ('f1800000-0000-0000-0000-000000000003', 'f2000000-0000-0000-0000-000000000001',
+   'Pintura del comedor — ejemplo', 'Jornada pasada para probar la confirmación de asistencia.',
+   'Ropa que se pueda manchar.', 'Ciudad de México (ubicación de ejemplo)',
+   (date_trunc('day', now() at time zone 'America/Mexico_City') - interval '2 days' + interval '9 hours') at time zone 'America/Mexico_City', (date_trunc('day', now() at time zone 'America/Mexico_City') - interval '2 days' + interval '14 hours') at time zone 'America/Mexico_City', 20, true)
+on conflict (id) do nothing;
+insert into public.inscripciones_jornada (id, jornada_id, nombre_contacto, contacto, asistentes, estado)
+values
+  ('f1810000-0000-0000-0000-000000000001', 'f1800000-0000-0000-0000-000000000001', 'Empresa Ejemplo S.A.', 'voluntariado@ejemplo.test', 4, 'pendiente'),
+  ('f1810000-0000-0000-0000-000000000002', 'f1800000-0000-0000-0000-000000000002', 'Ana Ejemplo', '55 0000 0000', 2, 'confirmada'),
+  ('f1810000-0000-0000-0000-000000000003', 'f1800000-0000-0000-0000-000000000003', 'Constructora Ejemplo', 'rh@ejemplo.test', 6, 'confirmada'),
+  ('f1810000-0000-0000-0000-000000000004', 'f1800000-0000-0000-0000-000000000003', 'Luis Ejemplo', 'luis@ejemplo.test', 1, 'asistio')
+on conflict (id) do nothing;
+commit;
+-- T18 FIN.

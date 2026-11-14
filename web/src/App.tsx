@@ -17,6 +17,9 @@ const FundacionArea = lazy(() => import('./screens/fundacion/FundacionArea'))
 const TiendaArea = lazy(() => import('./screens/tienda/TiendaArea'))
 
 const OrganizacionPage = lazy(() => import('./screens/organizacion/OrganizacionPage'))
+// Jornadas de voluntariado (T18): pública y de la fundación, también aparte.
+const JornadasArea = lazy(() => import('./screens/jornadas/JornadasArea'))
+const JornadasFundacion = lazy(() => import('./screens/jornadas/JornadasFundacion'))
 
 function App() {
   const current = useRoute()
@@ -47,6 +50,17 @@ function App() {
         </Suspense>
       )
       break
+    case 'jornadas':
+    case 'jornada':
+    case 'folio':
+      screen = (
+        <Suspense fallback={null}>
+          <JornadasArea
+            vista={route.name === 'jornadas' ? { tipo: 'lista' } : { tipo: route.name === 'jornada' ? 'detalle' : 'folio', id: route.id }}
+          />
+        </Suspense>
+      )
+      break
     case 'system':
       screen = import.meta.env.DEV ? <SystemGallery /> : null
       break
@@ -59,6 +73,8 @@ function App() {
             <TiendaArea vista={route.page} />
           </Suspense>
         )
+      } else if (route.role === 'fundacion' && route.page === 'jornadas') {
+        screen = <Suspense fallback={null}><JornadasFundacion /></Suspense>
       } else {
         screen = <RoleScreen route={route} />
       }
