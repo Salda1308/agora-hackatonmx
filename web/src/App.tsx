@@ -13,6 +13,8 @@ import { SystemGallery } from './screens/SystemGallery'
 
 // Área de fundación (T06): carga aparte, con su propia sesión de Supabase.
 const FundacionArea = lazy(() => import('./screens/fundacion/FundacionArea'))
+// Área de tienda (T08): pedidos y catálogo; "Mi tienda" sigue en RoleScreen.
+const TiendaArea = lazy(() => import('./screens/tienda/TiendaArea'))
 
 function App() {
   const current = useRoute()
@@ -44,7 +46,11 @@ function App() {
       screen = import.meta.env.DEV ? <SystemGallery /> : null
       break
     case 'role':
-      screen = <RoleScreen route={route} />
+      screen = route.role === 'tienda' && (route.page === 'pedidos' || route.page === 'catalogo') ? (
+        <Suspense fallback={null}>
+          <TiendaArea vista={route.page} />
+        </Suspense>
+      ) : <RoleScreen route={route} />
       break
     default:
       screen = (

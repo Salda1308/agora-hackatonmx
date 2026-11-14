@@ -28,6 +28,14 @@ insert into public.pedidos (id, solicitud_id, tienda_id) values
   ('f4000000-0000-0000-0000-000000000002', 'f3000000-0000-0000-0000-000000000001', 'f2000000-0000-0000-0000-000000000003');
 insert into public.tareas (id, pedido_id) values
   ('f5000000-0000-0000-0000-000000000001', 'f4000000-0000-0000-0000-000000000001');
+-- T08: marcar listo exige unidades pagadas en el pedido.
+insert into public.catalogo_articulos (id, tienda_id, nombre, precio_centavos) values
+  ('f6000000-0000-0000-0000-000000000001', 'f2000000-0000-0000-0000-000000000002', 'Artículo prueba R1', 1);
+insert into public.solicitud_articulos (id, solicitud_id, articulo_id, cantidad, unidades_pagadas) values
+  ('f6100000-0000-0000-0000-000000000001', 'f3000000-0000-0000-0000-000000000001',
+   'f6000000-0000-0000-0000-000000000001', 1, 1);
+insert into public.pedido_articulos (pedido_id, solicitud_articulo_id, unidades) values
+  ('f4000000-0000-0000-0000-000000000001', 'f6100000-0000-0000-0000-000000000001', 1);
 
 -- Visitante y comprador autenticado.
 set local role anon;
@@ -86,7 +94,9 @@ select lives_ok($$insert into public.catalogo_articulos (tienda_id, nombre, prec
 select throws_ok($$insert into public.catalogo_articulos (tienda_id, nombre, precio_centavos)
   values ('f2000000-0000-0000-0000-000000000003', 'Artículo ajeno', 1)$$,
   '42501', null, 'tienda no escribe el catálogo de otra');
-select is((select count(*)::int from public.pedidos), 1, 'tienda solo ve su pedido');
+select is((select count(*)::int from public.pedidos
+  where id in ('f4000000-0000-0000-0000-000000000001', 'f4000000-0000-0000-0000-000000000002')), 1,
+  'tienda solo ve su pedido');
 update public.pedidos set estado = 'listo' where id = 'f4000000-0000-0000-0000-000000000001';
 select is((select estado::text from public.pedidos where id = 'f4000000-0000-0000-0000-000000000001'),
   'listo', 'tienda demo puede marcar listo');

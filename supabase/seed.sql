@@ -79,3 +79,44 @@ values
 on conflict (id) do nothing;
 commit;
 -- T05 FIN.
+
+-- T08 INICIO: catálogo y pedidos pagados de ejemplo para la tienda demo. Solo local/demo.
+-- Pagos simulados (sin pey) para ver el panel; marcar listo genera el código de recogida.
+begin;
+insert into public.catalogo_articulos (id, tienda_id, nombre, unidad, precio_centavos, es_ejemplo)
+values
+  ('f8100000-0000-0000-0000-000000000001', 'f2000000-0000-0000-0000-000000000002', 'Paquete de pañales adulto — ejemplo', 'paquete', 28900, true),
+  ('f8100000-0000-0000-0000-000000000002', 'f2000000-0000-0000-0000-000000000002', 'Arroz 1 kg — ejemplo', 'bolsa', 3200, true),
+  ('f8100000-0000-0000-0000-000000000003', 'f2000000-0000-0000-0000-000000000002', 'Leche 1 L — ejemplo', 'pieza', 2800, true),
+  ('f8100000-0000-0000-0000-000000000004', 'f2000000-0000-0000-0000-000000000002', 'Jabón de tocador — ejemplo', 'pieza', 1500, true)
+on conflict (id) do nothing;
+insert into public.solicitudes (id, organizacion_id, tienda_id, titulo, descripcion, estado, publicada_en, es_ejemplo)
+values
+  ('f8200000-0000-0000-0000-000000000001', 'f2000000-0000-0000-0000-000000000001', 'f2000000-0000-0000-0000-000000000002', 'Despensa de noviembre — ejemplo', 'Solicitud ficticia para el panel de la tienda.', 'publicada', now(), true)
+on conflict (id) do nothing;
+insert into public.solicitud_articulos (id, solicitud_id, articulo_id, cantidad)
+values
+  ('f8300000-0000-0000-0000-000000000001', 'f8200000-0000-0000-0000-000000000001', 'f8100000-0000-0000-0000-000000000001', 6),
+  ('f8300000-0000-0000-0000-000000000002', 'f8200000-0000-0000-0000-000000000001', 'f8100000-0000-0000-0000-000000000002', 20)
+on conflict (id) do nothing;
+insert into public.pagos (id, solicitud_id, tienda_id, monto_centavos, metodo, metadata)
+values
+  ('f8400000-0000-0000-0000-000000000001', 'f8200000-0000-0000-0000-000000000001', 'f2000000-0000-0000-0000-000000000002', 57800, 'qr', '{"ejemplo": true}'),
+  ('f8400000-0000-0000-0000-000000000002', 'f8200000-0000-0000-0000-000000000001', 'f2000000-0000-0000-0000-000000000002', 16000, 'push', '{"ejemplo": true}')
+on conflict (id) do nothing;
+insert into public.pago_articulos (pago_id, solicitud_articulo_id, unidades)
+values
+  ('f8400000-0000-0000-0000-000000000001', 'f8300000-0000-0000-0000-000000000001', 2),
+  ('f8400000-0000-0000-0000-000000000002', 'f8300000-0000-0000-0000-000000000002', 5)
+on conflict do nothing;
+-- Como el webhook: suma unidades pagadas y confirma; el trigger de T08 crea los pedidos.
+update public.solicitud_articulos sa set unidades_pagadas = pa.unidades
+from public.pago_articulos pa
+where pa.solicitud_articulo_id = sa.id and pa.pago_id in
+  ('f8400000-0000-0000-0000-000000000001', 'f8400000-0000-0000-0000-000000000002')
+  and sa.unidades_pagadas = 0;
+update public.pagos set estado = 'pagado', pagado_en = now()
+where id in ('f8400000-0000-0000-0000-000000000001', 'f8400000-0000-0000-0000-000000000002')
+  and estado = 'creado';
+commit;
+-- T08 FIN.

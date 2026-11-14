@@ -292,6 +292,7 @@ Deno.test({
     } finally {
       try {
         await reset();
+        await sql`delete from public.pedidos where solicitud_id = ${solicitudId}`; // T08: pedido por pago confirmado
         await sql`delete from public.solicitud_articulos where id = ${solicitudArticuloId}`;
         await sql`delete from public.solicitudes where id = ${solicitudId}`;
         await sql`delete from public.catalogo_articulos where id = ${articulo}`;

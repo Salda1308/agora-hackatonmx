@@ -38,9 +38,9 @@ insert into public.solicitudes (id, organizacion_id, tienda_id, titulo, estado, 
   ('40000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-00000000000a',
    '20000000-0000-0000-0000-000000000001', 'Pañales para noviembre', 'publicada', now());
 
-insert into public.solicitud_articulos (id, solicitud_id, articulo_id, nombre, precio_centavos, cantidad) values
+insert into public.solicitud_articulos (id, solicitud_id, articulo_id, nombre, precio_centavos, cantidad, unidades_pagadas) values
   ('50000000-0000-0000-0000-000000000001', '40000000-0000-0000-0000-000000000001',
-   '30000000-0000-0000-0000-000000000001', 'cualquiera', 999, 10);
+   '30000000-0000-0000-0000-000000000001', 'cualquiera', 999, 10, 1);
 
 insert into public.pagos (id, solicitud_id, tienda_id, monto_centavos, metodo) values
   ('60000000-0000-0000-0000-000000000001', '40000000-0000-0000-0000-000000000001',
@@ -49,6 +49,9 @@ insert into public.pagos (id, solicitud_id, tienda_id, monto_centavos, metodo) v
 insert into public.pedidos (id, solicitud_id, tienda_id) values
   ('70000000-0000-0000-0000-000000000001', '40000000-0000-0000-0000-000000000001',
    '20000000-0000-0000-0000-000000000001');
+-- T08: marcar listo exige unidades pagadas en el pedido.
+insert into public.pedido_articulos (pedido_id, solicitud_articulo_id, unidades) values
+  ('70000000-0000-0000-0000-000000000001', '50000000-0000-0000-0000-000000000001', 1);
 
 insert into public.jornadas (id, organizacion_id, titulo, inicia_en, termina_en, cupos) values
   ('80000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-00000000000a',
