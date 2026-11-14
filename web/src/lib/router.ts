@@ -1,4 +1,6 @@
 import { useEffect, useSyncExternalStore } from 'react'
+import { parseRolePath } from '../auth/role-routes.ts'
+import type { RoleRoute } from '../auth/role-routes.ts'
 
 /*
  * Ruteo mínimo por hash para las pantallas ancla de D1, sin dependencias.
@@ -6,6 +8,7 @@ import { useEffect, useSyncExternalStore } from 'react'
  */
 
 export type Route =
+  | RoleRoute
   | { name: 'home' }
   | { name: 'directory' }
   | { name: 'request'; id: string }
@@ -27,6 +30,8 @@ export function parseHash(hash: string): Route {
   if (path === '/solicitudes') return { name: 'directory' }
   if (path === '/sistema') return { name: 'system' }
   if (path === '/siguiendo') return { name: 'following' }
+  const roleRoute = parseRolePath(path)
+  if (roleRoute) return roleRoute
   const match = /^\/solicitudes\/([^/]+)$/.exec(path)
   if (match) return { name: 'request', id: decodeURIComponent(match[1]) }
   return { name: 'not-found' }

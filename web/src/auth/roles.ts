@@ -27,27 +27,31 @@ export function hasRole(role: Role | null, allowed: readonly Role[]): boolean {
   return role !== null && allowed.includes(role)
 }
 
-// Contrato de navegación para el dock de D3; no impone router ni estilos.
+export const roleLabels: Record<Role, string> = {
+  comprador: 'Comprador', fundacion: 'Fundación', tienda: 'Tienda', repartidor: 'Repartidor',
+}
+
+// Destinos hash del diseño vigente; no impone estilos ni lógica de negocio.
 export const roleNavigation = {
   comprador: [
-    { id: 'inicio', label: 'Inicio', path: '/' },
-    { id: 'buscar', label: 'Buscar', path: '/buscar' },
-    { id: 'siguiendo', label: 'Siguiendo', path: '/siguiendo' },
+    { id: 'home', label: 'Inicio', path: '/' },
+    { id: 'directory', label: 'Solicitudes', path: '/solicitudes' },
+    { id: 'following', label: 'Siguiendo', path: '/siguiendo' },
   ],
   fundacion: [
     { id: 'solicitudes', label: 'Solicitudes', path: '/fundacion' },
     { id: 'publicar', label: 'Publicar', path: '/fundacion/publicar', primary: true },
-    { id: 'organizacion', label: 'Mi organización', path: '/fundacion/organizacion' },
+    { id: 'organizacion', label: 'Mi página', path: '/fundacion/organizacion' },
     { id: 'jornadas', label: 'Jornadas', path: '/fundacion/jornadas' },
   ],
   tienda: [
     { id: 'pedidos', label: 'Pedidos', path: '/tienda' },
-    { id: 'catalogo', label: 'Catálogo', path: '/tienda/catalogo', primary: true },
+    { id: 'catalogo', label: 'Catálogo', path: '/tienda/catalogo' },
     { id: 'organizacion', label: 'Mi tienda', path: '/tienda/organizacion' },
   ],
   repartidor: [
     { id: 'tareas', label: 'Tareas', path: '/repartidor' },
-    { id: 'entregas', label: 'Mis entregas', path: '/repartidor/entregas', primary: true },
+    { id: 'entregas', label: 'Mis entregas', path: '/repartidor/entregas' },
     { id: 'reconocimiento', label: 'Reconocimiento', path: '/repartidor/reconocimiento' },
   ],
 } as const

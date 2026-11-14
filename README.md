@@ -53,7 +53,8 @@ cargarse en producción.
 Contraseña pública de las cuatro cuentas: `Agora-demo-2026!`.
 Copiar `web/.env.example` a `web/.env.local` y usar la llave pública del stack local.
 La lógica de sesión y las instrucciones de integración están en
-[`web/src/auth/README.md`](web/src/auth/README.md). El montaje del proveedor, el
-selector visual y el dock por rol esperan la integración autorizada del diseño D3.
+[`web/src/auth/README.md`](web/src/auth/README.md). El proveedor de sesión, el
+selector visual y el dock por rol están montados sobre el diseño D3. Las vistas
+operativas están protegidas por rol y contienen marcadores para las tareas siguientes.
 Las pruebas de base de datos incluyen un TODO conocido: el repartidor ve tareas
 abiertas pero las políticas actuales rechazan tomarlas (`42501`). No se han cambiado.

@@ -1,9 +1,10 @@
-# Sesión R1 (lista para integrar con D3)
+# Sesión y navegación por rol (R1)
 
-Este módulo todavía no está montado en `main.tsx`. El selector y el dock visual
-esperan el aviso del control sobre D3. No hay cambio visual en esta entrega parcial.
+`SessionProvider` está montado en `main.tsx`. `App` añade `SessionControls`,
+`RoleDock` y un caso de ruta para `RoleScreen`; el Home y el componente Dock de D3
+se conservan. La navegación pública sigue siendo Inicio, Solicitudes y Siguiendo.
 
-Envolver la aplicación con `SessionProvider` y consumir `useSession()`:
+Consumir `useSession()` dentro del proveedor ya montado:
 
 ```tsx
 import { SessionProvider } from './auth/SessionProvider'
@@ -27,22 +28,39 @@ de organización. Un error de perfil cierra el acceso y expone `retry` y `signOu
 La suscripción de Auth cubre renovación de token, cambios de cuenta y salida.
 Las respuestas tardías no restauran permisos de cuentas anteriores.
 
-`demoAccounts` (en `demo.ts`) aporta los cuatro botones del selector.
+`SessionControls` muestra el panel desplegable de acceso con los cuatro botones
+de `demoAccounts` (en `demo.ts`), selección activa, errores y salida.
 `signInDemo(role)` ejecuta `signInWithPassword` con la cuenta precargada; no cambia
 el rol por estado local. Capturar sus errores para mostrarlos y desactivar los
 botones mientras `loading` sea verdadero. `signOut()` cierra la sesión de este
-dispositivo y vuelve al comprador visitante. El selector debe rotularse
-**Acceso de demostración · datos de ejemplo**, y ocultarse si `demoEnabled` es falso.
+dispositivo y vuelve al comprador visitante. El selector está rotulado
+**Acceso de demostración** y lleva `SampleBadge`. Si `demoEnabled` es falso, el
+selector queda oculto; una sesión existente conserva el control de salida.
 
 La demo exige `VITE_DEMO_AUTH_ENABLED=true` y una URL Supabase de loopback
-(`localhost`, `127.0.0.1` o `[::1]`). Está apagada por defecto, también en builds
+(`localhost`, `127.0.0.1` o `[::1]`), además de su llave pública. Está apagada por defecto, también en builds
 de producción. Se permite un build de demostración contra un backend local.
 No se han utilizado ni configurado cuentas reales o endpoints remotos.
 
-`navigation` entrega los accesos propuestos para cada rol, vacío mientras no haya
-sesión resuelta. No se ha elegido un router ni implementado rutas: D3 conectará
-estos destinos con vistas protegidas o marcadores de posición. `RequireRole`
-protege la interfaz; las políticas RLS siguen autorizando cada petición de datos.
+`navigation` entrega los accesos del rol, vacío mientras no haya sesión resuelta.
+`role-routes.ts` resuelve únicamente destinos operativos conocidos; el router hash
+le delega esas rutas y mantiene las públicas intactas. `RoleScreen` protege cada
+vista con `RequireRole` y ofrece marcadores de posición para las tareas siguientes.
+Las políticas RLS siguen autorizando cada petición de datos.
+
+## Integración con T05 y T06
+
+- Los destinos y etiquetas viven en `roles.ts`. `#/fundacion` y
+  `#/fundacion/publicar` son los puntos para T06; el resto de destinos de cada rol
+  queda declarado en el mismo archivo.
+- Para sustituir un marcador: añadir el caso correspondiente antes del caso
+  genérico `role` de App, o resolverlo dentro de una pantalla del rol, siempre
+  conservando `RequireRole`. No hace falta cambiar el dock base.
+- `RoleDock` usa la misma API de D3; solo Fundación tiene la acción Publicar.
+  No se incorpora Sistema ni un corazón a la navegación pública.
+- `supabase` en `lib/supabase.ts` ahora puede ser `null` si faltan URL/llave.
+  Comprobarlo antes de consultar; la página pública sigue funcionando sin backend
+  y nunca adquiere permisos de rol. No se inventa una llave ni un backend de reserva.
 
 Pruebas sin dependencias adicionales (Node >= 22.18, con soporte TypeScript):
 
