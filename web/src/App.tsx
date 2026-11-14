@@ -16,12 +16,17 @@ const FundacionArea = lazy(() => import('./screens/fundacion/FundacionArea'))
 // Área de tienda (T08): pedidos y catálogo; "Mi tienda" sigue en RoleScreen.
 const TiendaArea = lazy(() => import('./screens/tienda/TiendaArea'))
 
+const OrganizacionPage = lazy(() => import('./screens/organizacion/OrganizacionPage'))
+
 function App() {
   const current = useRoute()
   const route = current.name === 'system' && !import.meta.env.DEV ? { name: 'not-found' as const } : current
 
   let screen
   switch (route.name) {
+    case 'organization':
+      screen = <Suspense fallback={null}><OrganizacionPage slug={route.slug} /></Suspense>
+      break
     case 'home':
       screen = <Home />
       break
@@ -46,11 +51,17 @@ function App() {
       screen = import.meta.env.DEV ? <SystemGallery /> : null
       break
     case 'role':
-      screen = route.role === 'tienda' && (route.page === 'pedidos' || route.page === 'catalogo') ? (
-        <Suspense fallback={null}>
-          <TiendaArea vista={route.page} />
-        </Suspense>
-      ) : <RoleScreen route={route} />
+      if (route.page === 'organizacion' && (route.role === 'fundacion' || route.role === 'tienda')) {
+        screen = <Suspense fallback={null}><OrganizacionPage own ownerRole={route.role} /></Suspense>
+      } else if (route.role === 'tienda' && (route.page === 'pedidos' || route.page === 'catalogo')) {
+        screen = (
+          <Suspense fallback={null}>
+            <TiendaArea vista={route.page} />
+          </Suspense>
+        )
+      } else {
+        screen = <RoleScreen route={route} />
+      }
       break
     default:
       screen = (

@@ -120,3 +120,10 @@ where id in ('f8400000-0000-0000-0000-000000000001', 'f8400000-0000-0000-0000-00
   and estado = 'creado';
 commit;
 -- T08 FIN.
+
+-- T17 INICIO: publicaciones ficticias para las páginas de organizaciones demo.
+insert into public.publicaciones (id, organizacion_id, texto, es_ejemplo, consentimiento)
+values ('f1700000-0000-0000-0000-000000000001', 'f2000000-0000-0000-0000-000000000001',
+  'Una ayuda pequeña también mueve mucho. Aquí compartiremos las novedades de nuestra comunidad. Esta publicación es ficticia y no acredita entregas.', true, true)
+on conflict (id) do nothing;
+-- T17 FIN.

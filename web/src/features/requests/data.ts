@@ -13,6 +13,7 @@ export const CATEGORIES: Category[] = [
 export type PublicRequest = {
   id: string
   sample: boolean
+  orgSlug: string
   org: string
   orgType: string
   city: string
@@ -82,7 +83,7 @@ export function useRequests(id?: string) {
         .from('solicitudes')
         .select(
           `id,titulo,descripcion,estado,recurrente,publicada_en,es_ejemplo,
-        organizaciones!solicitudes_organizacion_id_fkey(nombre,categoria,direccion_publica,latitud,longitud,es_ejemplo),
+        organizaciones!solicitudes_organizacion_id_fkey(nombre,slug,categoria,direccion_publica,latitud,longitud,es_ejemplo),
         solicitud_articulos(id,nombre,precio_centavos,cantidad,unidades_pagadas,unidades_listas,unidades_entregadas)`,
         )
         .in('estado', ['publicada', 'cerrada'])
@@ -108,6 +109,7 @@ export function useRequests(id?: string) {
                 state: row.estado,
                 sample: row.es_ejemplo || org.es_ejemplo,
                 org: org.nombre,
+                orgSlug: org.slug,
                 orgType: org.categoria ?? '',
                 city: org.direccion_publica || 'Ubicación no publicada',
                 latitude: org.latitud,
