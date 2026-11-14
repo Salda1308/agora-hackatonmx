@@ -51,3 +51,31 @@ on conflict (id) do nothing;
 
 -- El comprador (incluso autenticado) NO tiene un perfil de rol.
 commit;
+
+-- T05 INICIO: ejemplos públicos para el recorrido de donación. Solo local/demo.
+-- Precio de prueba: 1 centavo. Sin cuentas de cobro ni credenciales de pey.
+begin;
+insert into public.organizaciones
+  (id, tipo, categoria, nombre, slug, descripcion, direccion_publica, latitud, longitud, verificada, verificada_en, es_ejemplo)
+values
+  ('f5000000-0000-0000-0000-000000000001', 'fundacion', 'albergue', 'Albergue Coco — ejemplo', 'albergue-coco-t05', 'Organización ficticia para probar donaciones.', 'Ciudad de México (ubicación de ejemplo)', 19.4326, -99.1332, true, now(), true),
+  ('f5000000-0000-0000-0000-000000000002', 'tienda', null, 'Tienda Coco — ejemplo', 'tienda-coco-t05', 'Tienda ficticia sin cuenta de cobro.', null, null, null, true, now(), true),
+  ('f5000000-0000-0000-0000-000000000003', 'fundacion', 'asilo', 'Casa Coco — ejemplo', 'casa-coco-t05', 'Organización ficticia con ubicación no publicada.', null, null, null, true, now(), true)
+on conflict (id) do nothing;
+insert into public.catalogo_articulos (id, tienda_id, nombre, unidad, precio_centavos, es_ejemplo)
+values
+  ('f5100000-0000-0000-0000-000000000001', 'f5000000-0000-0000-0000-000000000002', 'Garrafón de agua — prueba', 'pieza', 1, true),
+  ('f5100000-0000-0000-0000-000000000002', 'f5000000-0000-0000-0000-000000000002', 'Jabón — prueba', 'pieza', 1, true)
+on conflict (id) do nothing;
+insert into public.solicitudes (id, organizacion_id, tienda_id, titulo, descripcion, estado, publicada_en, es_ejemplo)
+values
+  ('f5200000-0000-0000-0000-000000000001', 'f5000000-0000-0000-0000-000000000001', 'f5000000-0000-0000-0000-000000000002', 'Agua para el albergue — ejemplo', 'Cada unidad cuesta $0.01 para probar el flujo. No es una solicitud real.', 'publicada', now(), true),
+  ('f5200000-0000-0000-0000-000000000002', 'f5000000-0000-0000-0000-000000000003', 'f5000000-0000-0000-0000-000000000002', 'Higiene para Casa Coco — ejemplo', 'Solicitud ficticia sin ubicación pública.', 'publicada', now(), true)
+on conflict (id) do nothing;
+insert into public.solicitud_articulos (id, solicitud_id, articulo_id, cantidad)
+values
+  ('f5300000-0000-0000-0000-000000000001', 'f5200000-0000-0000-0000-000000000001', 'f5100000-0000-0000-0000-000000000001', 10),
+  ('f5300000-0000-0000-0000-000000000002', 'f5200000-0000-0000-0000-000000000002', 'f5100000-0000-0000-0000-000000000002', 10)
+on conflict (id) do nothing;
+commit;
+-- T05 FIN.

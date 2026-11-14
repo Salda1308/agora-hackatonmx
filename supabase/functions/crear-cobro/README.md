@@ -167,3 +167,14 @@ Las pruebas reales de $0.01 por cada vía quedan pendientes: necesitan
 autorización del despliegue y confirmación del usuario antes de **cada** POST a
 pey. Para push, solicitar el número mediante `request_secret`, sin guardarlo ni
 registrarlo.
+
+## Seguimiento del donante (T05, autorizado 2026-11-14)
+
+Las respuestas 201, 202 y 502 que contienen `pagoId` incluyen ahora
+`seguimientoToken`. Es un token HMAC-SHA256 ligado a ese pago, válido 7 días.
+Requiere `AGORA_SEGUIMIENTO_SECRET` (al menos 32 caracteres aleatorios) tanto en
+`crear-cobro` como en `estado-pago`; sin él el runtime falla cerrado antes de
+aceptar cobros. No se envía a pey ni se guarda en metadata. No ponerlo en URLs,
+logs ni analítica. La web conserva el intento solo en sessionStorage de la
+pestaña, sin teléfono. Cambiar el secreto invalida todos los tokens anteriores.
+Ver `../estado-pago/README.md` para consulta pública sin relajar RLS.

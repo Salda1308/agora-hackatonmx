@@ -32,7 +32,11 @@ function request(body: unknown, method = "POST") {
 }
 function fixture(
   fetcher: typeof fetch,
-  options: { failSave?: boolean; failMark?: boolean } = {},
+  options: {
+    failSave?: boolean;
+    failMark?: boolean;
+    emitirSeguimiento?: (id: string) => Promise<string>;
+  } = {},
 ) {
   const attempts: string[] = [];
   const saved: ResultadoPey[] = [];
@@ -65,7 +69,7 @@ function fixture(
     },
   };
   return {
-    handler: crearHandler(almacen, config, fetcher),
+    handler: crearHandler(almacen, config, fetcher, options.emitirSeguimiento),
     attempts,
     saved,
     calls: () => calls,
@@ -340,5 +344,23 @@ Deno.test("URL de checkout inválida y redirección insegura no se entregan", as
       Promise.resolve(Response.json({ id: "link", url }))
     );
     igual((await f.handler(request(base("link")))).status, 202);
+  }
+});
+
+Deno.test("token de seguimiento acompaña 201, 202 y 502 sin enviarse a pey", async () => {
+  for (const status of [201, 202, 502]) {
+    const f = fixture((_url, init) => {
+      assert(!String(init?.body).includes("signed-token"));
+      if (status === 202) throw new Error("timeout simulado");
+      return Promise.resolve(
+        status === 201
+          ? Response.json({ id: "QR_TEST", qrString: "payload", qrImage: null })
+          : Response.json({}, { status: 403 }),
+      );
+    }, { emitirSeguimiento: (id) => Promise.resolve(`signed-token-${id}`) });
+    const response = await f.handler(request(base()));
+    igual(response.status, status);
+    const body = await response.json();
+    igual(body.seguimientoToken, `signed-token-${body.pagoId}`);
   }
 });

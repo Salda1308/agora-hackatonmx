@@ -4,13 +4,13 @@ import { Card } from '../components/ui/Card'
 import { SampleBadge } from '../components/ui/Chip'
 import { Coco } from '../components/ui/Coco'
 import { ProgressBar } from '../components/ui/Progress'
-import { SAMPLE_REQUESTS, requestTotals } from '../data/sample'
+import { useRequests, requestTotals } from '../features/requests/data'
 import { paths } from '../lib/router'
 import { requestVisual } from '../lib/request-visuals'
 
 export function Home() {
-  const featured = SAMPLE_REQUESTS.slice(0, 2)
-  const organization = SAMPLE_REQUESTS[0]
+  const { requests, loading, error, retry } = useRequests()
+  const featured = requests.slice(0, 2)
 
   return (
     <main className="screen landing">
@@ -37,7 +37,9 @@ export function Home() {
             <h2 id="home-needs" className="section-title">Necesitan <span className="highlight">apoyo</span></h2>
             <a className="section-link" href={paths.directory}>Ver todas</a>
           </div>
-          <SampleBadge />
+          {loading && <p role="status">Cargando solicitudes…</p>}
+          {error && <div role="alert"><p>{error}</p><Button onClick={retry}>Reintentar</Button></div>}
+          {!loading && !error && !featured.length && <p>Pronto habrá solicitudes publicadas.</p>}
           <div className="stack">
             {featured.map((request) => {
               const totals = requestTotals(request)
@@ -46,7 +48,7 @@ export function Home() {
                   <div className="landing__need-summary">
                     <img src={requestVisual(request.category)} alt="" width="88" height="88" loading="lazy" decoding="async" />
                     <div>
-                      <h3>{request.title}</h3>
+                      {request.sample && <SampleBadge />}<h3>{request.title}</h3>
                       <p>{request.org}</p>
                     </div>
                   </div>
@@ -60,20 +62,6 @@ export function Home() {
               )
             })}
           </div>
-        </section>
-
-        <section className="landing__updates" aria-labelledby="home-updates">
-          <h2 id="home-updates" className="section-title">Desde las organizaciones</h2>
-          <Card className="landing__post">
-            <div className="landing__post-head">
-              <span className="landing__avatar" aria-hidden="true">CH</span>
-              <div>
-                <strong>{organization.org}</strong>
-                <p>Publicación de ejemplo</p>
-              </div>
-            </div>
-            <p>Ya recibimos {organization.items[0].delivered} garrafones. Gracias por sumar.</p>
-          </Card>
         </section>
       </div>
     </main>
