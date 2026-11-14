@@ -7,13 +7,16 @@ export const demoAccounts: ReadonlyArray<{ role: Role; label: string; email: str
   { role: 'repartidor', label: 'Repartidor', email: 'repartidor@demo.agora.test' },
 ]
 
-export function isDemoEnabled(flag: unknown, supabaseUrl: string): boolean {
+// demoHost: host exacto del Supabase de la demo publicada (VITE_DEMO_AUTH_HOST), solo HTTPS.
+export function isDemoEnabled(flag: unknown, supabaseUrl: string, demoHost?: unknown): boolean {
   if (flag !== 'true') return false
   try {
     const url = new URL(supabaseUrl)
-    return ['http:', 'https:'].includes(url.protocol) &&
-      ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname) &&
-      !url.username && !url.password
+    const loopback = ['http:', 'https:'].includes(url.protocol) &&
+      ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname)
+    const hosted = url.protocol === 'https:' && typeof demoHost === 'string' &&
+      demoHost !== '' && url.hostname === demoHost
+    return (loopback || hosted) && !url.username && !url.password
   } catch {
     return false
   }

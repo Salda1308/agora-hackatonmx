@@ -85,6 +85,19 @@ test('demo requiere activación explícita y un endpoint loopback', () => {
   assert.throws(() => demoCredentials('tienda', false))
 })
 
+test('demo publicada solo con el host HTTPS exacto declarado', () => {
+  const host = 'project.supabase.co'
+  assert.equal(isDemoEnabled('true', `https://${host}`, host), true)
+  assert.equal(isDemoEnabled('false', `https://${host}`, host), false)
+  for (const url of [`http://${host}`, 'https://other.supabase.co', `https://${host}.evil.test`,
+    `https://user@${host}`]) {
+    assert.equal(isDemoEnabled('true', url, host), false)
+  }
+  for (const declared of [undefined, '', true]) {
+    assert.equal(isDemoEnabled('true', `https://${host}`, declared), false)
+  }
+})
+
 test('perfil y guardas fallan cerrado, sin elevar privilegios de comprador', () => {
   assert.equal(parseProfile(null, 'buyer'), null)
   for (const row of [undefined, {}, profileFor('other'), profileFor('buyer', 'admin'),

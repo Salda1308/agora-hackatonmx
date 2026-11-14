@@ -40,7 +40,9 @@ selector queda oculto; una sesión existente conserva el control de salida.
 La demo exige `VITE_DEMO_AUTH_ENABLED=true` y una URL Supabase de loopback
 (`localhost`, `127.0.0.1` o `[::1]`), además de su llave pública. Está apagada por defecto, también en builds
 de producción. Se permite un build de demostración contra un backend local.
-No se han utilizado ni configurado cuentas reales o endpoints remotos.
+Para la demo publicada del hackatón (T07), `VITE_DEMO_AUTH_HOST` declara el host
+HTTPS exacto del Supabase remoto que tiene cargado el seed; cualquier otro host
+sigue rechazado. Las cuentas siguen siendo ficticias con contraseña pública.
 
 `navigation` entrega los accesos del rol, vacío mientras no haya sesión resuelta.
 `role-routes.ts` resuelve únicamente destinos operativos conocidos; el router hash

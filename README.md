@@ -99,7 +99,8 @@ Las credenciales van en variables de entorno o secretos del backend; nunca en el
 |---|---|---|
 | `VITE_SUPABASE_URL` | web | URL de la API de Supabase |
 | `VITE_SUPABASE_PUBLISHABLE_KEY` | web | Llave pública de Supabase |
-| `VITE_DEMO_AUTH_ENABLED` | web | `true` muestra el acceso de demostración; apagado por defecto |
+| `VITE_DEMO_AUTH_ENABLED` | web | `true` muestra el acceso de demostración; apagado por defecto. Funciona con Supabase en loopback o con el host de `VITE_DEMO_AUTH_HOST` |
+| `VITE_DEMO_AUTH_HOST` | web | Host exacto (HTTPS) del Supabase de la demo publicada, por ejemplo `<ref>.supabase.co`; vacío fuera de la demo |
 | `PEY_WEBHOOK_SECRET` | `pey-webhook` | Secreto `whsec_` del webhook en el portal de pey |
 | `AGORA_SEGUIMIENTO_SECRET` | `crear-cobro` y `estado-pago` | El mismo valor aleatorio en ambas (mínimo 32 caracteres); firma los tokens del comprobante |
 | `PEY_SUCCESS_URL`, `PEY_BACK_URL` | `crear-cobro` | URLs HTTPS de regreso para el enlace de pago |
