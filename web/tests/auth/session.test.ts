@@ -271,7 +271,14 @@ test('sin backend mantiene la web pública y no permite entrar con privilegios',
 test('todos los destinos del dock resuelven a su ruta pública o protegida', () => {
   for (const role of ['fundacion', 'tienda', 'repartidor'] as const) {
     for (const entry of roleNavigation[role]) {
-      assert.deepEqual(parseHash(`#${entry.path}`), { name: 'role', role, page: entry.id })
+      // T06 es dueña de /fundacion y /fundacion/publicar con pantallas propias.
+      if (entry.path === '/fundacion') {
+        assert.deepEqual(parseHash(`#${entry.path}`), { name: 'fundacion' })
+      } else if (entry.path === '/fundacion/publicar') {
+        assert.deepEqual(parseHash(`#${entry.path}`), { name: 'fundacion-publicar' })
+      } else {
+        assert.deepEqual(parseHash(`#${entry.path}`), { name: 'role', role, page: entry.id })
+      }
     }
   }
   for (const entry of roleNavigation.comprador) {
