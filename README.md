@@ -10,7 +10,7 @@ Proyecto para Cursor Hackatón México (noviembre 2026). Equipo: Heylin Daniela 
 
 ## Cómo probarlo
 
-**En vivo:** _(la URL se agrega al desplegar)_
+**En vivo:** https://agora-hackatonmx.onrender.com/
 
 1. Abre la web en el celular o en la computadora.
 2. Entra a una solicitud de ejemplo marcada con $0.01 por unidad, elige unidades y paga con CoDi (QR, notificación al celular o enlace de pago). Es un cobro real de un centavo.
@@ -55,7 +55,7 @@ El monto lo calcula el servidor a partir del precio congelado de cada artículo;
 ## Qué es real y qué es simulado
 
 **Real**
-- Cobro CoDi con la API de producción de pey, limitado a $0.01 por intento (`PEY_MAXIMO_CENTAVOS`). Antes de construir la app se hicieron cobros reales de $0.01 por QR, notificación y enlace, y se recibieron sus tres webhooks con firma válida.
+- Cobro CoDi con la API de producción de pey, limitado a $0.01 por intento (`PEY_MAXIMO_CENTAVOS`). Antes de construir la app se hicieron cobros reales de $0.01 por QR, notificación y enlace, y se recibieron sus tres webhooks con firma válida. Ya en la app publicada, un cobro real de $0.01 por QR quedó pagado por webhook, emitió el folio `AGORA-0000003` y subió la barra de su solicitud.
 - Webhook firmado, confirmación con `GET /transaction/:id`, idempotencia y comprobante. Probados en local contra Postgres real con pey simulado (pagos repetidos, concurrentes, montos distintos, referencias desconocidas, pagos pendientes).
 - Barra de avance en vivo por Supabase Realtime.
 - Reglas de acceso por fila: el cliente no marca pagos, no escribe contadores de unidades ni campos de moderación, y una tienda no ve pedidos de otra (pruebas pgTAP).
