@@ -29,7 +29,7 @@ export function Directory() {
   }
 
   return (
-    <main className="screen">
+    <main className="screen directory">
       <div className="screen__body screen__body--top">
         <div className="topbar">
           <span>Solicitudes verificadas</span>
@@ -67,6 +67,7 @@ export function Directory() {
           {results.length === 1 ? '1 solicitud' : `${results.length} solicitudes`}
         </p>
 
+        <div className="directory-results">
         {!loading && !error && results.length > 0 && <Suspense fallback={<p role="status">Cargando mapa…</p>}><RequestMap requests={results} /></Suspense>}
 
         {loading ? <p role="status">Cargando solicitudes…</p> : error ? <div role="alert"><p>{error}</p><Button onClick={retry}>Reintentar</Button></div> : results.length > 0 ? (
@@ -86,6 +87,7 @@ export function Directory() {
             }
           />
         )}
+        </div>
       </div>
     </main>
   )

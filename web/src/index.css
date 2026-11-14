@@ -2,6 +2,7 @@
 @import './styles/tokens.css';
 @import './styles/components.css';
 @import './styles/screens.css';
+@import './styles/desktop.css';
 
 *,
 *::before,

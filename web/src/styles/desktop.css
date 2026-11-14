@@ -1,0 +1,202 @@
+/* D4: el diseño móvil se conserva íntegro por debajo de 1024 px. */
+.ui-dock__brand { display: none; }
+.directory-results { display: contents; }
+
+@media screen and (min-width: 1024px) {
+  html { scroll-padding-block: 120px var(--space-7); }
+  .app { padding-top: 104px; }
+  .screen,
+  .session-controls {
+    max-width: 1360px;
+    width: calc(100% - 2 * var(--space-7));
+  }
+  .screen { padding-bottom: var(--space-8); }
+  .screen__body { padding: var(--space-7) 0 0; }
+  .screen__body--top { padding-top: var(--space-5); }
+  .screen__body > * { min-width: 0; }
+  .page-lead { max-width: 64ch; }
+
+  /* Una sola navegación, con los destinos y permisos del dock móvil. */
+  .ui-dock {
+    inset: var(--space-4) auto auto 50%;
+    width: min(calc(100% - 2 * var(--space-7)), 1360px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-6);
+    padding: var(--space-2) var(--space-5);
+    border-radius: var(--radius-lg);
+    background: var(--color-dock);
+    color: var(--color-on-dock);
+    box-shadow: var(--shadow-dock);
+  }
+  .ui-dock__brand {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap-min);
+    font-size: var(--text-2xl);
+    font-weight: var(--font-weight-black);
+    text-decoration: none;
+  }
+  .ui-dock__list {
+    display: flex;
+    gap: var(--space-2);
+    height: auto;
+    padding: 0;
+    box-shadow: none;
+    border-radius: 0;
+    background: transparent;
+  }
+  .ui-dock__item,
+  .ui-dock__action {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    min-height: var(--tap-min);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-pill);
+  }
+  .ui-dock__label { font-size: var(--text-sm); }
+  .ui-dock__item--active { background: var(--color-on-dock); color: var(--color-dock); }
+  .ui-dock__item--active::after { display: none; }
+  .ui-dock__item--active:hover { color: var(--color-dock); }
+  .ui-dock__action {
+    width: auto;
+    height: auto;
+    margin: 0;
+    border: 0;
+    box-shadow: none;
+  }
+  .ui-dock__action .ui-dock__label {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip: auto;
+  }
+  .ui-dock__action--active { box-shadow: inset 0 0 0 2px var(--color-on-primary); }
+  .ui-dock__action:focus-visible { outline-offset: 3px; }
+
+  .session-controls { padding: 0 0 var(--space-4); }
+  .session-controls__roles { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .session-controls__panel { max-width: 760px; }
+
+  /* Coco y el mensaje comparten el primer plano; el contenido sigue debajo. */
+  .landing {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    min-height: 0;
+    border-radius: var(--radius-xl);
+    overflow: clip;
+    padding-bottom: 0;
+    background: var(--color-bg);
+  }
+  .landing__cover { min-width: 0; }
+  .landing__header { padding: var(--space-5) var(--space-7) 0; }
+  .landing__header .brand { visibility: hidden; }
+  .landing__portrait {
+    aspect-ratio: auto;
+    height: 360px;
+    margin-top: 0;
+    background: var(--color-bg);
+  }
+  .landing__portrait .ui-coco { width: min(92%, 560px); top: 2%; }
+  .landing__story {
+    justify-content: center;
+    gap: var(--space-6);
+    padding: var(--space-8);
+  }
+  .landing__title { font-size: var(--text-hero); max-width: 9ch; }
+  .landing__cta { width: auto; }
+  .landing__discover {
+    grid-column: 1 / -1;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    align-items: start;
+    gap: var(--space-7);
+    padding: var(--space-7) 0 var(--space-8);
+    border-radius: 0;
+  }
+  .landing__needs > .stack { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .landing__need-summary { grid-template-columns: 72px minmax(0, 1fr); }
+
+  /* La lista conserva el orden del DOM y el mapa queda al lado. */
+  .directory .search { max-width: 760px; }
+  .directory .chip-row { margin-inline: 0; padding-inline: var(--space-1); flex-wrap: wrap; }
+  .directory-results {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    gap: var(--space-6);
+    align-items: start;
+  }
+  .directory-results > section {
+    grid-column: 2;
+    grid-row: 1;
+    position: sticky;
+    top: 120px;
+    min-width: 0;
+  }
+  .directory-results > .stack { grid-column: 1; grid-row: 1; }
+  .directory-results .request-map { height: min(60vh, 560px); }
+  .directory-results > :only-child { grid-column: 1 / -1; }
+
+  .request-detail .detail-hero {
+    margin-top: var(--space-5);
+    padding: var(--space-6) var(--space-7);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+  }
+  .request-detail .detail-hero__intro { grid-template-columns: minmax(0, 1fr) 144px; }
+  .request-detail .detail-hero__title { font-size: var(--text-display); max-width: 30ch; }
+  .request-detail > .screen__body {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    align-items: start;
+  }
+  .request-detail > .screen__body > * { grid-column: 1; }
+  .request-detail > .screen__body > .donation {
+    grid-column: 2;
+    grid-row: 1 / span 4;
+    position: sticky;
+    top: 120px;
+    margin: 0;
+    padding: var(--space-6);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface-2);
+  }
+
+  /* Colecciones en columnas; los formularios mantienen un ancho de lectura. */
+  .screen .fund-list,
+  .screen .tda-list,
+  .screen__body > .jor-list:not(.jor-list--tight),
+  .screen__body:not(.org-page) > .stack:has(> .ui-card),
+  .screen__body > section.stack:has(> .tda-list) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+  .screen__body > section.stack:has(> .tda-list) > :first-child { grid-column: 1 / -1; }
+  .screen__body > section.stack:has(> .tda-list) .tda-list { grid-column: 1 / -1; }
+  .screen .fund-list > li > .ui-card,
+  .screen .tda-list > li > .ui-card { height: 100%; }
+  .screen .fund-footer { position: static; }
+  .screen section[aria-labelledby^='fund-paso-'],
+  .screen .ui-stepper,
+  .screen .jor-form,
+  .screen__body > form.stack,
+  .screen__body > .ui-card:has(.tda-file) { width: 100%; max-width: 900px; }
+  .screen .org-page { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
+  .screen .org-page > .topbar,
+  .screen .org-page > .org-hero { grid-column: 1 / -1; }
+  .screen .org-page > .stack { align-content: start; }
+  .screen .org-page > .ui-card:has(.org-form) { grid-column: 1; }
+  .screen .org-post img { max-height: 480px; object-fit: contain; }
+  .screen__body > .ui-empty { max-width: 900px; width: 100%; justify-self: center; }
+  .screen__body > .ui-button--block { justify-self: start; width: auto; min-width: 320px; }
+}
+
+@media screen and (min-width: 1280px) {
+  .directory-results { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
+  .directory-results > .stack { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

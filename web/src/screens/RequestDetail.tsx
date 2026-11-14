@@ -42,7 +42,7 @@ export function RequestDetail({ id }: { id: string }) {
   ]
 
   return (
-    <main className="screen">
+    <main className="screen request-detail">
       <section className="detail-hero">
         <div className="topbar">
           <a className="ui-icon-button" href={paths.directory} aria-label="Volver a solicitudes">
