@@ -155,3 +155,14 @@ values
 on conflict (id) do nothing;
 commit;
 -- T18 FIN.
+
+-- T07 INICIO: artículos de $0.01 en el catálogo de la tienda demo para el recorrido de la entrega.
+-- La fundación demo publica con ellos y el comprador paga un centavo real por CoDi. Sin credenciales.
+begin;
+insert into public.catalogo_articulos (id, tienda_id, nombre, unidad, precio_centavos, es_ejemplo)
+values
+  ('f0700000-0000-0000-0000-000000000001', 'f2000000-0000-0000-0000-000000000002', 'Garrafón de agua, prueba $0.01 (ejemplo)', 'pieza', 1, true),
+  ('f0700000-0000-0000-0000-000000000002', 'f2000000-0000-0000-0000-000000000002', 'Arroz 1 kg, prueba $0.01 (ejemplo)', 'bolsa', 1, true)
+on conflict (id) do nothing;
+commit;
+-- T07 FIN.
