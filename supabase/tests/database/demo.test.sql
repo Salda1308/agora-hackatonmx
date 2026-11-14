@@ -40,7 +40,8 @@ insert into public.pedido_articulos (pedido_id, solicitud_articulo_id, unidades)
 -- Visitante y comprador autenticado.
 set local role anon;
 select set_config('request.jwt.claims', '{"role":"anon"}', true);
-select is((select count(*)::int from public.organizaciones where es_ejemplo), 2,
+select is((select count(*)::int from public.organizaciones
+  where id in ('f2000000-0000-0000-0000-000000000001', 'f2000000-0000-0000-0000-000000000002')), 2,
   'visitante puede ver organizaciones demo');
 select throws_ok($$select * from public.perfiles$$, '42501', null, 'visitante no lee perfiles');
 

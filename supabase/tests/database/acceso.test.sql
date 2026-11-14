@@ -142,7 +142,8 @@ select is(
   array['asilo-verificado', 'tienda-dos', 'tienda-uno'],
   'anónimo solo ve organizaciones verificadas y ningún colectivo de búsqueda');
 
-select is((select count(*)::int from public.solicitud_articulos), 1,
+select is((select count(*)::int from public.solicitud_articulos
+  where solicitud_id = '40000000-0000-0000-0000-000000000001'), 1,
   'anónimo ve los artículos de la solicitud publicada');
 
 select lives_ok(
