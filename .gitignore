@@ -1,0 +1,22 @@
+# Dependencias y builds
+node_modules/
+dist/
+.vite/
+
+# Secretos y credenciales (nunca van al repo)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+service-account*.json
+supabase/.temp/
+supabase/.branches/
+
+# Trabajo interno (el repo es público)
+.ai/
+
+# Sistema
+.DS_Store
+*.log
