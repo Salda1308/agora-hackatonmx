@@ -63,6 +63,7 @@ export function Home() {
             })}
           </div>
         </section>
+        <Button variant="outline" size="lg" block href={paths.jornadas}>Dona tu tiempo: voluntariado</Button>
       </div>
     </main>
   )

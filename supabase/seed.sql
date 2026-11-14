@@ -89,15 +89,15 @@ values
   ('f1800000-0000-0000-0000-000000000001', 'f2000000-0000-0000-0000-000000000001',
    'Tarde de lectura con abuelos — ejemplo', 'Leer y platicar con las personas residentes.',
    'Mayores de 16 años. Ropa cómoda.', 'Ciudad de México (ubicación de ejemplo)',
-   date_trunc('day', now()) + interval '7 days 16 hours', date_trunc('day', now()) + interval '7 days 19 hours', 12, true),
+   (date_trunc('day', now() at time zone 'America/Mexico_City') + interval '7 days 16 hours') at time zone 'America/Mexico_City', (date_trunc('day', now() at time zone 'America/Mexico_City') + interval '7 days 19 hours') at time zone 'America/Mexico_City', 12, true),
   ('f1800000-0000-0000-0000-000000000002', 'f5000000-0000-0000-0000-000000000001',
    'Limpieza del albergue — ejemplo', 'Lavar áreas comunes y ordenar la bodega.',
    'Guantes y agua. Mayores de 18 años.', 'Ciudad de México (ubicación de ejemplo)',
-   date_trunc('day', now()) + interval '5 days 9 hours', date_trunc('day', now()) + interval '5 days 13 hours', 3, true),
+   (date_trunc('day', now() at time zone 'America/Mexico_City') + interval '5 days 9 hours') at time zone 'America/Mexico_City', (date_trunc('day', now() at time zone 'America/Mexico_City') + interval '5 days 13 hours') at time zone 'America/Mexico_City', 3, true),
   ('f1800000-0000-0000-0000-000000000003', 'f2000000-0000-0000-0000-000000000001',
    'Pintura del comedor — ejemplo', 'Jornada pasada para probar la confirmación de asistencia.',
    'Ropa que se pueda manchar.', 'Ciudad de México (ubicación de ejemplo)',
-   date_trunc('day', now()) - interval '2 days' + interval '9 hours', date_trunc('day', now()) - interval '2 days' + interval '14 hours', 20, true)
+   (date_trunc('day', now() at time zone 'America/Mexico_City') - interval '2 days' + interval '9 hours') at time zone 'America/Mexico_City', (date_trunc('day', now() at time zone 'America/Mexico_City') - interval '2 days' + interval '14 hours') at time zone 'America/Mexico_City', 20, true)
 on conflict (id) do nothing;
 insert into public.inscripciones_jornada (id, jornada_id, nombre_contacto, contacto, asistentes, estado)
 values

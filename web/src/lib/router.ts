@@ -16,6 +16,9 @@ export type Route =
   | { name: 'following' }
   | { name: 'fundacion' }
   | { name: 'fundacion-publicar' }
+  | { name: 'jornadas' }
+  | { name: 'jornada'; id: string }
+  | { name: 'folio'; id: string }
   | { name: 'not-found' }
 
 export const paths = {
@@ -26,6 +29,10 @@ export const paths = {
   following: '#/siguiendo',
   fundacion: '#/fundacion',
   fundacionPublicar: '#/fundacion/publicar',
+  jornadas: '#/jornadas',
+  jornada: (id: string) => `#/jornadas/${encodeURIComponent(id)}`,
+  folio: (id: string) => `#/jornadas/folio/${encodeURIComponent(id)}`,
+  fundacionJornadas: '#/fundacion/jornadas',
 }
 
 export function parseHash(hash: string): Route {
@@ -36,6 +43,11 @@ export function parseHash(hash: string): Route {
   if (path === '/siguiendo') return { name: 'following' }
   if (path === '/fundacion') return { name: 'fundacion' }
   if (path === '/fundacion/publicar') return { name: 'fundacion-publicar' }
+  if (path === '/jornadas') return { name: 'jornadas' }
+  const folio = /^\/jornadas\/folio\/([^/]+)$/.exec(path)
+  if (folio) return { name: 'folio', id: decodeURIComponent(folio[1]) }
+  const jornada = /^\/jornadas\/([^/]+)$/.exec(path)
+  if (jornada) return { name: 'jornada', id: decodeURIComponent(jornada[1]) }
   const roleRoute = parseRolePath(path)
   if (roleRoute) return roleRoute
   const match = /^\/solicitudes\/([^/]+)$/.exec(path)

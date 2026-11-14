@@ -13,6 +13,9 @@ import { SystemGallery } from './screens/SystemGallery'
 
 // Área de fundación (T06): carga aparte, con su propia sesión de Supabase.
 const FundacionArea = lazy(() => import('./screens/fundacion/FundacionArea'))
+// Jornadas de voluntariado (T18): pública y de la fundación, también aparte.
+const JornadasArea = lazy(() => import('./screens/jornadas/JornadasArea'))
+const JornadasFundacion = lazy(() => import('./screens/jornadas/JornadasFundacion'))
 
 function App() {
   const current = useRoute()
@@ -40,11 +43,24 @@ function App() {
         </Suspense>
       )
       break
+    case 'jornadas':
+    case 'jornada':
+    case 'folio':
+      screen = (
+        <Suspense fallback={null}>
+          <JornadasArea
+            vista={route.name === 'jornadas' ? { tipo: 'lista' } : { tipo: route.name === 'jornada' ? 'detalle' : 'folio', id: route.id }}
+          />
+        </Suspense>
+      )
+      break
     case 'system':
       screen = import.meta.env.DEV ? <SystemGallery /> : null
       break
     case 'role':
-      screen = <RoleScreen route={route} />
+      screen = route.role === 'fundacion' && route.page === 'jornadas'
+        ? <Suspense fallback={null}><JornadasFundacion /></Suspense>
+        : <RoleScreen route={route} />
       break
     default:
       screen = (
