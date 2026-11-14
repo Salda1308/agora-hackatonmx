@@ -60,3 +60,10 @@ sin cambiar su API: la navegación pública conserva sus tres destinos y Fundaci
 añade Publicar como acción. `roles.ts` define los destinos; `RoleScreen` deja
 marcadores protegidos para las próximas tareas. Sin backend configurado, la web
 pública sigue disponible y no se ofrecen accesos demo.
+
+## Pulido D6
+
+- El bloque rojo del inicio se une al retrato de Coco con una curva superior amplia. El contenido de la portada conserva espacio inferior para que el dock flotante no tape el CTA en móviles estrechos.
+- `CocoLoading` usa la pose `volando-garrafon.webp` existente, una animación CSS de flotación y una estela de nubes. Se mantiene una sola imagen de 34.6 KB porque separar las alas del raster produce bordes visibles. En movimiento reducido queda estática y no se agregan dependencias.
+- La confirmación de pago abre `PaymentConfirmationModal`, con foco atrapado, Escape, cierre explícito, monto, organización y unidades del comprobante. Después muestra un estado centrado con `ReceiptSummary`, `Ver mis comprobantes` y `Donar más unidades`.
+- `#/siguiendo` presenta los comprobantes guardados en `sessionStorage` y consulta los tokens de seguimiento existentes. No cambia funciones ni inventa datos cuando el comprobante aún no está disponible.

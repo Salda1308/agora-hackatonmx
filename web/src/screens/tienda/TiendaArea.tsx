@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { RequireRole } from '../../auth/RequireRole'
 import { useSession } from '../../auth/useSession'
 import { Button } from '../../components/ui/Button'
+import { CocoLoading } from '../../components/ui/CocoLoading'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { paths } from '../../lib/router'
 import { Marco } from '../fundacion/Marco'
@@ -19,7 +20,7 @@ export default function TiendaArea({ vista }: { vista: VistaTienda }) {
   const { organizationId } = useSession()
   return (
     <RequireRole allowed={['tienda']}
-      pending={<Marco><p className="tda-muted" role="status">Cargando…</p></Marco>}
+      pending={<Marco><CocoLoading title="Cargando sesión…" size={88} /></Marco>}
       fallback={<SinAcceso />}>
       {organizationId ? (
         vista === 'catalogo' ? <Catalogo tiendaId={organizationId} /> : <Pedidos tiendaId={organizationId} />

@@ -3,6 +3,7 @@ import { useSession } from '../../auth/useSession'
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { Chip } from '../../components/ui/Chip'
+import { CocoLoading } from '../../components/ui/CocoLoading'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { ProgressBar } from '../../components/ui/Progress'
 import { IconPlus } from '../../components/ui/icons'
@@ -68,7 +69,7 @@ export function MisSolicitudes({ organizacionId }: { organizacionId: string }) {
           action={<Button variant="ink" onClick={() => setIntento((n) => n + 1)}>Reintentar</Button>}
         />
       ) : solicitudes === null ? (
-        <p className="fund-muted" role="status">Cargando…</p>
+        <CocoLoading title="Cargando solicitudes…" size={88} />
       ) : solicitudes.length === 0 ? (
         <EmptyState title="Aún no pides nada" description="Elige artículos del catálogo de una tienda y publícalos." />
       ) : (

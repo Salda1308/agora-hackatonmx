@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
+import { CocoLoading } from '../../components/ui/CocoLoading'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { IconPlus } from '../../components/ui/icons'
 import { formatoPesos } from '../fundacion/api'
@@ -51,7 +52,7 @@ export function Catalogo({ tiendaId }: { tiendaId: string }) {
       {error ? (
         <EmptyState title="No se pudo cargar" action={<Button variant="ink" onClick={recargar}>Reintentar</Button>} />
       ) : articulos === null ? (
-        <p className="tda-muted" role="status">Cargando…</p>
+        <CocoLoading title="Cargando catálogo…" size={88} />
       ) : articulos.length === 0 ? (
         <EmptyState pose="caja-suministros" title="Tu catálogo está vacío" description="Agrega artículos uno por uno o sube un CSV." />
       ) : (

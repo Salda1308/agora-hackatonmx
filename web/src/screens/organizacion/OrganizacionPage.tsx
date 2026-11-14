@@ -7,6 +7,7 @@ import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { Chip, SampleBadge } from '../../components/ui/Chip'
 import { Coco } from '../../components/ui/Coco'
+import { CocoLoading } from '../../components/ui/CocoLoading'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { supabase } from '../../lib/supabase'
 import { paths } from '../../lib/router'
@@ -135,7 +136,7 @@ function Page({ slug, organizationId, own = false }: { slug?: string; organizati
     if (!error) setReport(null)
     setBusy(false)
   }
-  if (loading) return <Shell><p role="status">Coco está buscando la página…</p></Shell>
+  if (loading) return <Shell><CocoLoading title="Coco está buscando la página…" size={96} /></Shell>
   if (error) return <Shell><p role="alert">{error}</p><Button onClick={() => refresh(n => n + 1)}>Reintentar</Button></Shell>
   if (!org) return <Shell><EmptyState title={own ? 'Tu página aún no está disponible' : 'Página no disponible'} description="Solo las organizaciones verificadas y activas tienen página pública." /></Shell>
   return <Shell>

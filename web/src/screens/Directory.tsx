@@ -3,6 +3,7 @@ import { RequestCard } from '../components/RequestCard'
 import { ThemeToggle } from '../components/ThemeToggle'
 import { Button } from '../components/ui/Button'
 import { Chip } from '../components/ui/Chip'
+import { CocoLoading } from '../components/ui/CocoLoading'
 import { EmptyState } from '../components/ui/EmptyState'
 import { IconSearch } from '../components/ui/icons'
 
@@ -67,9 +68,9 @@ export function Directory() {
           {results.length === 1 ? '1 solicitud' : `${results.length} solicitudes`}
         </p>
 
-        {!loading && !error && results.length > 0 && <Suspense fallback={<p role="status">Cargando mapa…</p>}><RequestMap requests={results} /></Suspense>}
+        {!loading && !error && results.length > 0 && <Suspense fallback={<CocoLoading title="Cargando mapa…" size={80} />}><RequestMap requests={results} /></Suspense>}
 
-        {loading ? <p role="status">Cargando solicitudes…</p> : error ? <div role="alert"><p>{error}</p><Button onClick={retry}>Reintentar</Button></div> : results.length > 0 ? (
+        {loading ? <CocoLoading title="Buscando solicitudes…" size={96} /> : error ? <div role="alert"><p>{error}</p><Button onClick={retry}>Reintentar</Button></div> : results.length > 0 ? (
           <div className="stack">
             {results.map((r) => (
               <RequestCard key={r.id} request={r} />

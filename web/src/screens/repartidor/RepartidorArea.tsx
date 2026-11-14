@@ -3,6 +3,7 @@ import type { FormEvent } from 'react'
 import { useSession } from '../../auth/useSession'
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
+import { CocoLoading } from '../../components/ui/CocoLoading'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { paths } from '../../lib/router'
 import { Marco } from '../fundacion/Marco'
@@ -16,7 +17,7 @@ import './repartidor.css'
  */
 export default function RepartidorArea() {
   const { status, role, user } = useSession()
-  if (status === 'loading') return <Marco><p className="rep-muted" role="status">Cargando…</p></Marco>
+  if (status === 'loading') return <Marco><CocoLoading title="Cargando sesión…" size={88} /></Marco>
   if (status === 'ready' && role === 'repartidor') return <Tareas />
   // Cuenta iniciada sin perfil de rol: puede darse de alta como voluntario.
   if (status === 'ready' && role === 'comprador' && user) return <Alta />

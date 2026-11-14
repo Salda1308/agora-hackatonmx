@@ -3,6 +3,7 @@ import { Button } from '../components/ui/Button'
 import { Card } from '../components/ui/Card'
 import { SampleBadge } from '../components/ui/Chip'
 import { Coco } from '../components/ui/Coco'
+import { CocoLoading } from '../components/ui/CocoLoading'
 import { ProgressBar } from '../components/ui/Progress'
 import { useRequests, requestTotals } from '../features/requests/data'
 import { paths } from '../lib/router'
@@ -38,7 +39,7 @@ export function Home() {
             <h2 id="home-needs" className="section-title">Necesitan <span className="highlight">apoyo</span></h2>
             <a className="section-link" href={paths.directory}>Ver todas</a>
           </div>
-          {loading && <p role="status">Cargando solicitudes…</p>}
+          {loading && <CocoLoading title="Buscando solicitudes…" size={96} />}
           {error && <div role="alert"><p>{error}</p><Button onClick={retry}>Reintentar</Button></div>}
           {!loading && !error && !featured.length && <p>Pronto habrá solicitudes publicadas.</p>}
           <div className="stack">

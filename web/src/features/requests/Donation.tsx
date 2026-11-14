@@ -4,37 +4,42 @@ import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { formatMXN, type PublicRequest } from './data'
 import './donation.css'
-import { PaymentStatus } from './PaymentStatus'
+import { PaymentConfirmationModal } from './PaymentConfirmationModal'
+import { PaymentStatus, ReceiptSummary, type Receipt } from './PaymentStatus'
+import { readPayment, saveReceipt, type StoredCharge } from './receipt-storage'
 
 type Method = 'qr' | 'push' | 'link'
-type Charge = {
-  seguimientoToken?: string
-  pagoId: string
-  montoCentavos: number
-  numRef: string
-  qrString?: string
-  qrImage?: string
-  url?: string
-}
-function readPending(id: string): Charge | null {
-  try {
-    const value = JSON.parse(
-      sessionStorage.getItem(`agora-payment-${id}`) ?? 'null',
-    )
-    return value && typeof value.pagoId === 'string' ? value : null
-  } catch {
-    return null
-  }
-}
+
 export function Donation({ request }: { request: PublicRequest }) {
   const [quantities, setQuantities] = useState<Record<string, number>>({})
   const [method, setMethod] = useState<Method>('qr')
   const [phone, setPhone] = useState('')
-  const [charge, setCharge] = useState<Charge | null>(() =>
-    readPending(request.id),
+  const [charge, setCharge] = useState<StoredCharge | null>(() =>
+    readPayment(request.id),
   )
-  const [paid, setPaid] = useState(false)
-  const markPaid = useCallback(() => setPaid(true), [])
+  const [confirmed, setConfirmed] = useState(false)
+  const [receipt, setReceipt] = useState<Receipt | null>(null)
+  const [showConfirmation, setShowConfirmation] = useState(false)
+  const markPaid = useCallback(
+    (nextReceipt: Receipt | null) => {
+      setConfirmed(true)
+      setReceipt(nextReceipt)
+      saveReceipt(request.id, nextReceipt)
+      if (charge?.pagoId) {
+        try {
+          const seenKey = `agora-payment-modal-${charge.pagoId}`
+          const alreadySeen = sessionStorage.getItem(seenKey) === 'seen'
+          sessionStorage.setItem(seenKey, 'seen')
+          setShowConfirmation(!alreadySeen)
+        } catch {
+          setShowConfirmation(true)
+        }
+      } else {
+        setShowConfirmation(true)
+      }
+    },
+    [charge, request.id],
+  )
   const [qr, setQr] = useState('')
   const [imageFailed, setImageFailed] = useState(false)
   const qrImageValid =
@@ -132,7 +137,7 @@ export function Donation({ request }: { request: PublicRequest }) {
         }
       }
       if (body?.pagoId) {
-        const saved: Charge = {
+        const saved: StoredCharge = {
           seguimientoToken: body.seguimientoToken,
           pagoId: body.pagoId,
           numRef: body.numRef,
@@ -190,31 +195,90 @@ export function Donation({ request }: { request: PublicRequest }) {
       setBusy(false)
     }
   }
+
+  const resetDonation = () => {
+    try {
+      sessionStorage.removeItem(`agora-payment-${request.id}`)
+      sessionStorage.removeItem(`agora-attempt-${request.id}`)
+    } catch {
+      /* Keep the confirmed receipt visible if storage cannot be cleared. */
+    }
+    setCharge(null)
+    setConfirmed(false)
+    setReceipt(null)
+    setShowConfirmation(false)
+    setQr('')
+    setImageFailed(false)
+    setQuantities({})
+    setMessage('')
+    setUncertain(false)
+    locked.current = false
+  }
+
   if (charge || uncertain)
-    return (
-      <section className="donation" aria-labelledby="payment-title">
-        <h2 id="payment-title">
-          {paid ? 'Pago confirmado' : 'Tu intento de pago'}
-        </h2>
-        <p role="status">
-          {paid
-            ? 'Gracias por sumar unidades.'
-            : message ||
-              (uncertain && !charge
+    return confirmed ? (
+      <>
+        <section className="donation donation--status" aria-labelledby="payment-title">
+          <div className="donation__status-heading">
+            <span className="ui-chip ui-chip--lime">Confirmado</span>
+            <h2 id="payment-title">Pago confirmado</h2>
+            <p>Gracias por apoyar a {request.org}. Estas son las unidades que sumaste.</p>
+          </div>
+          <div className="donation__status-meta">
+            <span>Solicitud</span>
+            <strong>{request.title}</strong>
+            <span>Organización</span>
+            <strong>{request.org}</strong>
+          </div>
+          {receipt ? (
+            <ReceiptSummary receipt={receipt} />
+          ) : (
+            <div className="donation__receipt">
+              <strong>{formatMXN((charge?.montoCentavos ?? 0) / 100)}</strong>
+              <p>El comprobante detallado todavía no está disponible.</p>
+              <p className="donation__reference">Referencia: {charge?.numRef}</p>
+            </div>
+          )}
+          <div className="donation__status-actions">
+            <Button size="lg" block href="#/siguiendo">
+              Ver mis comprobantes
+            </Button>
+            <Button variant="outline" size="lg" block onClick={resetDonation}>
+              Donar más unidades
+            </Button>
+          </div>
+        </section>
+        {showConfirmation && charge ? (
+          <PaymentConfirmationModal
+            request={request}
+            receipt={receipt}
+            amountCentavos={charge.montoCentavos}
+            onClose={() => setShowConfirmation(false)}
+          />
+        ) : null}
+      </>
+    ) : (
+      <section className="donation donation--status" aria-labelledby="payment-title">
+        <div className="donation__status-heading">
+          <span className="ui-chip ui-chip--yellow">Pago en seguimiento</span>
+          <h2 id="payment-title">Tu intento de pago</h2>
+          <p role="status">
+            {message ||
+              (uncertain
                 ? 'No pudimos confirmar si se creó el cobro. No lo repitas; consulta a la organización.'
                 : 'Tu intento de pago está guardado en esta pestaña.')}
-        </p>
+          </p>
+        </div>
         {charge && (
-          <>
-            <p>
-              Referencia: <strong>{charge.numRef}</strong> ·{' '}
-              {formatMXN(charge.montoCentavos / 100)}
-            </p>
+          <div className="donation__status-meta">
+            <span>Referencia</span>
+            <strong>{charge.numRef}</strong>
+            <span>Total</span>
+            <strong>{formatMXN(charge.montoCentavos / 100)}</strong>
             <p className="donation__reference">ID de pago: {charge.pagoId}</p>
-          </>
+          </div>
         )}
-        {!paid &&
-          !imageFailed &&
+        {!imageFailed &&
           charge?.qrImage &&
           /^(data:image\/png;base64,)?[A-Za-z0-9+/=\s]+$/.test(
             charge.qrImage,
@@ -230,10 +294,10 @@ export function Donation({ request }: { request: PublicRequest }) {
               }
             />
           )}
-        {!paid && qr && (
+        {!qr || !charge || confirmed ? null : (
           <img className="donation__qr" src={qr} alt="QR de CoDi para pagar" />
         )}
-        {!paid && charge?.qrString && (!qrImageValid || imageFailed) && !qr && (
+        {!charge?.qrImage && charge?.qrString && !qr && (
           <div>
             <p>Contenido del QR CoDi:</p>
             <textarea
@@ -243,7 +307,7 @@ export function Donation({ request }: { request: PublicRequest }) {
             />
           </div>
         )}
-        {!paid &&
+        {!charge?.qrImage &&
           charge?.url &&
           /^https:\/\/app\.mipey\.mx(?:\/|$)/.test(charge.url) && (
             <Button href={charge.url} size="lg" block>
@@ -262,32 +326,6 @@ export function Donation({ request }: { request: PublicRequest }) {
             a la tienda u organización.
           </p>
         )}
-        {paid &&
-          request.state === 'publicada' &&
-          request.items.some((item) => item.paid < item.total) && (
-            <Button
-              variant="outline"
-              block
-              onClick={() => {
-                try {
-                  sessionStorage.removeItem(`agora-payment-${request.id}`)
-                  sessionStorage.removeItem(`agora-attempt-${request.id}`)
-                } catch {
-                  /* Keep the confirmed receipt visible if storage cannot be cleared. */ return
-                }
-                setCharge(null)
-                setPaid(false)
-                setQr('')
-                setImageFailed(false)
-                setQuantities({})
-                setMessage('')
-                setUncertain(false)
-                locked.current = false
-              }}
-            >
-              Donar más unidades
-            </Button>
-          )}
       </section>
     )
   return (
@@ -372,9 +410,7 @@ export function Donation({ request }: { request: PublicRequest }) {
             </label>
           )}
         </fieldset>
-        {request.state !== 'publicada' && (
-          <p>Esta solicitud ya está cerrada.</p>
-        )}
+        {request.state !== 'publicada' && <p>Esta solicitud ya está cerrada.</p>}
         {message && <p role="alert">{message}</p>}
         <Button
           type="submit"

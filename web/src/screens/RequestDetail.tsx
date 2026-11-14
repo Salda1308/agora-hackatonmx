@@ -2,6 +2,7 @@ import { ThemeToggle } from '../components/ThemeToggle'
 import { Button } from '../components/ui/Button'
 import { Card } from '../components/ui/Card'
 import { Chip, SampleBadge } from '../components/ui/Chip'
+import { CocoLoading } from '../components/ui/CocoLoading'
 import { EmptyState } from '../components/ui/EmptyState'
 import { ProgressBar, ProgressRing } from '../components/ui/Progress'
 import { IconBack, IconCheck, IconPin } from '../components/ui/icons'
@@ -13,7 +14,7 @@ import { requestVisual } from '../lib/request-visuals'
 export function RequestDetail({ id }: { id: string }) {
   const { requests, loading, error, live, retry } = useRequests(id)
   const request = requests[0]
-  if (loading || error) return <main className="screen"><div className="screen__body screen__body--top">{loading ? <p role="status">Cargando solicitud…</p> : <div role="alert"><p>{error}</p><Button onClick={retry}>Reintentar</Button></div>}</div></main>
+  if (loading || error) return <main className="screen"><div className="screen__body screen__body--top">{loading ? <CocoLoading title="Cargando solicitud…" size={96} /> : <div role="alert"><p>{error}</p><Button onClick={retry}>Reintentar</Button></div>}</div></main>
 
   if (!request) {
     return (

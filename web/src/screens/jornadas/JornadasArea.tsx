@@ -5,6 +5,7 @@ import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { Chip, SampleBadge } from '../../components/ui/Chip'
 import { Coco } from '../../components/ui/Coco'
+import { CocoLoading } from '../../components/ui/CocoLoading'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { ProgressBar } from '../../components/ui/Progress'
 import { IconBack, IconCheck, IconPin } from '../../components/ui/icons'
@@ -51,7 +52,7 @@ export function Pantalla({ children, atras }: { children: ReactNode; atras?: str
 const yaEmpezo = (inicia: string) => Date.parse(inicia) <= Date.now()
 
 function Cargando() {
-  return <p className="jor-muted" role="status">Cargando…</p>
+  return <CocoLoading title="Cargando jornadas…" size={88} />
 }
 
 function Fallo({ reintentar }: { reintentar: () => void }) {

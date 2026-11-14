@@ -79,6 +79,176 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   padding: var(--space-4);
+  display: grid;
+  gap: var(--space-3);
+  background: var(--color-surface-2);
+}
+.donation__receipt-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.donation__receipt-head > strong {
+  font-size: var(--text-lg);
+}
+.donation__receipt-label {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+.donation__receipt ul {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding-left: var(--space-5);
+}
+.donation__status-heading,
+.donation__status-meta,
+.donation__status-actions {
+  display: grid;
+  gap: var(--space-3);
+}
+.donation__status-heading {
+  justify-items: center;
+  text-align: center;
+}
+.donation__status-heading .ui-chip {
+  justify-self: center;
+}
+.donation__status-heading p {
+  color: var(--color-text-muted);
+}
+.donation__status-meta {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
+  align-items: baseline;
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+.donation__status-meta span {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+.donation__status-meta strong {
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+.donation__status-meta .donation__reference {
+  grid-column: 1 / -1;
+}
+.donation__status-actions {
+  margin-top: var(--space-1);
+}
+.payment-status {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+  text-align: center;
+}
+.payment-status--attention {
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+.payment-status--attention .ui-button {
+  margin-top: var(--space-2);
+}
+.payment-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+  background: rgb(13 17 48 / .72);
+}
+.payment-modal__dialog {
+  width: min(100%, 430px);
+  max-height: min(720px, calc(100dvh - 2 * var(--space-4)));
+  overflow-y: auto;
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+  padding: var(--space-6) var(--space-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  box-shadow: var(--shadow-md);
+  text-align: center;
+}
+.payment-modal__dialog .ui-coco {
+  width: 128px;
+}
+.payment-modal__eyebrow {
+  color: var(--color-primary);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-black);
+  text-transform: uppercase;
+  letter-spacing: .07em;
+}
+.payment-modal__dialog h2 {
+  font-size: var(--text-2xl);
+}
+.payment-modal__thanks,
+.payment-modal__note,
+.payment-modal__summary p {
+  color: var(--color-text-muted);
+}
+.payment-modal__summary {
+  width: 100%;
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  text-align: left;
+}
+.payment-modal__summary > strong {
+  font-size: var(--text-xl);
+}
+.payment-modal__summary ul {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding-left: var(--space-5);
+}
+.payment-modal__dialog .ui-button {
+  width: 100%;
+}
+.receipt-list__item {
+  display: grid;
+  gap: var(--space-2);
+}
+.receipt-list__detail {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0 var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-inline: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+.receipt-list__line {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  color: var(--color-text);
+}
+.receipt-list__detail p {
+  margin: 0;
+}
+.receipt-list__detail ul {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding-left: var(--space-5);
 }
 .request-map .leaflet-bar a {
   width: var(--tap-min);

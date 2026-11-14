@@ -5,6 +5,7 @@ import { useSession } from '../../auth/useSession'
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { SampleBadge } from '../../components/ui/Chip'
+import { CocoLoading } from '../../components/ui/CocoLoading'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { ProgressBar } from '../../components/ui/Progress'
 import { IconPlus } from '../../components/ui/icons'
@@ -20,7 +21,7 @@ export default function JornadasFundacion() {
   return (
     <RequireRole
       allowed={['fundacion']}
-      pending={<Pantalla><p className="jor-muted" role="status">Cargando…</p></Pantalla>}
+      pending={<Pantalla><CocoLoading title="Cargando sesión…" size={88} /></Pantalla>}
       fallback={
         <Pantalla>
           <EmptyState
@@ -84,7 +85,7 @@ function Gestion({ organizacionId }: { organizacionId: string }) {
       {error ? (
         <EmptyState title="No se pudieron cargar" action={<Button variant="ink" onClick={recargar}>Reintentar</Button>} />
       ) : jornadas === null ? (
-        <p className="jor-muted" role="status">Cargando…</p>
+        <CocoLoading title="Cargando jornadas…" size={88} />
       ) : jornadas.length === 0 ? (
         <EmptyState title="Aún no hay jornadas" description="Abre una con fecha, lugar y cupos." />
       ) : (
