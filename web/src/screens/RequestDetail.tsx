@@ -7,6 +7,7 @@ import { ProgressBar, ProgressRing } from '../components/ui/Progress'
 import { IconBack, IconCheck, IconPin } from '../components/ui/icons'
 import { findSampleRequest, formatMXN, requestTotals } from '../data/sample'
 import { paths } from '../lib/router'
+import { requestVisual } from '../lib/request-visuals'
 
 export function RequestDetail({ id }: { id: string }) {
   const request = findSampleRequest(id)
@@ -51,13 +52,16 @@ export function RequestDetail({ id }: { id: string }) {
           <Chip>{request.category}</Chip>
           {request.recurring ? <Chip>Cada mes</Chip> : null}
         </div>
-        <h1 className="detail-hero__title">{request.title}</h1>
-        <p className="detail-hero__org">
-          {request.org} · {request.orgType}
-          <span className="request-card__city">
-            <IconPin /> {request.city}
-          </span>
-        </p>
+        <div className="detail-hero__intro">
+          <div className="stack">
+            <h1 className="detail-hero__title">{request.title}</h1>
+            <p className="detail-hero__org">
+              {request.org}
+              <span className="request-card__city"><IconPin /> {request.city}</span>
+            </p>
+          </div>
+          <img src={requestVisual(request.category)} alt="" width="104" height="104" />
+        </div>
         <div className="detail-hero__progress">
           <ProgressRing
             value={totals.paid}

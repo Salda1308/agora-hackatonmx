@@ -1,8 +1,7 @@
 import { Dock } from './components/ui/Dock'
 import { EmptyState } from './components/ui/EmptyState'
 import { Button } from './components/ui/Button'
-import { IconBookmark, IconHeart, IconHome, IconList, IconSwatch } from './components/ui/icons'
-import { SAMPLE_REQUESTS } from './data/sample'
+import { IconBookmark, IconHome, IconList } from './components/ui/icons'
 import { paths, useRoute } from './lib/router'
 import { Directory } from './screens/Directory'
 import { Following } from './screens/Following'
@@ -11,7 +10,8 @@ import { RequestDetail } from './screens/RequestDetail'
 import { SystemGallery } from './screens/SystemGallery'
 
 function App() {
-  const route = useRoute()
+  const current = useRoute()
+  const route = current.name === 'system' && !import.meta.env.DEV ? { name: 'not-found' as const } : current
 
   let screen
   let active = ''
@@ -33,7 +33,7 @@ function App() {
       active = 'following'
       break
     case 'system':
-      screen = <SystemGallery />
+      screen = import.meta.env.DEV ? <SystemGallery /> : null
       active = 'system'
       break
     default:
@@ -63,10 +63,8 @@ function App() {
           { key: 'home', label: 'Inicio', href: paths.home, icon: <IconHome /> },
           { key: 'directory', label: 'Solicitudes', href: paths.directory, icon: <IconList /> },
         ]}
-        action={{ key: 'give', label: 'Ayudar', href: paths.request(SAMPLE_REQUESTS[0].id), icon: <IconHeart /> }}
         end={[
           { key: 'following', label: 'Siguiendo', href: paths.following, icon: <IconBookmark /> },
-          { key: 'system', label: 'Sistema', href: paths.system, icon: <IconSwatch /> },
         ]}
       />
     </div>

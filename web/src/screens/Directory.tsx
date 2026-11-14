@@ -30,10 +30,11 @@ export function Directory() {
           <SampleBadge />
           <ThemeToggle />
         </div>
-        <h1 className="page-title">
-          Lo que se <span className="highlight highlight--red">necesita</span>
-        </h1>
-        <p className="page-lead">Solicitudes de organizaciones verificadas. Cada barra avanza con cada unidad pagada.</p>
+        <div className="directory-heading">
+          <h1 className="page-title">Encuentra una causa</h1>
+          <img src="/illustrations/coco-rays.svg" alt="" width="32" height="40" />
+        </div>
+        <p className="page-lead">Elige dónde sumar, unidad por unidad.</p>
 
         <label className="search">
           <IconSearch />

@@ -1,95 +1,80 @@
-import { RequestCard } from '../components/RequestCard'
 import { ThemeToggle } from '../components/ThemeToggle'
 import { Button } from '../components/ui/Button'
 import { Card } from '../components/ui/Card'
 import { SampleBadge } from '../components/ui/Chip'
 import { Coco } from '../components/ui/Coco'
+import { ProgressBar } from '../components/ui/Progress'
 import { SAMPLE_REQUESTS, requestTotals } from '../data/sample'
 import { paths } from '../lib/router'
-
-const STEPS = [
-  { title: 'Piden', text: 'Una organización verificada elige lo que necesita del catálogo de una tienda.' },
-  { title: 'Pagas', text: 'Eliges cuántas unidades pagar. El pago va directo a la tienda.' },
-  { title: 'Llega', text: 'La tienda prepara, alguien entrega y la organización confirma.' },
-]
+import { requestVisual } from '../lib/request-visuals'
 
 export function Home() {
-  const totals = SAMPLE_REQUESTS.map(requestTotals).reduce(
-    (a, t) => ({ paid: a.paid + t.paid, total: a.total + t.total, delivered: a.delivered + t.delivered }),
-    { paid: 0, total: 0, delivered: 0 },
-  )
   const featured = SAMPLE_REQUESTS.slice(0, 2)
+  const organization = SAMPLE_REQUESTS[0]
 
   return (
-    <main className="screen">
-      <section className="hero">
-        <div className="topbar">
+    <main className="screen landing">
+      <div className="landing__cover">
+        <header className="landing__header">
           <span className="brand">Ágora</span>
           <ThemeToggle />
+        </header>
+        <div className="landing__portrait" aria-hidden="true">
+          <Coco size={640} variant="portrait" />
         </div>
-        <h1 className="hero__title">
-          Ayuda que <span className="highlight">se ve</span>, unidad por unidad.
-        </h1>
-        <p className="hero__lead">
-          Elige unidades para una organización verificada. Paga directo a la tienda y sigue cada entrega.
-        </p>
-        <div className="hero__coco">
-          <Coco size={168} />
-          <p className="hero__bubble">¡Hola! Soy Coco. Te acompaño en cada paso.</p>
-        </div>
-        <Button size="lg" block href={paths.directory}>
-          Ver solicitudes
+      </div>
+
+      <section className="landing__story">
+        <h1 className="landing__title">Tu ayuda llega.</h1>
+        <Button variant="outline" size="lg" block className="landing__cta" href={paths.directory}>
+          Quiero ayudar
         </Button>
       </section>
 
-      <div className="screen__body">
-        <div className="section-head">
-          <h2 className="section-title">Hoy en Ágora</h2>
+      <div className="landing__discover">
+        <section className="landing__needs" aria-labelledby="home-needs">
+          <div className="section-head">
+            <h2 id="home-needs" className="section-title">Necesitan <span className="highlight">apoyo</span></h2>
+            <a className="section-link" href={paths.directory}>Ver todas</a>
+          </div>
           <SampleBadge />
-        </div>
-        <div className="stats">
-          <Card className="stat">
-            <span className="stat__value">{totals.paid}</span>
-            <span className="stat__label">unidades pagadas</span>
-          </Card>
-          <Card className="stat">
-            <span className="stat__value">{SAMPLE_REQUESTS.length}</span>
-            <span className="stat__label">solicitudes abiertas</span>
-          </Card>
-          <Card className="stat stat--wide">
-            <span className="stat__value">{Math.round((totals.delivered / totals.total) * 100)}%</span>
-            <span className="stat__label">de lo pedido ya se entregó</span>
-          </Card>
-        </div>
+          <div className="stack">
+            {featured.map((request) => {
+              const totals = requestTotals(request)
+              return (
+                <Card key={request.id} href={paths.request(request.id)} className="landing__need">
+                  <div className="landing__need-summary">
+                    <img src={requestVisual(request.category)} alt="" width="88" height="88" loading="lazy" decoding="async" />
+                    <div>
+                      <h3>{request.title}</h3>
+                      <p>{request.org}</p>
+                    </div>
+                  </div>
+                  <ProgressBar
+                    label="Unidades pagadas"
+                    value={totals.paid}
+                    max={totals.total}
+                    tone="ink"
+                  />
+                </Card>
+              )
+            })}
+          </div>
+        </section>
 
-        <div className="section-head">
-          <h2 className="section-title">Necesitan ahora</h2>
-          <a className="section-link" href={paths.directory}>
-            Ver todas
-          </a>
-        </div>
-        <div className="stack">
-          {featured.map((r) => (
-            <RequestCard key={r.id} request={r} />
-          ))}
-        </div>
-
-        <Card padding="lg" className="how">
-          <h2 className="how__title">
-            Cómo <span className="highlight highlight--lime">funciona</span>
-          </h2>
-          <ol className="how__list">
-            {STEPS.map((s, i) => (
-              <li key={s.title}>
-                <span className="how__num">{i + 1}</span>
-                <div>
-                  <strong>{s.title}</strong>
-                  <p>{s.text}</p>
-                </div>
-              </li>
-            ))}
-          </ol>
-        </Card>
+        <section className="landing__updates" aria-labelledby="home-updates">
+          <h2 id="home-updates" className="section-title">Desde las organizaciones</h2>
+          <Card className="landing__post">
+            <div className="landing__post-head">
+              <span className="landing__avatar" aria-hidden="true">CH</span>
+              <div>
+                <strong>{organization.org}</strong>
+                <p>Publicación de ejemplo</p>
+              </div>
+            </div>
+            <p>Ya recibimos {organization.items[0].delivered} garrafones. Gracias por sumar.</p>
+          </Card>
+        </section>
       </div>
     </main>
   )

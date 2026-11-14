@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 264" role="img" aria-labelledby="coco-portrait-title">
+  <title id="coco-portrait-title">Coco en primer plano</title>
+  <!-- Recorte del asset original: mismos trazos y colores, sin cuerpo ni patas. -->
+  <!-- Cabeza y copete -->
+  <path d="M104 40c0-12 10-20 18-18 4-8 16-10 22-2 8 9 2 22-10 26z" fill="#dc1f2e"/>
+  <path d="M120 38c-50 0-84 34-88 74l-8 10c-3 4 0 9 5 9h10l-6 8c-3 4 0 9 5 9h12c14 16 40 24 70 24s56-8 70-24h12c5 0 8-5 5-9l-6-8h10c5 0 8-5 5-9l-8-10c-4-40-38-74-88-74z" fill="#dc1f2e"/>
+  <!-- Cara crema en forma de corazón -->
+  <path d="M120 86c-8-16-26-22-42-18-22 6-32 30-24 52 8 20 32 34 66 40 34-6 58-20 66-40 8-22-2-46-24-52-16-4-34 2-42 18z" fill="#fff3e2"/>
+  <circle cx="90" cy="112" r="26" fill="#ffffff" opacity="0.7"/>
+  <circle cx="150" cy="112" r="26" fill="#ffffff" opacity="0.7"/>
+  <!-- Cejas -->
+  <path d="M74 72c8-6 20-6 26 0" fill="none" stroke="#0d1130" stroke-width="8" stroke-linecap="round"/>
+  <path d="M140 72c6-6 18-6 26 0" fill="none" stroke="#0d1130" stroke-width="8" stroke-linecap="round"/>
+  <!-- Ojos -->
+  <circle cx="96" cy="114" r="17" fill="#0d1130"/>
+  <circle cx="144" cy="114" r="17" fill="#0d1130"/>
+  <circle cx="90" cy="108" r="6" fill="#ffffff"/>
+  <circle cx="138" cy="108" r="6" fill="#ffffff"/>
+  <circle cx="101" cy="118" r="2.5" fill="#555c85"/>
+  <circle cx="149" cy="118" r="2.5" fill="#555c85"/>
+  <!-- Pico -->
+  <path d="M104 128c0-6 7-10 16-10s16 4 16 10c0 8-8 16-13 22-2 2-4 2-6 0-5-6-13-14-13-22z" fill="#ffc916"/>
+  <circle cx="115" cy="126" r="1.8" fill="#a5651a"/>
+  <circle cx="125" cy="126" r="1.8" fill="#a5651a"/>
+  <!-- Acento lima -->
+  <g stroke="#bddc1b" stroke-width="9" stroke-linecap="round">
+    <path d="M188 26l-6 18"/>
+    <path d="M208 44l-14 13"/>
+    <path d="M218 70l-17 5"/>
+  </g>
+</svg>

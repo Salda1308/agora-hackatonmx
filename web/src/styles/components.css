@@ -78,6 +78,7 @@
 }
 
 .ui-icon-button {
+  flex: none;
   display: inline-grid;
   place-items: center;
   width: var(--tap-min);
@@ -112,6 +113,7 @@
 /* ---------- Tarjeta ---------- */
 .ui-card {
   display: block;
+  min-width: 0;
   border-radius: var(--radius-lg);
   background: var(--color-surface);
   color: var(--color-text);
@@ -235,6 +237,7 @@
   letter-spacing: 0.06em;
 }
 .ui-chip--sample span {
+  flex: none;
   color: var(--color-text-muted);
 }
 
@@ -411,7 +414,7 @@
   justify-items: center;
   align-content: center;
   gap: 2px;
-  min-height: var(--tap-min);
+  min-height: 56px;
   min-width: var(--tap-min);
   border-radius: var(--radius-md);
   color: inherit;
@@ -443,7 +446,7 @@
   background: currentColor;
 }
 .ui-dock__label {
-  font-size: 11px;
+  font-size: var(--text-xs);
   font-weight: var(--font-weight-bold);
   line-height: 1;
 }

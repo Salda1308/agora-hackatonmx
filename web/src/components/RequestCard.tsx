@@ -1,42 +1,31 @@
 import { paths } from '../lib/router'
+import { requestVisual } from '../lib/request-visuals'
 import { requestTotals, type SampleRequest } from '../data/sample'
 import { Card } from './ui/Card'
-import { Chip } from './ui/Chip'
-import { ProgressBar, ProgressRing } from './ui/Progress'
+import { ProgressBar } from './ui/Progress'
 import { IconPin } from './ui/icons'
 
-/** Tarjeta de solicitud para el directorio: aro general y barra por artículo. */
+/** Solicitud visual: insumos, contexto y un solo avance; el desglose vive en el detalle. */
 export function RequestCard({ request }: { request: SampleRequest }) {
   const totals = requestTotals(request)
   return (
     <Card href={paths.request(request.id)} className="request-card" aria-label={`${request.title}, ${request.org}`}>
-      <div className="request-card__top">
-        <div className="request-card__chips">
-          <Chip>{request.category}</Chip>
-          {request.recurring ? <Chip>Cada mes</Chip> : null}
+      <div className="request-card__summary">
+        <img className="request-card__image" src={requestVisual(request.category)} alt="" width="112" height="112" loading="lazy" decoding="async" />
+        <div className="request-card__copy">
+          <p className="request-card__eyebrow">{request.category}{request.recurring ? ' · Cada mes' : ''}</p>
+          <h3 className="request-card__title">{request.title}</h3>
+          <p className="request-card__org">{request.org}</p>
+          <span className="request-card__city"><IconPin /> {request.city}</span>
         </div>
-        <ProgressRing value={totals.paid} max={totals.total} label="Avance de la solicitud" size={64} stroke={6} tone="ink" />
       </div>
-      <h3 className="request-card__title">{request.title}</h3>
-      <p className="request-card__org">
-        {request.org}
-        <span className="request-card__city">
-          <IconPin /> {request.city}
-        </span>
-      </p>
-      <div className="request-card__items">
-        {request.items.map((item) => (
-          <ProgressBar
-            key={item.name}
-            size="sm"
-            label={item.name}
-            value={item.paid}
-            max={item.total}
-            detail={`${item.paid}/${item.total}`}
-            tone={item.paid >= item.total ? 'lime' : 'ink'}
-          />
-        ))}
-      </div>
+      <ProgressBar
+        label="Unidades pagadas"
+        value={totals.paid}
+        max={totals.total}
+        tone="ink"
+        size="sm"
+      />
     </Card>
   )
 }

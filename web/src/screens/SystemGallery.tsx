@@ -158,7 +158,7 @@ export function SystemGallery() {
 
         <section className="gallery-section">
           <h2 className="section-title">Dock</h2>
-          <p className="page-lead">El dock flotante con acción central está abajo en todas las pantallas.</p>
+          <p className="page-lead">El dock público muestra Inicio, Solicitudes y Siguiendo. La acción central es opcional.</p>
         </section>
       </div>
     </main>
