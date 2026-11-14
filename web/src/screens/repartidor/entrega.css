@@ -1,0 +1,37 @@
+/* Entrega con foto y código (T10). Estilos propios para no tocar repartidor.css. */
+
+.ent-code {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-1);
+  padding: var(--space-4);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  text-align: center;
+}
+
+.ent-foto {
+  display: block;
+  width: 100%;
+  max-height: 320px;
+  object-fit: cover;
+  border-radius: var(--radius-lg);
+}
+
+.ent-file {
+  position: relative;
+  cursor: pointer;
+}
+
+.ent-file input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.ent-file:focus-within {
+  outline: 2px solid var(--color-text);
+  outline-offset: 2px;
+}

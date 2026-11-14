@@ -10,6 +10,7 @@ import { paths } from '../../lib/router'
 import { cargarMiOrganizacion, cargarMisSolicitudes, formatoPesos } from './api'
 import type { EstadoSolicitud, MiOrganizacion, MiSolicitud } from './api'
 import { Marco } from './Marco'
+import { Recepciones } from './Recepciones'
 
 const ESTADOS: Record<EstadoSolicitud, { texto: string; tono: 'lime' | 'surface' | 'outline' }> = {
   publicada: { texto: 'Publicada', tono: 'lime' },
@@ -48,6 +49,8 @@ export function MisSolicitudes({ organizacionId }: { organizacionId: string }) {
         <h1 className="page-title">Mis solicitudes</h1>
         {org ? <p className="page-lead">{org.nombre}</p> : null}
       </div>
+
+      <Recepciones />
 
       {org && !puedePublicar ? (
         <Card tone="yellow">
