@@ -4,6 +4,7 @@ import type { Session } from '@supabase/supabase-js'
 import { createSessionStore } from '../../src/auth/session-store.ts'
 import { demoCredentials, isDemoEnabled } from '../../src/auth/demo.ts'
 import { hasRole, parseProfile, roleNavigation } from '../../src/auth/roles.ts'
+import { parseHash } from '../../src/lib/router.ts'
 
 function deferred<T>() {
   let resolve!: (value: T) => void
@@ -93,7 +94,7 @@ test('perfil y guardas fallan cerrado, sin elevar privilegios de comprador', () 
   assert.equal(hasRole(null, ['fundacion']), false)
   assert.equal(hasRole('comprador', ['fundacion', 'tienda']), false)
   assert.equal(hasRole('fundacion', ['fundacion']), true)
-  assert.deepEqual(roleNavigation.comprador.map((entry) => entry.id), ['inicio', 'buscar', 'siguiendo'])
+  assert.deepEqual(roleNavigation.comprador.map((entry) => entry.id), ['home', 'directory', 'following'])
 })
 
 test('restaura visitante como comprador y elimina suscripción al desmontar', async () => {
@@ -253,4 +254,28 @@ test('una operación de Auth tardía respeta eventos más recientes de otra pest
   await logout
   assert.equal(store.getSnapshot().session?.user.id, 'new')
   stop()
+})
+
+test('sin backend mantiene la web pública y no permite entrar con privilegios', async () => {
+  const store = createSessionStore(null)
+  const stop = store.start()
+  assert.equal(store.getSnapshot().role, 'comprador')
+  assert.equal(store.getSnapshot().session, null)
+  await assert.rejects(store.signInDemo('fundacion'))
+  await store.retry()
+  await store.signOut()
+  assert.equal(store.getSnapshot().role, 'comprador')
+  stop()
+})
+
+test('todos los destinos del dock resuelven a su ruta pública o protegida', () => {
+  for (const role of ['fundacion', 'tienda', 'repartidor'] as const) {
+    for (const entry of roleNavigation[role]) {
+      assert.deepEqual(parseHash(`#${entry.path}`), { name: 'role', role, page: entry.id })
+    }
+  }
+  for (const entry of roleNavigation.comprador) {
+    assert.deepEqual(parseHash(`#${entry.path}`), { name: entry.id })
+  }
+  assert.deepEqual(parseHash('#/fundacion/no-existe'), { name: 'not-found' })
 })

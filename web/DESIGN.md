@@ -50,3 +50,13 @@ Guía corta para las tareas de frontend. Web móvil primero: una columna de hast
 
 ## Rutas de ejemplo (hash)
 `#/` inicio, `#/solicitudes` directorio, `#/solicitudes/:id` detalle, `#/siguiendo` estado vacío, `#/sistema` galería de desarrollo. El ruteo de `src/lib/router.ts` es mínimo y se puede cambiar por un router completo sin tocar los componentes.
+
+## Sesión y roles (R1)
+
+`src/auth/SessionControls.tsx` añade un panel desplegable neutro para la demo local,
+con cuatro roles, `SampleBadge`, estados de carga/error y salida. Está desactivado
+por defecto; instrucciones en `src/auth/README.md`. `RoleDock` adapta el dock de D3
+sin cambiar su API: la navegación pública conserva sus tres destinos y Fundación
+añade Publicar como acción. `roles.ts` define los destinos; `RoleScreen` deja
+marcadores protegidos para las próximas tareas. Sin backend configurado, la web
+pública sigue disponible y no se ofrecen accesos demo.

@@ -18,7 +18,7 @@ const loadingState: SessionState = {
   status: 'loading', session: null, profile: null, role: null, organizationId: null, error: null,
 }
 
-export function createSessionStore(client: SessionClient, demoEnabled = false) {
+export function createSessionStore(client: SessionClient | null, demoEnabled = false) {
   let state = loadingState
   let active = false
   let revision = 0
@@ -42,7 +42,7 @@ export function createSessionStore(client: SessionClient, demoEnabled = false) {
     publish({ ...loadingState, session })
     try {
       let profile: Profile | null = null
-      if (session) {
+      if (session && client) {
         const { data, error } = await client.from('perfiles')
           .select('id, rol, organizacion_id, nombre_visible').eq('id', session.user.id).maybeSingle()
         if (error) throw error
@@ -67,6 +67,10 @@ export function createSessionStore(client: SessionClient, demoEnabled = false) {
     start() {
       active = true
       const initialRevision = ++revision
+      if (!client) {
+        void resolve(null, initialRevision)
+        return () => { active = false; ++revision }
+      }
       const { data: { subscription } } = client.auth.onAuthStateChange((_event, session) => {
         const eventRevision = ++revision
         // Revocar el rol anterior inmediatamente y consultar fuera del callback
@@ -89,6 +93,7 @@ export function createSessionStore(client: SessionClient, demoEnabled = false) {
     },
     async retry() {
       const currentRevision = ++revision
+      if (!client) return resolve(null, currentRevision)
       publish({ ...loadingState, session: state.session })
       try {
         const { data, error } = await client.auth.getSession()
@@ -100,6 +105,7 @@ export function createSessionStore(client: SessionClient, demoEnabled = false) {
       }
     },
     async signInDemo(role: Role) {
+      if (!client) throw new Error('Configura Supabase local para entrar a la demo.')
       const credentials = demoCredentials(role, demoEnabled)
       if (changingAccount) throw new Error('Ya hay un cambio de sesión en curso.')
       changingAccount = true
@@ -122,6 +128,7 @@ export function createSessionStore(client: SessionClient, demoEnabled = false) {
       }
     },
     async signOut() {
+      if (!client) return resolve(null, ++revision)
       if (changingAccount) throw new Error('Ya hay un cambio de sesión en curso.')
       changingAccount = true
       const operationRevision = ++revision
