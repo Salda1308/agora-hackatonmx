@@ -60,10 +60,8 @@ select throws_ok($$insert into public.perfiles (id, rol, organizacion_id)
 select throws_ok($$insert into public.solicitudes (organizacion_id, tienda_id, titulo)
   values ('f2000000-0000-0000-0000-000000000001', 'f2000000-0000-0000-0000-000000000002', 'Intrusión')$$,
   '42501', null, 'comprador no crea solicitudes de fundación');
-with cambiadas as (update public.tareas set repartidor_id = auth.uid(), estado = 'asignada'
-  where id = 'f5000000-0000-0000-0000-000000000001' returning id)
-select is((select count(*)::int from cambiadas),
-  0, 'comprador no puede tomar una tarea');
+select throws_ok($$select public.tomar_tarea('f5000000-0000-0000-0000-000000000001')$$,
+  '42501', null, 'comprador no puede tomar una tarea');
 
 -- Fundación: solo su perfil y su organización; sin privilegios de moderación.
 select set_config('request.jwt.claims',
@@ -109,13 +107,11 @@ select set_config('request.jwt.claims',
 select is((select rol::text from public.perfiles), 'repartidor', 'repartidor solo lee su perfil');
 select is((select organizacion_id from public.perfiles), null::uuid, 'repartidor no necesita organización');
 select is((select count(*)::int from public.pedidos), 0, 'repartidor no ve pedidos privados');
-select is((select count(*)::int from public.tareas), 1, 'repartidor ve la tarea abierta');
--- Bloqueo existente confirmado en R1. El usuario pidió documentarlo y no tocar
--- políticas. Mantener la expectativa para detectar cuándo se corrija en otra tarea.
-select todo('R1: política actual rechaza tomar una tarea con 42501; corrección fuera de alcance', 1);
-select lives_ok($$update public.tareas set repartidor_id = auth.uid(), estado = 'asignada'
-  where id = 'f5000000-0000-0000-0000-000000000001'$$,
-  'repartidor demo toma una tarea abierta sin RETURNING');
+select is((select count(*)::int from public.tareas where id = 'f5000000-0000-0000-0000-000000000001'), 1,
+  'repartidor ve la tarea abierta');
+-- Bloqueo de R1 resuelto en T09: se toma con la función atómica public.tomar_tarea.
+select lives_ok($$select public.tomar_tarea('f5000000-0000-0000-0000-000000000001')$$,
+  'repartidor demo toma una tarea abierta');
 
 reset role;
 select * from finish();

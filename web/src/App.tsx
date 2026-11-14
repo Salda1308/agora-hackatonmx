@@ -20,6 +20,8 @@ const OrganizacionPage = lazy(() => import('./screens/organizacion/OrganizacionP
 // Jornadas de voluntariado (T18): pública y de la fundación, también aparte.
 const JornadasArea = lazy(() => import('./screens/jornadas/JornadasArea'))
 const JornadasFundacion = lazy(() => import('./screens/jornadas/JornadasFundacion'))
+// Tareas del repartidor (T09); "Mis entregas" y "Reconocimiento" siguen en RoleScreen.
+const RepartidorArea = lazy(() => import('./screens/repartidor/RepartidorArea'))
 
 function App() {
   const current = useRoute()
@@ -75,6 +77,8 @@ function App() {
         )
       } else if (route.role === 'fundacion' && route.page === 'jornadas') {
         screen = <Suspense fallback={null}><JornadasFundacion /></Suspense>
+      } else if (route.role === 'repartidor' && route.page === 'tareas') {
+        screen = <Suspense fallback={null}><RepartidorArea /></Suspense>
       } else {
         screen = <RoleScreen route={route} />
       }

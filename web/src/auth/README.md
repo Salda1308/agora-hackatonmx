@@ -77,11 +77,9 @@ node --test web/tests/auth/local-auth.test.ts
 La prueba local recorre login, cambio entre las cuatro cuentas, refresh,
 restauración y cierre de sesión; rechaza endpoints que no sean loopback.
 
-## Bloqueo de políticas documentado
+## Toma de tareas (resuelto en T09)
 
-El repartidor demo puede leer una tarea abierta, pero `UPDATE tareas SET
-repartidor_id = auth.uid(), estado = 'asignada' WHERE id = ...` devuelve `42501`,
-con o sin `RETURNING`, con las políticas actuales de T02. El caso queda como TODO
-en `supabase/tests/database/demo.test.sql`; el usuario decidió dejar las políticas
-intactas y continuar R1 hasta el límite de D3. La toma de tareas requiere revisión
-por su tarea dueña antes de habilitar ese flujo. No se agregó migración ni bypass.
+R1 documentó que `UPDATE tareas` directo daba `42501`: la fila nueva no pasa la
+política SELECT. T09 lo resolvió con la migración `20261114170000_tareas_repartidor.sql`:
+el repartidor toma y libera solo con `public.tomar_tarea` y `public.liberar_tarea`
+(funciones atómicas); el UPDATE directo ya no tiene política ni GRANT.
