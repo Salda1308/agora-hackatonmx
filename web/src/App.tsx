@@ -14,12 +14,17 @@ import { SystemGallery } from './screens/SystemGallery'
 // Área de fundación (T06): carga aparte, con su propia sesión de Supabase.
 const FundacionArea = lazy(() => import('./screens/fundacion/FundacionArea'))
 
+const OrganizacionPage = lazy(() => import('./screens/organizacion/OrganizacionPage'))
+
 function App() {
   const current = useRoute()
   const route = current.name === 'system' && !import.meta.env.DEV ? { name: 'not-found' as const } : current
 
   let screen
   switch (route.name) {
+    case 'organization':
+      screen = <Suspense fallback={null}><OrganizacionPage slug={route.slug} /></Suspense>
+      break
     case 'home':
       screen = <Home />
       break
@@ -44,7 +49,9 @@ function App() {
       screen = import.meta.env.DEV ? <SystemGallery /> : null
       break
     case 'role':
-      screen = <RoleScreen route={route} />
+      screen = route.page === 'organizacion' && (route.role === 'fundacion' || route.role === 'tienda')
+        ? <Suspense fallback={null}><OrganizacionPage own ownerRole={route.role} /></Suspense>
+        : <RoleScreen route={route} />
       break
     default:
       screen = (

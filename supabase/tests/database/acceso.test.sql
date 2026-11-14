@@ -54,8 +54,8 @@ insert into public.jornadas (id, organizacion_id, titulo, inicia_en, termina_en,
   ('80000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-00000000000a',
    'Jornada de limpieza', now() + interval '1 day', now() + interval '1 day 4 hours', 5);
 
-insert into public.publicaciones (id, organizacion_id, texto) values
-  ('90000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-00000000000a', 'Gracias a todos');
+insert into public.publicaciones (id, organizacion_id, texto, consentimiento) values
+  ('90000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-00000000000a', 'Gracias a todos', true);
 
 -- Integridad del modelo (backend) ------------------------------------------
 
@@ -192,8 +192,8 @@ select lives_ok(
   'una fundación sin verificar puede guardar un borrador');
 
 select throws_ok(
-  $$insert into public.publicaciones (organizacion_id, texto)
-    values ('10000000-0000-0000-0000-00000000000b', 'Hola')$$,
+  $$insert into public.publicaciones (organizacion_id, texto, consentimiento)
+    values ('10000000-0000-0000-0000-00000000000b', 'Hola', true)$$,
   '42501', null, 'una organización sin verificar no puede publicar en su página');
 
 -- Fundación verificada -------------------------------------------------------
@@ -210,8 +210,8 @@ select throws_ok(
   '42501', null, 'la fundación no puede marcar pagado un pago');
 
 select lives_ok(
-  $$insert into public.publicaciones (organizacion_id, texto)
-    values ('10000000-0000-0000-0000-00000000000a', 'Nueva jornada')$$,
+  $$insert into public.publicaciones (organizacion_id, texto, consentimiento)
+    values ('10000000-0000-0000-0000-00000000000a', 'Nueva jornada', true)$$,
   'una organización verificada publica en su página');
 
 select is((select count(*)::int from public.inscripciones_jornada), 1,

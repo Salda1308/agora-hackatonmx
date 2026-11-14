@@ -9,6 +9,7 @@ import type { RoleRoute } from '../auth/role-routes.ts'
 
 export type Route =
   | RoleRoute
+  | { name: 'organization'; slug: string }
   | { name: 'home' }
   | { name: 'directory' }
   | { name: 'request'; id: string }
@@ -19,6 +20,7 @@ export type Route =
   | { name: 'not-found' }
 
 export const paths = {
+  organization: (slug: string) => `#/organizaciones/${encodeURIComponent(slug)}`,
   home: '#/',
   directory: '#/solicitudes',
   request: (id: string) => `#/solicitudes/${encodeURIComponent(id)}`,
@@ -36,6 +38,8 @@ export function parseHash(hash: string): Route {
   if (path === '/siguiendo') return { name: 'following' }
   if (path === '/fundacion') return { name: 'fundacion' }
   if (path === '/fundacion/publicar') return { name: 'fundacion-publicar' }
+  const organization = /^\/organizaciones\/([a-z0-9]+(?:-[a-z0-9]+)*)$/.exec(path)
+  if (organization) return { name: 'organization', slug: organization[1] }
   const roleRoute = parseRolePath(path)
   if (roleRoute) return roleRoute
   const match = /^\/solicitudes\/([^/]+)$/.exec(path)

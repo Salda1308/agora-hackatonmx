@@ -59,7 +59,7 @@ export function RequestDetail({ id }: { id: string }) {
           <div className="stack">
             <h1 className="detail-hero__title">{request.title}</h1>
             <p className="detail-hero__org">
-              {request.org}
+              <a href={paths.organization(request.orgSlug)}>{request.org}</a>
               <span className="request-card__city"><IconPin /> {request.city}</span>
             </p>
           </div>
