@@ -130,7 +130,12 @@ select throws_ok(
   '42501', null, 'anónimo no puede leer pagos');
 
 select is(
-  (select array_agg(slug order by slug) from public.organizaciones),
+  -- Aislar las organizaciones de esta prueba de los datos de supabase/seed.sql.
+  (select array_agg(slug order by slug) from public.organizaciones where id in (
+    '10000000-0000-0000-0000-00000000000a', '10000000-0000-0000-0000-00000000000b',
+    '10000000-0000-0000-0000-00000000000c', '20000000-0000-0000-0000-000000000001',
+    '20000000-0000-0000-0000-000000000002'
+  )),
   array['asilo-verificado', 'tienda-dos', 'tienda-uno'],
   'anónimo solo ve organizaciones verificadas y ningún colectivo de búsqueda');
 
