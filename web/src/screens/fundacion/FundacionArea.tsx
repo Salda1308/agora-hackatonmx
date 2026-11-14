@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { SessionProvider } from '../../auth/SessionProvider'
 import { useSession } from '../../auth/useSession'
 import { Button } from '../../components/ui/Button'
+import { CocoLoading } from '../../components/ui/CocoLoading'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { paths } from '../../lib/router'
 import { Marco } from './Marco'
@@ -31,7 +32,7 @@ function Puerta({ vista }: { vista: VistaFundacion }) {
   if (status === 'loading') {
     return (
       <Marco>
-        <p className="fund-muted" role="status">Cargando…</p>
+        <CocoLoading title="Cargando sesión…" size={88} />
       </Marco>
     )
   }

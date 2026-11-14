@@ -3,6 +3,7 @@ import { RoleDock } from './auth/RoleDock'
 import { RoleScreen } from './auth/RoleScreen'
 import { SessionControls } from './auth/SessionControls'
 import { EmptyState } from './components/ui/EmptyState'
+import { CocoLoading } from './components/ui/CocoLoading'
 import { Button } from './components/ui/Button'
 import { paths, useRoute } from './lib/router'
 import { Directory } from './screens/Directory'
@@ -30,7 +31,7 @@ function App() {
   let screen
   switch (route.name) {
     case 'organization':
-      screen = <Suspense fallback={<EmptyState pose="volando-garrafon" title="Cargando…" />}><OrganizacionPage slug={route.slug} /></Suspense>
+      screen = <Suspense fallback={<CocoLoading />}><OrganizacionPage slug={route.slug} /></Suspense>
       break
     case 'home':
       screen = <Home />
@@ -47,7 +48,7 @@ function App() {
     case 'fundacion':
     case 'fundacion-publicar':
       screen = (
-        <Suspense fallback={<EmptyState pose="volando-garrafon" title="Cargando…" />}>
+        <Suspense fallback={<CocoLoading />}>
           <FundacionArea vista={route.name === 'fundacion' ? 'lista' : 'publicar'} />
         </Suspense>
       )
@@ -56,7 +57,7 @@ function App() {
     case 'jornada':
     case 'folio':
       screen = (
-        <Suspense fallback={<EmptyState pose="volando-garrafon" title="Cargando…" />}>
+        <Suspense fallback={<CocoLoading />}>
           <JornadasArea
             vista={route.name === 'jornadas' ? { tipo: 'lista' } : { tipo: route.name === 'jornada' ? 'detalle' : 'folio', id: route.id }}
           />
@@ -68,17 +69,17 @@ function App() {
       break
     case 'role':
       if (route.page === 'organizacion' && (route.role === 'fundacion' || route.role === 'tienda')) {
-        screen = <Suspense fallback={<EmptyState pose="volando-garrafon" title="Cargando…" />}><OrganizacionPage own ownerRole={route.role} /></Suspense>
+        screen = <Suspense fallback={<CocoLoading />}><OrganizacionPage own ownerRole={route.role} /></Suspense>
       } else if (route.role === 'tienda' && (route.page === 'pedidos' || route.page === 'catalogo')) {
         screen = (
-          <Suspense fallback={<EmptyState pose="volando-garrafon" title="Cargando…" />}>
+          <Suspense fallback={<CocoLoading />}>
             <TiendaArea vista={route.page} />
           </Suspense>
         )
       } else if (route.role === 'fundacion' && route.page === 'jornadas') {
-        screen = <Suspense fallback={<EmptyState pose="volando-garrafon" title="Cargando…" />}><JornadasFundacion /></Suspense>
+        screen = <Suspense fallback={<CocoLoading />}><JornadasFundacion /></Suspense>
       } else if (route.role === 'repartidor' && route.page === 'tareas') {
-        screen = <Suspense fallback={<EmptyState pose="volando-garrafon" title="Cargando…" />}><RepartidorArea /></Suspense>
+        screen = <Suspense fallback={<CocoLoading />}><RepartidorArea /></Suspense>
       } else {
         screen = <RoleScreen route={route} />
       }

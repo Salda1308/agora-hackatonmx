@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { Chip } from '../../components/ui/Chip'
+import { CocoLoading } from '../../components/ui/CocoLoading'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { IconCheck } from '../../components/ui/icons'
 import { formatoPesos } from '../fundacion/api'
@@ -69,7 +70,7 @@ export function Pedidos({ tiendaId }: { tiendaId: string }) {
         <EmptyState title="No se pudieron cargar"
           action={<Button variant="ink" onClick={() => setIntento((n) => n + 1)}>Reintentar</Button>} />
       ) : pedidos === null ? (
-        <p className="tda-muted" role="status">Cargando…</p>
+        <CocoLoading title="Cargando pedidos…" size={88} />
       ) : pedidos.length === 0 ? (
         <div className="tda-empty">
           <EmptyState pose="caja-suministros" title="Sin pedidos por ahora" description="Cuando alguien pague, el pedido aparece aquí." />

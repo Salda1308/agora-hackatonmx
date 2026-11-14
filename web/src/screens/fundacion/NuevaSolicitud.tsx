@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { Coco } from '../../components/ui/Coco'
+import { CocoLoading } from '../../components/ui/CocoLoading'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { Stepper } from '../../components/ui/Stepper'
 import { paths } from '../../lib/router'
@@ -159,7 +160,7 @@ export function NuevaSolicitud({ organizacionId }: { organizacionId: string }) {
         <section className="stack" aria-labelledby="fund-paso-tienda">
           <h1 id="fund-paso-tienda" className="page-title">¿En qué tienda?</h1>
           {tiendas === null ? (
-            <p className="fund-muted" role="status">Cargando…</p>
+            <CocoLoading title="Cargando tiendas…" size={88} />
           ) : tiendas.length === 0 ? (
             <EmptyState title="Sin tiendas por ahora" description="Aún no hay tiendas verificadas." />
           ) : (
@@ -184,7 +185,7 @@ export function NuevaSolicitud({ organizacionId }: { organizacionId: string }) {
             <p className="page-lead">{tienda?.nombre}</p>
           </div>
           {catalogo === null ? (
-            <p className="fund-muted" role="status">Cargando…</p>
+            <CocoLoading title="Cargando tiendas…" size={88} />
           ) : catalogo.length === 0 ? (
             <EmptyState title="Catálogo vacío" description="Esta tienda aún no tiene artículos." />
           ) : (

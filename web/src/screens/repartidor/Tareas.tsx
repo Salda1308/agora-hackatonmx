@@ -4,6 +4,7 @@ import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { Chip, SampleBadge } from '../../components/ui/Chip'
 import { Coco } from '../../components/ui/Coco'
+import { CocoLoading } from '../../components/ui/CocoLoading'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { IconCheck, IconPin } from '../../components/ui/icons'
 import { formatoPesos } from '../fundacion/api'
@@ -82,7 +83,7 @@ export function Tareas() {
         <EmptyState title="No se pudieron cargar"
           action={<Button variant="ink" onClick={recargar}>Reintentar</Button>} />
       ) : datos === null ? (
-        <p className="rep-muted" role="status">Cargando…</p>
+        <CocoLoading title="Cargando entregas…" size={88} />
       ) : datos.activa ? (
         <TareaActiva tarea={datos.activa} ocupado={ocupado !== null} onLiberar={() => void liberar(datos.activa!.id)}
           onCambio={recargar} />

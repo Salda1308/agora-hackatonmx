@@ -1,4 +1,4 @@
-import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode } from 'react'
+import { forwardRef, type AnchorHTMLAttributes, type ButtonHTMLAttributes, type ReactNode } from 'react'
 
 export type ButtonVariant = 'primary' | 'accent' | 'ink' | 'lime' | 'outline' | 'ghost'
 export type ButtonSize = 'md' | 'lg'
@@ -13,9 +13,10 @@ type CommonProps = {
 
 type AsButton = CommonProps & ButtonHTMLAttributes<HTMLButtonElement> & { href?: undefined }
 type AsLink = CommonProps & AnchorHTMLAttributes<HTMLAnchorElement> & { href: string }
+type ButtonProps = AsButton | AsLink
 
 /** Botón píldora. Con `href` se pinta como enlace con la misma forma. */
-export function Button(props: AsButton | AsLink) {
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(props, ref) {
   const { variant = 'primary', size = 'md', block, icon, children, className, ...rest } = props
   const classes = [
     'ui-button',
@@ -58,8 +59,8 @@ export function Button(props: AsButton | AsLink) {
   }
   const buttonProps = rest as ButtonHTMLAttributes<HTMLButtonElement>
   return (
-    <button type={buttonProps.type ?? 'button'} className={classes} {...buttonProps}>
+    <button ref={ref} type={buttonProps.type ?? 'button'} className={classes} {...buttonProps}>
       {content}
     </button>
   )
-}
+})

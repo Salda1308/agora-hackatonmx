@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import { Button } from '../../components/ui/Button'
 import { Coco } from '../../components/ui/Coco'
+import { CocoLoading } from '../../components/ui/CocoLoading'
 import { formatMXN } from './data'
+
 export type Receipt = {
   folio: string
   montoCentavos: number
@@ -10,16 +12,15 @@ export type Receipt = {
   peyTransactionId: string
   articulos: { solicitudArticuloId: string; nombre: string; unidades: number }[]
 }
-export function PaymentStatus({
-  token,
-  onPaid,
-}: {
+
+type PaymentStatusProps = {
   token: string
-  onPaid: () => void
-}) {
+  onPaid: (receipt: Receipt | null) => void
+}
+
+export function PaymentStatus({ token, onPaid }: PaymentStatusProps) {
   const [state, setState] = useState('creado')
-  const [receipt, setReceipt] = useState<Receipt | null>(null)
-  const [error, setError] = useState('')
+  const [error, setError] = useState(supabase ? '' : 'El seguimiento no está disponible en este momento.')
   useEffect(() => {
     const client = supabase
     if (!client) return
@@ -48,17 +49,16 @@ export function PaymentStatus({
           )
           return
         }
-        if (failure || !data?.estado)
+        if (failure || !data?.estado) {
           setError(
             'No pudimos consultar la confirmación. Conserva esta pantalla; volveremos a consultar.',
           )
-        else {
+        } else {
           setError('')
           setState(data.estado)
           if (data.estado === 'pagado') {
             terminal = true
-            setReceipt(data.comprobante)
-            onPaid()
+            onPaid(data.comprobante ?? null)
             return
           }
           if (data.estado === 'fallido' || data.estado === 'expirado') {
@@ -93,52 +93,59 @@ export function PaymentStatus({
       document.removeEventListener('visibilitychange', refresh)
     }
   }, [token, onPaid])
-  return (
-    <div aria-live="polite">
-      {state === 'pagado' ? (
-        <>
-          <Coco size={132} pose="pulgar-arriba" animation="celebrate" />
-          <h3>¡Tu ayuda ya sumó!</h3>
-          <p>Pago confirmado por la tienda.</p>
-          {receipt ? (
-            <div className="donation__receipt">
-              <strong>{receipt.folio}</strong>
-              <p>
-                {formatMXN(receipt.montoCentavos / 100)} ·{' '}
-                {new Date(receipt.pagadoEn).toLocaleString('es-MX')}
-              </p>
-              <ul>
-                {receipt.articulos.map((item) => (
-                  <li key={item.solicitudArticuloId}>
-                    {item.unidades} × {item.nombre}
-                  </li>
-                ))}
-              </ul>
-              <p className="donation__reference">
-                Rastreo pey: {receipt.peyTransactionId}
-              </p>
-              <ButtonPrint />
-            </div>
-          ) : (
-            <p>El comprobante todavía no está disponible.</p>
-          )}
-        </>
-      ) : (
-        <>
-        <Coco size={88} pose={error || state === 'fallido' || state === 'expirado' ? 'triste' : 'caja-suministros'} animation="settle" />
+
+  if (state === 'pagado') return null
+  if (state === 'fallido' || state === 'expirado' || error) {
+    return (
+      <div className="payment-status payment-status--attention" aria-live="polite">
+        <Coco size={88} pose="triste" animation="settle" />
         <p>
           {state === 'fallido'
             ? 'El cobro fue rechazado. Consulta a la organización antes de otro intento.'
             : state === 'expirado'
               ? 'El cobro expiró sin confirmación.'
-              : 'Consultando la confirmación de tu pago…'}
+              : 'Todavía no podemos consultar el seguimiento.'}
         </p>
-        </>
-      )}
-      {error && <p role="status">{error}</p>}
+        {error && <p role="status">{error}</p>}
+        {state === 'fallido' || state === 'expirado' || error ? (
+          <Button variant="outline" href="#/solicitudes">
+            Volver a solicitudes
+          </Button>
+        ) : null}
+      </div>
+    )
+  }
+  return (
+    <div className="payment-status" aria-live="polite">
+      <CocoLoading title="Consultando tu pago…" description="La confirmación puede tardar unos segundos." size={100} />
     </div>
   )
 }
+
+export function ReceiptSummary({ receipt }: { receipt: Receipt }) {
+  return (
+    <div className="donation__receipt">
+      <div className="donation__receipt-head">
+        <div>
+          <span className="donation__receipt-label">Folio</span>
+          <strong>{receipt.folio}</strong>
+        </div>
+        <strong>{formatMXN(receipt.montoCentavos / 100)}</strong>
+      </div>
+      <p>{new Date(receipt.pagadoEn).toLocaleString('es-MX')}</p>
+      <ul>
+        {receipt.articulos.map((item) => (
+          <li key={item.solicitudArticuloId}>
+            {item.unidades} × {item.nombre}
+          </li>
+        ))}
+      </ul>
+      <p className="donation__reference">Rastreo pey: {receipt.peyTransactionId}</p>
+      <ButtonPrint />
+    </div>
+  )
+}
+
 function ButtonPrint() {
   return (
     <Button variant="outline" onClick={() => window.print()}>
