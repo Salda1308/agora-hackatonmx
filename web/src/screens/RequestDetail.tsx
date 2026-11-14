@@ -5,12 +5,15 @@ import { Chip, SampleBadge } from '../components/ui/Chip'
 import { EmptyState } from '../components/ui/EmptyState'
 import { ProgressBar, ProgressRing } from '../components/ui/Progress'
 import { IconBack, IconCheck, IconPin } from '../components/ui/icons'
-import { findSampleRequest, formatMXN, requestTotals } from '../data/sample'
+import { useRequests, formatMXN, requestTotals } from '../features/requests/data'
+import { Donation } from '../features/requests/Donation'
 import { paths } from '../lib/router'
 import { requestVisual } from '../lib/request-visuals'
 
 export function RequestDetail({ id }: { id: string }) {
-  const request = findSampleRequest(id)
+  const { requests, loading, error, live, retry } = useRequests(id)
+  const request = requests[0]
+  if (loading || error) return <main className="screen"><div className="screen__body screen__body--top">{loading ? <p role="status">Cargando solicitud…</p> : <div role="alert"><p>{error}</p><Button onClick={retry}>Reintentar</Button></div>}</div></main>
 
   if (!request) {
     return (
@@ -33,9 +36,9 @@ export function RequestDetail({ id }: { id: string }) {
   const totals = requestTotals(request)
   const timeline = [
     { label: 'Publicada', detail: `${totals.total} unidades pedidas`, done: true },
-    { label: 'Pagada', detail: `${totals.paid} de ${totals.total} unidades`, done: totals.paid > 0 },
-    { label: 'Lista en tienda', detail: `${totals.ready} unidades`, done: totals.ready > 0 },
-    { label: 'Entregada', detail: `${totals.delivered} unidades confirmadas`, done: totals.delivered > 0 },
+    { label: 'Pagada', detail: `${totals.paid} de ${totals.total} unidades`, done: totals.total > 0 && totals.paid >= totals.total },
+    { label: 'Lista en tienda', detail: `${totals.ready} unidades`, done: totals.total > 0 && totals.ready >= totals.total },
+    { label: 'Entregada', detail: `${totals.delivered} unidades confirmadas`, done: totals.total > 0 && totals.delivered >= totals.total },
   ]
 
   return (
@@ -45,7 +48,7 @@ export function RequestDetail({ id }: { id: string }) {
           <a className="ui-icon-button" href={paths.directory} aria-label="Volver a solicitudes">
             <IconBack />
           </a>
-          <SampleBadge />
+          {request.sample && <SampleBadge />}
           <ThemeToggle />
         </div>
         <div className="detail-hero__chips">
@@ -75,7 +78,7 @@ export function RequestDetail({ id }: { id: string }) {
           <div className="detail-hero__amounts">
             <span className="detail-hero__amount">{formatMXN(totals.amountPaid)}</span>
             <span>de {formatMXN(totals.amountTotal)}</span>
-            <span className="detail-hero__updated">Actualizado {request.updated}</span>
+            <span className="detail-hero__updated">Actualizado {live ? 'en vivo' : request.updated}</span>
           </div>
         </div>
         <ProgressBar
@@ -137,14 +140,7 @@ export function RequestDetail({ id }: { id: string }) {
           </ol>
         </Card>
 
-        <div className="detail-cta">
-          <Button size="lg" block disabled aria-describedby="cta-note">
-            Pagar unidades
-          </Button>
-          <p id="cta-note" className="detail-cta__note">
-            Vista de ejemplo: el pago se conecta en otra tarea.
-          </p>
-        </div>
+        <Donation request={request} />
       </div>
     </main>
   )

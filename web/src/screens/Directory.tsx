@@ -1,18 +1,23 @@
-import { useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import { RequestCard } from '../components/RequestCard'
 import { ThemeToggle } from '../components/ThemeToggle'
 import { Button } from '../components/ui/Button'
-import { Chip, SampleBadge } from '../components/ui/Chip'
+import { Chip } from '../components/ui/Chip'
 import { EmptyState } from '../components/ui/EmptyState'
 import { IconSearch } from '../components/ui/icons'
-import { CATEGORIES, SAMPLE_REQUESTS, type Category } from '../data/sample'
+
+import '../features/requests/donation.css'
+import { useRequests, CATEGORIES, type Category } from '../features/requests/data'
+
+const RequestMap = lazy(() => import('../features/requests/RequestMap').then(module => ({ default: module.RequestMap })))
 
 export function Directory() {
+  const { requests, loading, error, retry } = useRequests()
   const [category, setCategory] = useState<Category | null>(null)
   const [query, setQuery] = useState('')
 
   const q = query.trim().toLowerCase()
-  const results = SAMPLE_REQUESTS.filter(
+  const results = requests.filter(
     (r) =>
       (!category || r.category === category) &&
       (!q || `${r.title} ${r.org} ${r.city}`.toLowerCase().includes(q)),
@@ -27,7 +32,7 @@ export function Directory() {
     <main className="screen">
       <div className="screen__body screen__body--top">
         <div className="topbar">
-          <SampleBadge />
+          <span>Solicitudes verificadas</span>
           <ThemeToggle />
         </div>
         <div className="directory-heading">
@@ -62,7 +67,9 @@ export function Directory() {
           {results.length === 1 ? '1 solicitud' : `${results.length} solicitudes`}
         </p>
 
-        {results.length > 0 ? (
+        {!loading && !error && results.length > 0 && <Suspense fallback={<p role="status">Cargando mapa…</p>}><RequestMap requests={results} /></Suspense>}
+
+        {loading ? <p role="status">Cargando solicitudes…</p> : error ? <div role="alert"><p>{error}</p><Button onClick={retry}>Reintentar</Button></div> : results.length > 0 ? (
           <div className="stack">
             {results.map((r) => (
               <RequestCard key={r.id} request={r} />

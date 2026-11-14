@@ -1,0 +1,108 @@
+.donation {
+  margin-block: var(--space-6);
+}
+.donation fieldset {
+  border: 0;
+  padding: 0;
+  margin-block: var(--space-4);
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+}
+.donation legend {
+  font-weight: 900;
+  margin-bottom: var(--space-3);
+}
+.donation__quantity {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  justify-content: space-between;
+}
+.donation small {
+  display: block;
+  color: var(--color-text-muted);
+}
+.donation input[type='number'] {
+  width: 5rem;
+  flex-shrink: 0;
+}
+.donation input[type='number'],
+.donation__phone,
+.donation textarea {
+  min-height: var(--tap-min);
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2);
+  font: inherit;
+}
+.donation__method {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--tap-min);
+}
+.donation__method input {
+  width: 24px;
+  height: 24px;
+  accent-color: var(--color-primary);
+}
+.donation__phone,
+.donation textarea {
+  display: block;
+  width: 100%;
+}
+.donation__qr {
+  width: 100%;
+  max-width: 300px;
+  background: white;
+  padding: var(--space-4);
+}
+.donation__reference {
+  overflow-wrap: anywhere;
+}
+
+.request-map {
+  height: 280px;
+  border-radius: var(--radius-md);
+  isolation: isolate;
+  z-index: 0;
+}
+.request-map a {
+  min-height: var(--tap-min);
+  display: inline-flex;
+  align-items: center;
+}
+.donation__receipt {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+}
+.request-map .leaflet-bar a {
+  width: var(--tap-min);
+  height: var(--tap-min);
+  line-height: var(--tap-min);
+  display: block;
+}
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .donation__receipt,
+  .donation__receipt * {
+    visibility: visible;
+  }
+  .donation__receipt {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    color: black;
+    background: white;
+  }
+  .donation__receipt button {
+    display: none;
+  }
+}

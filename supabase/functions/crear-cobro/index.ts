@@ -1,3 +1,4 @@
+import { seguimiento } from "../_shared/seguimiento.ts";
 import { crearHandler } from "./handler.ts";
 import { leerCuenta } from "./pey.ts";
 import { conectar, crearAlmacen } from "./store.ts";
@@ -12,9 +13,16 @@ if (!Number.isSafeInteger(limite) || limite < 1 || limite > 100000000) {
   );
 }
 
-Deno.serve(crearHandler(crearAlmacen(sql, limite), {
-  cuenta: (ref, metodo) => leerCuenta(Deno.env.get, ref, metodo),
-  maximoCentavos: limite,
-  successUrl: Deno.env.get("PEY_SUCCESS_URL") ?? "",
-  backUrl: Deno.env.get("PEY_BACK_URL") ?? "",
-}));
+const tokens = seguimiento(Deno.env.get("AGORA_SEGUIMIENTO_SECRET") ?? "");
+
+Deno.serve(crearHandler(
+  crearAlmacen(sql, limite),
+  {
+    cuenta: (ref, metodo) => leerCuenta(Deno.env.get, ref, metodo),
+    maximoCentavos: limite,
+    successUrl: Deno.env.get("PEY_SUCCESS_URL") ?? "",
+    backUrl: Deno.env.get("PEY_BACK_URL") ?? "",
+  },
+  fetch,
+  tokens.emitir,
+));

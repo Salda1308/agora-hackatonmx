@@ -57,6 +57,7 @@ export function crearHandler(
   almacen: Almacen,
   config: Configuracion,
   fetcher: typeof fetch = fetch,
+  emitirSeguimiento?: (pagoId: string) => Promise<string>,
 ) {
   return async (req: Request): Promise<Response> => {
     if (req.method === "OPTIONS") {
@@ -76,6 +77,9 @@ export function crearHandler(
       });
       const resumen = {
         pagoId: reserva.id,
+        ...(emitirSeguimiento
+          ? { seguimientoToken: await emitirSeguimiento(reserva.id) }
+          : {}),
         numRef: String(reserva.numRef),
         metodo: reserva.metodo,
         montoCentavos: reserva.montoCentavos,
