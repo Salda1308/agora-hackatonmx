@@ -36,6 +36,7 @@ export function Dock({ start, end, action, activeKey, label = 'Navegación princ
 
   return (
     <nav className="ui-dock" aria-label={label}>
+      <a className="ui-dock__brand" href="#/" aria-label="Ágora, inicio">Ágora</a>
       <ul className="ui-dock__list">
         {start.map(renderItem)}
         {action ? <li className="ui-dock__action-slot">
