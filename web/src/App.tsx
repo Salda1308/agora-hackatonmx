@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react'
 import { RoleDock } from './auth/RoleDock'
 import { RoleScreen } from './auth/RoleScreen'
 import { SessionControls } from './auth/SessionControls'
@@ -9,6 +10,9 @@ import { Following } from './screens/Following'
 import { Home } from './screens/Home'
 import { RequestDetail } from './screens/RequestDetail'
 import { SystemGallery } from './screens/SystemGallery'
+
+// Área de fundación (T06): carga aparte, con su propia sesión de Supabase.
+const FundacionArea = lazy(() => import('./screens/fundacion/FundacionArea'))
 
 function App() {
   const current = useRoute()
@@ -27,6 +31,14 @@ function App() {
       break
     case 'following':
       screen = <Following />
+      break
+    case 'fundacion':
+    case 'fundacion-publicar':
+      screen = (
+        <Suspense fallback={null}>
+          <FundacionArea vista={route.name === 'fundacion' ? 'lista' : 'publicar'} />
+        </Suspense>
+      )
       break
     case 'system':
       screen = import.meta.env.DEV ? <SystemGallery /> : null

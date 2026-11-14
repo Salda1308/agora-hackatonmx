@@ -14,6 +14,8 @@ export type Route =
   | { name: 'request'; id: string }
   | { name: 'system' }
   | { name: 'following' }
+  | { name: 'fundacion' }
+  | { name: 'fundacion-publicar' }
   | { name: 'not-found' }
 
 export const paths = {
@@ -22,6 +24,8 @@ export const paths = {
   request: (id: string) => `#/solicitudes/${encodeURIComponent(id)}`,
   system: '#/sistema',
   following: '#/siguiendo',
+  fundacion: '#/fundacion',
+  fundacionPublicar: '#/fundacion/publicar',
 }
 
 export function parseHash(hash: string): Route {
@@ -30,6 +34,8 @@ export function parseHash(hash: string): Route {
   if (path === '/solicitudes') return { name: 'directory' }
   if (path === '/sistema') return { name: 'system' }
   if (path === '/siguiendo') return { name: 'following' }
+  if (path === '/fundacion') return { name: 'fundacion' }
+  if (path === '/fundacion/publicar') return { name: 'fundacion-publicar' }
   const roleRoute = parseRolePath(path)
   if (roleRoute) return roleRoute
   const match = /^\/solicitudes\/([^/]+)$/.exec(path)
