@@ -30,7 +30,7 @@ function App() {
   let screen
   switch (route.name) {
     case 'organization':
-      screen = <Suspense fallback={null}><OrganizacionPage slug={route.slug} /></Suspense>
+      screen = <Suspense fallback={<EmptyState pose="volando-garrafon" title="Cargando…" />}><OrganizacionPage slug={route.slug} /></Suspense>
       break
     case 'home':
       screen = <Home />
@@ -47,7 +47,7 @@ function App() {
     case 'fundacion':
     case 'fundacion-publicar':
       screen = (
-        <Suspense fallback={null}>
+        <Suspense fallback={<EmptyState pose="volando-garrafon" title="Cargando…" />}>
           <FundacionArea vista={route.name === 'fundacion' ? 'lista' : 'publicar'} />
         </Suspense>
       )
@@ -56,7 +56,7 @@ function App() {
     case 'jornada':
     case 'folio':
       screen = (
-        <Suspense fallback={null}>
+        <Suspense fallback={<EmptyState pose="volando-garrafon" title="Cargando…" />}>
           <JornadasArea
             vista={route.name === 'jornadas' ? { tipo: 'lista' } : { tipo: route.name === 'jornada' ? 'detalle' : 'folio', id: route.id }}
           />
@@ -68,17 +68,17 @@ function App() {
       break
     case 'role':
       if (route.page === 'organizacion' && (route.role === 'fundacion' || route.role === 'tienda')) {
-        screen = <Suspense fallback={null}><OrganizacionPage own ownerRole={route.role} /></Suspense>
+        screen = <Suspense fallback={<EmptyState pose="volando-garrafon" title="Cargando…" />}><OrganizacionPage own ownerRole={route.role} /></Suspense>
       } else if (route.role === 'tienda' && (route.page === 'pedidos' || route.page === 'catalogo')) {
         screen = (
-          <Suspense fallback={null}>
+          <Suspense fallback={<EmptyState pose="volando-garrafon" title="Cargando…" />}>
             <TiendaArea vista={route.page} />
           </Suspense>
         )
       } else if (route.role === 'fundacion' && route.page === 'jornadas') {
-        screen = <Suspense fallback={null}><JornadasFundacion /></Suspense>
+        screen = <Suspense fallback={<EmptyState pose="volando-garrafon" title="Cargando…" />}><JornadasFundacion /></Suspense>
       } else if (route.role === 'repartidor' && route.page === 'tareas') {
-        screen = <Suspense fallback={null}><RepartidorArea /></Suspense>
+        screen = <Suspense fallback={<EmptyState pose="volando-garrafon" title="Cargando…" />}><RepartidorArea /></Suspense>
       } else {
         screen = <RoleScreen route={route} />
       }
@@ -104,7 +104,7 @@ function App() {
   return (
     <div className="app">
       <SessionControls />
-      {screen}
+      <div key={route.name} className="coco-screen">{screen}</div>
       <RoleDock route={route} />
     </div>
   )

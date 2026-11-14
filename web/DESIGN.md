@@ -30,7 +30,7 @@ Guía corta para las tareas de frontend. Web móvil primero: una columna de hast
 - Filtros seleccionables, botones y enlaces de navegación tienen al menos 48 px. Los chips informativos no son controles y pueden ser más pequeños. Las categorías desplazan horizontalmente dentro de su propia fila, sin overflow de página.
 - Foco visible en ambos temas, incluido el dock oscuro. Estados hover solo añaden contraste/contorno; el deshabilitado es neutro y no responde al hover. Un `Button` con `href` y `aria-disabled="true"` retira el destino y no navega ni recibe foco por Tab.
 - Al cambiar de tema, texto y fondo cambian juntos, sin un fundido del fondo que pueda dejar texto claro sobre un fondo todavía claro (o al revés). Las microinteracciones conservan transformaciones breves.
-- Mantener superficies con un solo borde sutil, sombras reservadas para dock/hover y Coco sin animación continua en estados vacíos. La galería conserva ejemplos de todas las variantes de color con muestras pequeñas.
+- Mantener superficies con un solo borde sutil, sombras reservadas para dock/hover y Coco con movimiento breve una vez al entrar o confirmar; vacíos y pago pendiente sin bucles. Con `prefers-reduced-motion: reduce`, imágenes estáticas y controles sin transformaciones. La galería conserva ejemplos de todas las variantes de color con muestras pequeñas.
 - La galería `#/sistema` solo está disponible en desarrollo y no aparece en el dock. El build público muestra página no encontrada en esa ruta.
 - Las solicitudes usan ilustraciones locales de insumos, título/organización y un avance global. El desglose por artículo vive en el detalle. `src/lib/request-visuals.ts` selecciona los assets por categoría sin cambiar el esquema de los datos.
 - Los detalles gráficos de marca son pequeños: rayos de Coco y subrayado amarillo en destacados. Las ilustraciones siguen su paleta y trazos; no son fotografías ni evidencia de entrega.
@@ -46,7 +46,7 @@ Guía corta para las tareas de frontend. Web móvil primero: una columna de hast
 | `Stepper` | Barra de pasos "Paso 1 de 3" con atrás y omitir opcionales. |
 | `Dock` | Navegación inferior flotante. Acción central opcional; en público, tres destinos sin acción arbitraria. |
 | `EmptyState` | Estado vacío con Coco. |
-| `Coco` | La mascota como imagen. `variant="portrait"` usa el recorte de cabeza; el default `full` conserva D1. |
+| `Coco` | La mascota como imagen. `pose` elige saludando, pulgar-arriba, caja-suministros, volando-garrafon o triste; `animation` admite none, enter, greet, celebrate, settle y fly. Alt vacío la hace decorativa. `variant="portrait"` usa el recorte de cabeza; el default `full` conserva D1. |
 
 ## Rutas de ejemplo (hash)
 `#/` inicio, `#/solicitudes` directorio, `#/solicitudes/:id` detalle, `#/siguiendo` estado vacío, `#/sistema` galería de desarrollo. El ruteo de `src/lib/router.ts` es mínimo y se puede cambiar por un router completo sin tocar los componentes.

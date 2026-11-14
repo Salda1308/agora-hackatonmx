@@ -53,7 +53,7 @@ export function Catalogo({ tiendaId }: { tiendaId: string }) {
       ) : articulos === null ? (
         <p className="tda-muted" role="status">Cargando…</p>
       ) : articulos.length === 0 ? (
-        <EmptyState title="Tu catálogo está vacío" description="Agrega artículos uno por uno o sube un CSV." />
+        <EmptyState pose="caja-suministros" title="Tu catálogo está vacío" description="Agrega artículos uno por uno o sube un CSV." />
       ) : (
         <ul className="stack tda-list">
           {articulos.map((a) => <li key={a.id}><FilaArticulo articulo={a} onListo={listo} /></li>)}
