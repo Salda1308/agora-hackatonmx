@@ -21,6 +21,8 @@ export function PaymentStatus({
   const [receipt, setReceipt] = useState<Receipt | null>(null)
   const [error, setError] = useState('')
   useEffect(() => {
+    const client = supabase
+    if (!client) return
     let active = true
     let inFlight = false
     let terminal = false
@@ -29,7 +31,7 @@ export function PaymentStatus({
       if (!active || inFlight || terminal) return
       inFlight = true
       try {
-        const { data, error: failure } = await supabase.functions.invoke(
+        const { data, error: failure } = await client.functions.invoke(
           'estado-pago',
           { body: { token } },
         )

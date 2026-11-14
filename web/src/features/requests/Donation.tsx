@@ -90,6 +90,10 @@ export function Donation({ request }: { request: PublicRequest }) {
       (method === 'push' && !/^\d{10}$/.test(phone))
     )
       return
+    if (!supabase) {
+      setMessage('El servicio no está configurado.')
+      return
+    }
     locked.current = true
     setBusy(true)
     setMessage('')

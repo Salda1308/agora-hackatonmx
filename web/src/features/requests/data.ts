@@ -67,16 +67,18 @@ function categoryFor(names: string): Category {
 }
 export function useRequests(id?: string) {
   const [requests, setRequests] = useState<PublicRequest[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(Boolean(supabase))
+  const [error, setError] = useState(supabase ? '' : 'El servicio no está configurado.')
   const [revision, setRevision] = useState(0)
   const [live, setLive] = useState(false)
   useEffect(() => {
+    const client = supabase
+    if (!client) return
     let active = true
     let generation = 0
     const load = async () => {
       const current = ++generation
-      let query = supabase
+      let query = client
         .from('solicitudes')
         .select(
           `id,titulo,descripcion,estado,recurrente,publicada_en,es_ejemplo,
@@ -132,7 +134,7 @@ export function useRequests(id?: string) {
       setLoading(false)
     }
     void load()
-    const channel = supabase
+    const channel = client
       .channel(`public-requests-${id ?? 'all'}-${revision}`, {
         config: { postgres_changes_options: { wait: true } },
       })
@@ -164,7 +166,7 @@ export function useRequests(id?: string) {
     }, 15000)
     return () => {
       active = false
-      void supabase.removeChannel(channel)
+      void client.removeChannel(channel)
       clearInterval(interval)
       document.removeEventListener('visibilitychange', refresh)
     }
