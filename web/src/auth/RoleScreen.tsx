@@ -25,7 +25,7 @@ export function RoleScreen({ route }: { route: RoleRoute }) {
           <SampleBadge />
           <div><p className="session-muted">{roleLabels[route.role]} · {profile?.nombre_visible}</p>
             <h1 className="page-title">{destination?.label}</h1></div>
-          <EmptyState title="Tu espacio está listo"
+          <EmptyState pose={route.role === 'repartidor' ? 'volando-garrafon' : 'saludando'} title="Tu espacio está listo"
             description="Las herramientas de esta sección estarán disponibles pronto."
             action={<Button variant="outline" href={paths.directory}>Ver solicitudes públicas</Button>} />
         </RequireRole>

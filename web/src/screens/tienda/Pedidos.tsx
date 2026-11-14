@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { Chip } from '../../components/ui/Chip'
-import { Coco } from '../../components/ui/Coco'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { IconCheck } from '../../components/ui/icons'
 import { formatoPesos } from '../fundacion/api'
@@ -73,8 +72,7 @@ export function Pedidos({ tiendaId }: { tiendaId: string }) {
         <p className="tda-muted" role="status">Cargando…</p>
       ) : pedidos.length === 0 ? (
         <div className="tda-empty">
-          <Coco size={120} />
-          <EmptyState title="Sin pedidos por ahora" description="Cuando alguien pague, el pedido aparece aquí." />
+          <EmptyState pose="caja-suministros" title="Sin pedidos por ahora" description="Cuando alguien pague, el pedido aparece aquí." />
         </div>
       ) : (
         <>

@@ -20,7 +20,8 @@ export function Home() {
           <ThemeToggle />
         </header>
         <div className="landing__portrait" aria-hidden="true">
-          <Coco size={640} variant="portrait" />
+          <Coco size={640} pose="saludando" animation="greet" />
+          <span className="coco-spark" /><span className="coco-spark" />
         </div>
       </div>
 

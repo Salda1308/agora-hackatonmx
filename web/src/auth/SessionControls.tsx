@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { Coco } from '../components/ui/Coco'
 import { Button } from '../components/ui/Button'
 import { SampleBadge } from '../components/ui/Chip'
 import { demoAccounts } from './demo'
@@ -38,6 +39,7 @@ export function SessionControls() {
         </summary>
         <div className="session-controls__panel" aria-busy={busy || loading}>
           {demoEnabled ? <>
+            <Coco size={72} pose="saludando" animation="greet" />
             <SampleBadge />
             <p className="session-muted">Elige un rol para probar Ágora con una cuenta de ejemplo.</p>
             <div className="session-controls__roles" role="group" aria-label="Entrar con un rol demo">

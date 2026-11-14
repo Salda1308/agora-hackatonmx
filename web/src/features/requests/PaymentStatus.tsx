@@ -97,7 +97,7 @@ export function PaymentStatus({
     <div aria-live="polite">
       {state === 'pagado' ? (
         <>
-          <Coco size={100} />
+          <Coco size={132} pose="pulgar-arriba" animation="celebrate" />
           <h3>¡Tu ayuda ya sumó!</h3>
           <p>Pago confirmado por la tienda.</p>
           {receipt ? (
@@ -124,6 +124,8 @@ export function PaymentStatus({
           )}
         </>
       ) : (
+        <>
+        <Coco size={88} pose={error || state === 'fallido' || state === 'expirado' ? 'triste' : 'caja-suministros'} animation="settle" />
         <p>
           {state === 'fallido'
             ? 'El cobro fue rechazado. Consulta a la organización antes de otro intento.'
@@ -131,6 +133,7 @@ export function PaymentStatus({
               ? 'El cobro expiró sin confirmación.'
               : 'Consultando la confirmación de tu pago…'}
         </p>
+        </>
       )}
       {error && <p role="status">{error}</p>}
     </div>
