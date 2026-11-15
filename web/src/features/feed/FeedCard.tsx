@@ -5,7 +5,7 @@ import { SampleBadge } from '../../components/ui/Chip'
 import { FloatingChip } from '../../components/ui/FloatingChip'
 import { OrganizationAvatar } from '../../components/ui/OrganizationAvatar'
 import { ProgressBar } from '../../components/ui/Progress'
-import { IconHeart } from '../../components/ui/icons'
+import { IconComment, IconHeart } from '../../components/ui/icons'
 import { paths } from '../../lib/router'
 import { requestVisual } from '../../lib/request-visuals'
 import { SOON, toggleLike, type FeedItem } from './api'
@@ -76,7 +76,7 @@ export function FeedCard({ item, social, onComments, onChange }: {
       <div className="feed-jornada__date"><span>Reserva el día</span><strong>{formatDate(extraText(item, 'inicia_en'))}</strong></div>
       <h2><a href={paths.jornada(item.id)}>{item.titulo}</a></h2>
       <p>{displayedText}</p>
-      <p className="feed-muted">{extraText(item, 'ubicacion') || 'Consulta el punto de encuentro'} · {extraNumber(item, 'cupos')} lugares en total</p>
+      <p className="feed-muted">{extraText(item, 'ubicacion') || 'Consulta el punto de encuentro'} · {'cupos_ocupados' in item.extra ? `${Math.max(0, extraNumber(item, 'cupos') - extraNumber(item, 'cupos_ocupados'))} de ${extraNumber(item, 'cupos')} lugares libres` : `${extraNumber(item, 'cupos')} lugares en total`}</p>
       <Button variant="ink" href={paths.jornada(item.id)}>Quiero participar <span aria-hidden="true">↗</span></Button>
     </div>}
     <footer className="feed-card__footer">
@@ -84,7 +84,7 @@ export function FeedCard({ item, social, onComments, onChange }: {
         <button type="button" className="feed-social-button" aria-pressed={item.yo_di_me_gusta} disabled={busy || status === 'loading'} onClick={() => void like()}>
           <IconHeart /><span>Me gusta</span><strong>{item.me_gusta}</strong>
         </button>
-        <button type="button" className="feed-social-button" onClick={onComments}><span aria-hidden="true">◯</span> Comentarios <strong>{item.comentarios}</strong></button>
+        <button type="button" className="feed-social-button" onClick={onComments}><IconComment /><span>Comentarios</span> <strong>{item.comentarios}</strong></button>
       </> : <span className="feed-muted">Me gusta y comentarios, pronto</span>}
     </footer>
     {error && <p className="feed-card__error" role="alert">{error}</p>}

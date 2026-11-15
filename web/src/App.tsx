@@ -1,4 +1,5 @@
 import { lazy, Suspense } from 'react'
+import { RoleDock } from './auth/RoleDock'
 import { SiteDock } from './components/SiteDock'
 import { RoleScreen } from './auth/RoleScreen'
 import { SessionControls } from './auth/SessionControls'
@@ -110,7 +111,8 @@ function App() {
     <div className="app">
       <SessionControls />
       <div key={route.name} className="coco-screen">{screen}</div>
-      <SiteDock route={route} />
+      {/* Las áreas de rol conservan su navegación interna; lo público usa el dock social. */}
+      {['role', 'fundacion', 'fundacion-publicar'].includes(route.name) ? <RoleDock route={route} /> : <SiteDock route={route} />}
     </div>
   )
 }

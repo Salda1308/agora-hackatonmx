@@ -44,8 +44,12 @@ Guía corta para las tareas de frontend. Web móvil primero: una columna de hast
 | `Chip`, `SampleBadge` | Etiqueta píldora; seleccionable con `onClick` y `selected`. `SampleBadge` marca datos de ejemplo. |
 | `ProgressBar`, `ProgressRing` | Barra y aro de avance accesibles (`role="progressbar"`). |
 | `Stepper` | Barra de pasos "Paso 1 de 3" con atrás y omitir opcionales. |
-| `Dock` | Navegación inferior flotante. Acción central opcional; en público, tres destinos sin acción arbitraria. |
+| `Dock` | Navegación inferior flotante (barra superior en escritorio). Acción central opcional; en público, `SiteDock` con cinco destinos (ver D7). |
 | `EmptyState` | Estado vacío con Coco. |
+| `Modal` | Diálogo accesible sobre `<dialog>.showModal()`: foco atrapado y devuelto al cerrar, Escape, cierre al tocar fuera y botón Cerrar. Hoja inferior en móvil, centrado en escritorio. Props `open`, `onClose`, `title`, `description`, `footer`. Para formularios de D8. |
+| `FloatingChip` | Etiqueta blanca que flota sobre una imagen (categoría de la causa). |
+| `OrganizationAvatar` | Logo circular de la organización; si no hay logo seguro (http/https o ruta local) o falla, muestra iniciales. |
+| `WaveSection` | Sección de color con borde inferior en onda (SVG con `currentColor`). |
 | `Coco` | La mascota como imagen. `pose` elige saludando, pulgar-arriba, caja-suministros, volando-garrafon o triste; `animation` admite none, enter, greet, celebrate, settle y fly. Alt vacío la hace decorativa. `variant="portrait"` usa el recorte de cabeza; el default `full` conserva D1. |
 
 ## Rutas de ejemplo (hash)
@@ -67,3 +71,14 @@ pública sigue disponible y no se ofrecen accesos demo.
 - `CocoLoading` usa la pose `volando-garrafon.webp` existente, una animación CSS de flotación y una estela de nubes. Se mantiene una sola imagen de 34.6 KB porque separar las alas del raster produce bordes visibles. En movimiento reducido queda estática y no se agregan dependencias.
 - La confirmación de pago abre `PaymentConfirmationModal`, con foco atrapado, Escape, cierre explícito, monto, organización y unidades del comprobante. Después muestra un estado centrado con `ReceiptSummary`, `Ver mis comprobantes` y `Donar más unidades`.
 - `#/siguiendo` presenta los comprobantes guardados en `sessionStorage` y consulta los tokens de seguimiento existentes. No cambia funciones ni inventa datos cuando el comprobante aún no está disponible.
+
+## Rediseño D7: red social de causas
+
+- Inicio es un feed cronológico (`src/features/feed/`): historias, causas y jornadas de organizaciones verificadas, cada una con su tarjeta (`FeedCard`), avatar y nombre que enlazan a la página de la organización, foto grande, me gusta y comentarios. Filtros Todo, Historias, Causas y Voluntariado; paginación "Ver más". Cabecera ligera con una sección en onda donde Coco carga la caja de suministros e invita a ayudar; en escritorio queda como columna lateral fija y el feed a la derecha.
+- Datos: `src/features/feed/api.ts` usa el contrato final de T24 (`feed_publico`, `alternar_me_gusta`, `comentar`, `comentarios_de`, `borrar_comentario`, `reportar_comentario`). Si el backend todavía no tiene `feed_publico` (PGRST202 o 42883), arma el feed con las consultas existentes y oculta me gusta y comentarios ("pronto"). Los errores 42501, 22023, 54000 y P0002 muestran el mensaje del servidor, que ya viene en español; cualquier otro se cambia por un texto genérico.
+- Comentarios en `CommentsSheet` (usa `Modal`). Sin sesión invita a entrar; con correo sin confirmar lo pide; el autor o la organización dueña pueden eliminar y los demás reportar con motivo.
+- Solicitudes = causas en curso: sin mapa (se retiró `RequestMap`; `leaflet` queda en package.json sin uso hasta decidir), tarjetas `cause-card` con ilustración grande, chip flotante de categoría, organización, tienda, avance y un CTA. En escritorio, rejilla de hasta tres columnas.
+- Detalle de solicitud: portada con la ilustración sobre fondo amarillo suave, descripción, tienda y un CTA "Elegir unidades para donar" que lleva al formulario de donación existente, que no cambia.
+- Navegación: `SiteDock` con Inicio, Solicitudes, Voluntariado, Siguiendo y Cuenta (Cuenta apunta al área actual del rol, o a Siguiendo para quien compra). Dentro de las áreas de rol se conserva `RoleDock` para su navegación interna.
+- Tokens: `--radius-lg` 32 px y `--radius-xl` 40 px (tarjetas más redondeadas); crema base un poco más cálida (`--palette-cream-100`). Nombres sin cambios. Estilos nuevos en `src/styles/social.css` y `src/components/ui/modal.css`; `--color-photo-ground` es el fondo crema de las imágenes en ambos temas.
+- Las ilustraciones de insumos se marcan como "Ilustración de insumos" para no confundirlas con fotos de entrega.

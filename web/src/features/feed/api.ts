@@ -32,14 +32,11 @@ export function missingFunction(error: { code?: string }) {
   return error.code === 'PGRST202' || error.code === '42883'
 }
 
-// No presentar errores SQL, correos ni detalles de infraestructura en la interfaz.
+// Contrato T24: estos códigos traen un mensaje en español listo para mostrar; el resto se oculta.
+const CONTRACT_CODES = new Set(['42501', '22023', '54000', 'P0002'])
 function socialError(error: { code?: string; message?: string }) {
   if (missingFunction(error)) return new Error(SOON)
-  const message = error.message ?? ''
-  if (/confirm|verific.*correo/i.test(message)) return new Error('Confirma tu correo para participar.')
-  if (/límite|limite|demasiad|rate|máximo|maximo/i.test(message)) return new Error('Has participado varias veces. Espera unos minutos antes de intentar de nuevo.')
-  if (/duplicad|repetid/i.test(message)) return new Error('Ese comentario ya fue enviado. Escribe algo diferente.')
-  if (/URL|correo|teléfono|telefono|control|500|texto/i.test(message)) return new Error('Usa de 1 a 500 caracteres, sin enlaces, correos ni teléfonos.')
+  if (error.code && CONTRACT_CODES.has(error.code) && error.message) return new Error(error.message)
   return new Error('No pudimos completar la acción. Intenta de nuevo.')
 }
 

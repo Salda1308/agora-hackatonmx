@@ -64,17 +64,6 @@
   overflow-wrap: anywhere;
 }
 
-.request-map {
-  height: 280px;
-  border-radius: var(--radius-md);
-  isolation: isolate;
-  z-index: 0;
-}
-.request-map a {
-  min-height: var(--tap-min);
-  display: inline-flex;
-  align-items: center;
-}
 .donation__receipt {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
@@ -249,12 +238,6 @@
   gap: var(--space-1);
   margin: 0;
   padding-left: var(--space-5);
-}
-.request-map .leaflet-bar a {
-  width: var(--tap-min);
-  height: var(--tap-min);
-  line-height: var(--tap-min);
-  display: block;
 }
 @media print {
   body * {

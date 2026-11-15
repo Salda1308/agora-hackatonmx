@@ -129,3 +129,20 @@ export function IconBookmark() {
     </Svg>
   )
 }
+
+export function IconComment() {
+  return (
+    <Svg>
+      <path d="M5 18.5V7a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H8.5z" />
+    </Svg>
+  )
+}
+
+export function IconUser() {
+  return (
+    <Svg>
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 21v-1a8 8 0 0 1 16 0v1" />
+    </Svg>
+  )
+}
