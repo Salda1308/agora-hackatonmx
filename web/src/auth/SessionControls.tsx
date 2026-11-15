@@ -3,18 +3,23 @@ import { Coco } from '../components/ui/Coco'
 import { Button } from '../components/ui/Button'
 import { SampleBadge } from '../components/ui/Chip'
 import { demoAccounts } from './demo'
+import { registroPaths } from './registro-routes'
 import { roleLabels, roleNavigation } from './roles'
 import type { Role } from './roles'
 import { useSession } from './useSession'
 import './session.css'
 
 export function SessionControls() {
-  const { user, role, loading, status, error, demoEnabled, signInDemo, signOut, retry } = useSession()
+  const { user, role, loading, status, error, demoEnabled, authEnabled, signInDemo, signOut, retry } = useSession()
   const [busy, setBusy] = useState(false)
   const [actionError, setActionError] = useState<string | null>(null)
   const details = useRef<HTMLDetailsElement>(null)
   const summary = useRef<HTMLElement>(null)
-  if (!demoEnabled && !user && status !== 'error') return null
+  if (!demoEnabled && !authEnabled && !user && status !== 'error') return null
+
+  function cerrar() {
+    if (details.current) details.current.open = false
+  }
 
   async function changeAccount(nextRole?: Role) {
     setBusy(true)
@@ -34,8 +39,8 @@ export function SessionControls() {
     <aside className="session-controls" aria-label="Sesión">
       <details ref={details}>
         <summary ref={summary} className="session-controls__summary">
-          <span>{demoEnabled ? 'Acceso de demostración' : 'Tu sesión'}</span>
-          <strong>{loading ? 'Cargando…' : user && role ? roleLabels[role] : 'Visitante'}</strong>
+          <span>{demoEnabled ? 'Acceso de demostración' : user ? 'Tu sesión' : 'Tu cuenta'}</span>
+          <strong>{loading ? 'Cargando…' : user && role ? roleLabels[role] : demoEnabled ? 'Visitante' : 'Entrar'}</strong>
         </summary>
         <div className="session-controls__panel" aria-busy={busy || loading}>
           {demoEnabled ? <>
@@ -50,6 +55,18 @@ export function SessionControls() {
               ))}
             </div>
           </> : null}
+          {authEnabled && !user ? (
+            <div className="session-controls__account" role="group" aria-label="Tu cuenta">
+              <p className="session-muted">¿Fundación, tienda o repartidor? Entra con tu cuenta o solicita tu alta.</p>
+              <div className="session-controls__roles">
+                <Button variant="outline" href={registroPaths.entrar} onClick={cerrar}>Entrar</Button>
+                <Button variant="outline" href={registroPaths.crearCuenta} onClick={cerrar}>Crear cuenta</Button>
+              </div>
+            </div>
+          ) : null}
+          {user && status === 'ready' && role === 'comprador' && !demoAccounts.some((a) => a.email === user.email) ? (
+            <Button variant="outline" href={registroPaths.registro} onClick={cerrar}>Mi solicitud de alta</Button>
+          ) : null}
           {user ? <Button variant="ghost" disabled={busy || loading}
             onClick={() => { void changeAccount() }}>Cerrar sesión</Button> : null}
         </div>
