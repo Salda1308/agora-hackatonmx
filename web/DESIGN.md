@@ -100,3 +100,10 @@ pública sigue disponible y no se ofrecen accesos demo.
 - Globales (compatibles con D8): en escritorio la barra de sesión demo se alinea al ancho del contenido y a la derecha, y el `.brand` de la `topbar` se oculta porque la marca ya vive en el dock; `SampleBadge` no se estira en rejillas (`justify-self: start`); `.page-title + .page-lead` lleva `--space-2` de separación; en oscuro, `--color-section-warm` es un amarillo translúcido (antes se veía marrón).
 - Registro y sus formularios: máximo 640 px en escritorio.
 - Hallazgos en pantallas de rol, para D8: `.ai/tasks/D9/hallazgos-roles.md`.
+
+## D10: portada y navegación
+
+- Inicio conserva el feed social debajo de una portada nueva: hero cálido con Coco, causa destacada y avance, categorías con conteos y hasta cuatro causas abiertas ordenables. `Portada.tsx` reemplaza `CocoSpotlight`: el papel de Coco y la causa real ahora viven en el hero.
+- Las causas y sus unidades salen de solicitudes publicadas; si esa consulta aún no aporta datos, se usan las causas cargadas en el feed. Los conteos y la prueba social se calculan con esos datos, sin cifras de marketing. Los datos de ejemplo se identifican con `SampleBadge`.
+- En escritorio, `SiteDock` presenta marca, cinco destinos y acciones en una píldora superior. En móvil, la cabecera del Inicio es compacta y el dock inferior usa la misma superficie clara con el destino activo en tinta. `RoleDock` hereda este tratamiento mediante el componente `Dock`, sin cambiar sus destinos.
+- El hero usa un único bloque cálido en claro y una versión sobria en oscuro. Categorías y tarjetas mantienen superficies neutras; el rojo de Coco queda como acento del titular.

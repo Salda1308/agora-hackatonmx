@@ -16,32 +16,16 @@
 .brand-dot { color: var(--color-primary); }
 .feed-muted { color: var(--color-text-muted); font-size: var(--text-sm); }
 .feed-eyebrow { display: block; font-size: var(--text-xs); letter-spacing: .1em; text-transform: uppercase; font-weight: var(--font-weight-black); }
-.social-home { max-width: 680px; padding-inline: var(--space-4); }
-.social-home__header { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding-block: var(--space-4) var(--space-5); }
-.social-home__header .brand { min-height: var(--tap-min); display: flex; align-items: center; font-size: 2rem; text-decoration: none; letter-spacing: -.07em; }
+.social-home { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-7); max-width: 680px; padding-inline: var(--space-4); }
+/* D10: en móvil, barra compacta en píldora (marca, tema y CTA oscuro); en escritorio la barra vive en el dock. */
+.social-home__header { display: flex; align-items: center; gap: var(--space-2); margin-top: var(--space-3); margin-bottom: calc(-1 * var(--space-3)); padding: var(--space-1) var(--space-1) var(--space-1) var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-pill); background: var(--color-surface-2); box-shadow: var(--shadow-sm); }
+.social-home__header .brand { display: flex; align-items: center; gap: var(--space-1); min-height: var(--tap-min); margin-right: auto; font-size: 1.75rem; text-decoration: none; letter-spacing: -.07em; }
+.social-home__header .brand .ui-coco { width: 32px; height: auto; }
 .social-home__tagline { display: none; font-size: var(--text-sm); color: var(--color-text-muted); }
+.social-home__cta { display: inline-flex; align-items: center; min-height: var(--tap-min); padding: 0 var(--space-5); border-radius: var(--radius-pill); background: var(--color-ink); color: var(--color-on-ink); font-weight: var(--font-weight-bold); text-decoration: none; }
 .social-home__layout { display: grid; gap: var(--space-7); }
-/* D9: Coco presenta una causa concreta; un solo acento (rojo) en el CTA. */
-.coco-spotlight { display: grid; gap: var(--space-4); padding: var(--space-5); border: 1px solid var(--color-border); border-radius: var(--radius-editorial); background: var(--color-surface-2); }
-.coco-spotlight__greeting { display: grid; grid-template-columns: 88px minmax(0, 1fr); gap: var(--space-4); align-items: center; }
-.coco-spotlight__greeting .ui-coco { width: 88px; height: 88px; }
-.coco-spotlight h1 { font-size: clamp(1.5rem, 6.4vw, 2rem); line-height: 1.05; letter-spacing: -.035em; margin-block: var(--space-1) var(--space-2); }
-.coco-spotlight__greeting p { font-size: var(--text-sm); color: var(--color-text-muted); }
-.coco-spotlight .feed-eyebrow { font-size: .625rem; letter-spacing: .08em; color: var(--color-text-muted); }
-.coco-spotlight__cause { position: relative; display: grid; gap: var(--space-2); padding: var(--space-4); border-radius: var(--radius-md); background: var(--color-surface); text-decoration: none; color: var(--color-text); }
-.coco-spotlight__cause::before { content: ''; position: absolute; left: 40px; top: -8px; width: 16px; height: 16px; background: inherit; rotate: 45deg; border-radius: 3px; }
-.coco-spotlight__cause > .ui-chip--sample { justify-self: start; }
-.coco-spotlight__cause > strong { font-size: var(--text-lg); line-height: var(--leading-snug); overflow-wrap: anywhere; }
-.coco-spotlight__cta { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); min-height: var(--tap-min); margin-top: var(--space-2); padding-inline: var(--space-5); border-radius: var(--radius-pill); background: var(--color-primary); color: var(--color-on-primary); font-weight: var(--font-weight-bold); }
-.coco-spotlight__cause:hover .coco-spotlight__cta { background: var(--color-primary-strong); }
-.coco-spotlight__cause:hover strong { text-decoration: underline; }
-.coco-spotlight__links { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2); }
-.coco-spotlight__links a { display: flex; align-items: center; justify-content: center; min-height: var(--tap-min); padding-inline: var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-pill); text-decoration: none; font-size: var(--text-sm); font-weight: var(--font-weight-bold); text-align: center; }
-.coco-spotlight__links a:hover { border-color: var(--color-text); }
-.feed-community-note { display: none; }
 .feed-timeline { min-width: 0; display: grid; align-content: start; gap: var(--space-5); }
-.feed-timeline__heading { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); }
-.feed-timeline__heading h2 { font-size: var(--text-xl); }
+.feed-timeline__heading h2 { font-size: var(--text-2xl); letter-spacing: -.03em; }
 .feed-timeline .feed-filters { margin: 0; padding: var(--space-1); gap: var(--space-2); }
 .feed-filters .ui-chip { font-size: var(--text-sm); padding-inline: var(--space-3); }
 .feed-list { display: grid; gap: var(--space-6); }
@@ -122,9 +106,7 @@
   .ui-dock__item { min-height: 60px; }
 }
 @media (min-width: 640px) and (max-width: 1023px) {
-  .social-home__tagline { display: block; }
-  .coco-spotlight__greeting { grid-template-columns: 112px minmax(0, 1fr); }
-  .coco-spotlight__greeting .ui-coco { width: 112px; height: 112px; }
+  .social-home__tagline { display: block; margin-right: var(--space-2); }
   .directory, .request-detail { max-width: 720px; }
   /* D9: la barra demo toma el ancho de la pantalla activa para no quedar descentrada. */
   .app:has(.social-home) > .session-controls { max-width: 680px; }
@@ -132,22 +114,12 @@
   .directory-results > .stack { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (min-width: 1024px) {
-  .social-home { max-width: 1160px; padding-inline: 0; }
-  .social-home__header { padding-block: 0 var(--space-6); max-width: calc(360px + clamp(32px, 5vw, 72px) + 640px); margin-inline: auto; }
-  .social-home__tagline { display: block; margin-left: auto; }
-  .social-home__header > .brand { display: none; }
-  .social-home__layout { grid-template-columns: minmax(280px, 360px) minmax(0, 640px); gap: clamp(32px, 5vw, 72px); justify-content: center; align-items: start; }
-  .social-home__intro { position: sticky; top: 124px; }
-  .coco-spotlight { padding: var(--space-6); }
-  .coco-spotlight__greeting { grid-template-columns: 1fr; justify-items: start; }
-  .coco-spotlight__greeting .ui-coco { width: 120px; height: 120px; }
-  .coco-spotlight h1 { font-size: clamp(2rem, 2.6vw, 2.5rem); }
-  .coco-spotlight__greeting p { font-size: var(--text-md); }
-  .feed-community-note { display: grid; gap: var(--space-4); padding: var(--space-7) var(--space-5); color: var(--color-text-muted); }
-  .feed-community-note h2 { font-size: var(--text-xl); color: var(--color-text); }
-  .feed-community-note p { font-size: var(--text-sm); }
-  .feed-community-note .feed-text-button { font-size: var(--text-sm); }
-  .feed-timeline__heading h2 { font-size: var(--text-2xl); }
+  .social-home { max-width: 1360px; padding-inline: 0; gap: var(--space-9); }
+  .social-home__header { justify-content: flex-end; margin: 0 0 calc(-1 * var(--space-8)); padding: 0; border: 0; background: transparent; box-shadow: none; }
+  .social-home__header > .brand, .social-home__header > .social-home__cta { display: none; }
+  .social-home__tagline { display: block; }
+  .social-home__layout { width: 100%; max-width: 680px; margin-inline: auto; }
+  .feed-timeline__heading h2 { font-size: 2.25rem; }
   .feed-card__header { padding: var(--space-6); }
   .feed-card__copy { padding-inline: var(--space-6); }
   .feed-card__footer { padding-inline: var(--space-5); }

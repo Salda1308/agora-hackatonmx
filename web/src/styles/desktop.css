@@ -1,5 +1,5 @@
 /* D4: el diseño móvil se conserva íntegro por debajo de 1024 px. */
-.ui-dock__brand { display: none; }
+.ui-dock__brand, .ui-dock__actions { display: none; }
 .directory-results { display: contents; }
 
 @media screen and (min-width: 1024px) {
@@ -18,36 +18,44 @@
   /* D9: la marca ya está en la barra superior; en la cabecera de cada pantalla se oculta sin mover el resto. */
   .topbar > .brand { visibility: hidden; }
 
-  /* Una sola navegación, con los destinos y permisos del dock móvil. */
+  /* Una sola navegación, con los destinos y permisos del dock móvil.
+     D10: píldora blanca flotante con la marca a la izquierda, enlaces al centro y acciones a la derecha. */
   .ui-dock {
     inset: var(--space-4) auto auto 50%;
     width: min(calc(100% - 2 * var(--space-7)), 1360px);
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
     align-items: center;
-    justify-content: space-between;
-    gap: var(--space-6);
-    padding: var(--space-2) var(--space-5);
-    border-radius: var(--radius-lg);
-    background: var(--color-dock);
-    color: var(--color-on-dock);
-    box-shadow: var(--shadow-dock);
+    gap: var(--space-5);
+    padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    background: var(--color-surface-2);
+    color: var(--color-text);
+    box-shadow: var(--shadow-md);
   }
   .ui-dock__brand {
     display: inline-flex;
     align-items: center;
+    gap: var(--space-2);
+    justify-self: start;
     min-height: var(--tap-min);
     font-size: var(--text-2xl);
     font-weight: var(--font-weight-black);
+    letter-spacing: -0.06em;
     text-decoration: none;
   }
+  .ui-dock__brand img { width: 36px; height: auto; }
   .ui-dock__list {
     display: flex;
-    gap: var(--space-2);
+    gap: var(--space-1);
     height: auto;
     padding: 0;
+    border: 0;
     box-shadow: none;
     border-radius: 0;
     background: transparent;
+    color: var(--color-text);
   }
   .ui-dock__item,
   .ui-dock__action {
@@ -60,10 +68,9 @@
     padding: var(--space-3) var(--space-4);
     border-radius: var(--radius-pill);
   }
-  .ui-dock__label { font-size: var(--text-sm); }
-  .ui-dock__item--active { background: var(--color-on-dock); color: var(--color-dock); }
-  .ui-dock__item--active::after { display: none; }
-  .ui-dock__item--active:hover { color: var(--color-dock); }
+  .ui-dock__item svg { display: none; }
+  .ui-dock__label { font-size: var(--text-md); }
+  .ui-dock__item:hover:not(.ui-dock__item--active) { background: var(--color-track); }
   .ui-dock__action {
     width: auto;
     height: auto;
@@ -80,6 +87,20 @@
   }
   .ui-dock__action--active { box-shadow: inset 0 0 0 2px var(--color-on-primary); }
   .ui-dock__action:focus-visible { outline-offset: 3px; }
+  .ui-dock__actions { display: flex; align-items: center; justify-content: flex-end; gap: var(--space-2); }
+  .ui-dock__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-height: var(--tap-min);
+    padding: 0 var(--space-1) 0 var(--space-5);
+    border-radius: var(--radius-pill);
+    background: var(--color-ink);
+    color: var(--color-on-ink);
+    font-weight: var(--font-weight-bold);
+    text-decoration: none;
+  }
+  .ui-dock__cta-arrow { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--color-accent); color: var(--palette-ink-900); }
 
   /* D9: la barra demo se alinea al ancho del contenido y queda compacta a la derecha. */
   .app > .session-controls { width: calc(100% - 2 * var(--space-7)); max-width: 1360px; padding: 0 0 var(--space-3); }
