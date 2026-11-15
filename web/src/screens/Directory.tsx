@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState } from 'react'
+import { useState } from 'react'
 import { RequestCard } from '../components/RequestCard'
 import { ThemeToggle } from '../components/ThemeToggle'
 import { Button } from '../components/ui/Button'
@@ -9,8 +9,6 @@ import { IconSearch } from '../components/ui/icons'
 
 import '../features/requests/donation.css'
 import { useRequests, CATEGORIES, type Category } from '../features/requests/data'
-
-const RequestMap = lazy(() => import('../features/requests/RequestMap').then(module => ({ default: module.RequestMap })))
 
 export function Directory() {
   const { requests, loading, error, retry } = useRequests()
@@ -33,14 +31,14 @@ export function Directory() {
     <main className="screen directory">
       <div className="screen__body screen__body--top">
         <div className="topbar">
-          <span>Solicitudes verificadas</span>
+          <span>Causas en curso</span>
           <ThemeToggle />
         </div>
         <div className="directory-heading">
-          <h1 className="page-title">Encuentra una causa</h1>
+          <h1 className="page-title">Hagamos que suceda.</h1>
           <img src="/illustrations/coco-rays.svg" alt="" width="32" height="40" />
         </div>
-        <p className="page-lead">Elige dónde sumar, unidad por unidad.</p>
+        <p className="page-lead">Una causa, muchas manos. Encuentra dónde sumar, unidad por unidad.</p>
 
         <label className="search">
           <IconSearch />
@@ -69,7 +67,6 @@ export function Directory() {
         </p>
 
         <div className="directory-results">
-        {!loading && !error && results.length > 0 && <Suspense fallback={<CocoLoading title="Cargando mapa…" size={80} />}><RequestMap requests={results} /></Suspense>}
 
         {loading ? <CocoLoading title="Buscando solicitudes…" size={96} /> : error ? <div role="alert"><p>{error}</p><Button onClick={retry}>Reintentar</Button></div> : results.length > 0 ? (
           <div className="stack">

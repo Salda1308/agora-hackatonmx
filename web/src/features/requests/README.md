@@ -12,10 +12,9 @@ reconectar, volver del banco y cada 15 segundos. El cambio público de unidades
 nunca se interpreta como confirmación del pago individual. El detalle distingue
 la financiación parcial de una etapa completamente terminada.
 
-El mapa usa Leaflet + teselas públicas OSM, sin API key. Solo incluye coordenadas
-públicas; las solicitudes sin ubicación permanecen en la lista. Muestra un aviso
-si fallan las teselas. La carga del mapa y el generador QR se difiere para no
-cargar ambos en inicio. `qrcode` dibuja el payload localmente, sin enviarlo a
+El Directorio ya no muestra mapa (D7): las causas se listan como tarjetas con
+imagen. La dependencia `leaflet` sigue en package.json sin uso hasta decidir si se
+retira. El generador QR se carga diferido. `qrcode` dibuja el payload localmente, sin enviarlo a
 servicios de imágenes externos.
 
 Donación: 1–10 artículos con cantidades enteras, QR/push/link. El servidor es la

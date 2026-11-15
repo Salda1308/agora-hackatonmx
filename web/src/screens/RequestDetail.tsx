@@ -52,6 +52,7 @@ export function RequestDetail({ id }: { id: string }) {
           {request.sample && <SampleBadge />}
           <ThemeToggle />
         </div>
+        <div className="detail-cover"><img src={requestVisual(request.category)} alt={`Ilustración de insumos de ${request.category.toLowerCase()}`} /><span>Una causa, muchas manos</span></div>
         <div className="detail-hero__chips">
           <Chip>{request.category}</Chip>
           {request.recurring ? <Chip>Cada mes</Chip> : null}
@@ -64,8 +65,11 @@ export function RequestDetail({ id }: { id: string }) {
               <span className="request-card__city"><IconPin /> {request.city}</span>
             </p>
           </div>
-          <img src={requestVisual(request.category)} alt="" width="104" height="104" />
+
         </div>
+        {request.description && <p className="detail-description">{request.description}</p>}
+        {request.store && <p className="feed-muted">Tienda que prepara tu ayuda · {request.store}</p>}
+        <a className="ui-button ui-button--primary" href="#donar" onClick={event => { event.preventDefault(); document.querySelector('.donation')?.scrollIntoView({ behavior: 'auto', block: 'start' }); document.querySelector<HTMLInputElement>('.donation input')?.focus({ preventScroll: true }) }}>Elegir unidades para donar ↓</a>
         <div className="detail-hero__progress">
           <ProgressRing
             value={totals.paid}

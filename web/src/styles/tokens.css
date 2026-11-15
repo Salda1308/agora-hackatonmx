@@ -13,7 +13,7 @@
   --palette-yellow-400: #ffc916;
   --palette-yellow-100: #fff3c7;
   --palette-cream-50: #fffaf1;
-  --palette-cream-100: #fbf1e1;
+  --palette-cream-100: #faf3e8;
   --palette-cream-200: #f2e3cc;
   --palette-ink-900: #0d1130;
   --palette-ink-800: #161b3f;
@@ -91,8 +91,8 @@
   /* Radios */
   --radius-sm: 12px;
   --radius-md: 20px;
-  --radius-lg: 28px;
-  --radius-xl: 36px;
+  --radius-lg: 32px;
+  --radius-xl: 40px;
   --radius-pill: 999px;
 
   /* Espacios (escala de 4 px) */
