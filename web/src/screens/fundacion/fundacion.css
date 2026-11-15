@@ -175,3 +175,8 @@
   gap: var(--space-2);
   min-width: 0;
 }
+
+/* T25: vista previa de la imagen con la misma relación que la tarjeta de causa. */
+.fund-photo { margin: 0; display: grid; gap: var(--space-2); }
+.fund-photo > img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: var(--radius-md); background: var(--color-photo-ground); }
+.fund-photo > figcaption { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }

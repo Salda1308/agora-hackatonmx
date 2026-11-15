@@ -9,7 +9,7 @@ import { IconBack, IconCheck, IconPin } from '../components/ui/icons'
 import { useRequests, formatMXN, requestTotals } from '../features/requests/data'
 import { Donation } from '../features/requests/Donation'
 import { paths } from '../lib/router'
-import { requestVisual } from '../lib/request-visuals'
+import { RequestImage } from '../components/RequestImage'
 
 export function RequestDetail({ id }: { id: string }) {
   const { requests, loading, error, live, retry } = useRequests(id)
@@ -52,7 +52,7 @@ export function RequestDetail({ id }: { id: string }) {
           {request.sample && <SampleBadge />}
           <ThemeToggle />
         </div>
-        <div className="detail-cover"><img src={requestVisual(request.category)} alt={`Ilustración de insumos de ${request.category.toLowerCase()}`} /><span>Una causa, muchas manos</span></div>
+        <div className="detail-cover"><RequestImage path={request.image} category={request.category} title={request.title} illustrationAlt={`Ilustración de insumos de ${request.category.toLowerCase()}`} loading="eager" /><span>Una causa, muchas manos</span></div>
         <div className="detail-hero__chips">
           <Chip>{request.category}</Chip>
           {request.recurring ? <Chip>Cada mes</Chip> : null}

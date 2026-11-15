@@ -1,5 +1,5 @@
 import { paths } from '../lib/router'
-import { requestVisual } from '../lib/request-visuals'
+import { RequestImage } from './RequestImage'
 import { requestTotals, type PublicRequest } from '../features/requests/data'
 import { SampleBadge } from './ui/Chip'
 import { FloatingChip } from './ui/FloatingChip'
@@ -12,9 +12,8 @@ export function RequestCard({ request }: { request: PublicRequest }) {
   const complete = totals.total > 0 && totals.paid >= totals.total
   return <article className="request-card cause-card">
     <a className="cause-card__visual" href={paths.request(request.id)} aria-label={`Ver causa: ${request.title}`}>
-      <img src={requestVisual(request.category)} alt="" loading="lazy" decoding="async" />
+      <RequestImage path={request.image} category={request.category} title={request.title} note />
       <FloatingChip>{request.category}{request.recurring ? ' · Cada mes' : ''}</FloatingChip>
-      <span className="feed-illustration-note">Ilustración de insumos</span>
     </a>
     <div className="cause-card__body">
       {request.sample && <SampleBadge />}

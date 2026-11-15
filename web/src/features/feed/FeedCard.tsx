@@ -7,7 +7,7 @@ import { OrganizationAvatar } from '../../components/ui/OrganizationAvatar'
 import { ProgressBar } from '../../components/ui/Progress'
 import { IconComment, IconHeart } from '../../components/ui/icons'
 import { paths } from '../../lib/router'
-import { requestVisual } from '../../lib/request-visuals'
+import { RequestImage } from '../../components/RequestImage'
 import { SOON, toggleLike, type FeedItem } from './api'
 import { categoryFrom, extraNumber, extraText, formatDate, storeName } from './presentation'
 
@@ -61,9 +61,8 @@ export function FeedCard({ item, social, onComments, onChange }: {
       </div>}
     </> : item.tipo === 'solicitud' ? <>
       <a className="feed-cause-visual" href={paths.request(item.id)} aria-label={`Ver causa: ${item.titulo}`}>
-        <img src={media.find(m => m.tipo === 'imagen')?.src ?? requestVisual(categoryFrom(`${item.titulo ?? ''} ${item.texto ?? ''} ${item.extra.categoria ?? ''}`))} alt="" loading="lazy" />
+        <RequestImage src={media.find(m => m.tipo === 'imagen')?.src} category={categoryFrom(`${item.titulo ?? ''} ${item.texto ?? ''} ${item.extra.categoria ?? ''}`)} title={item.titulo ?? ''} note />
         <FloatingChip>{categoryFrom(`${item.titulo ?? ''} ${item.texto ?? ''} ${item.extra.categoria ?? ''}`)}</FloatingChip>
-        {!media.length && <span className="feed-illustration-note">Ilustración de insumos</span>}
       </a>
       <div className="feed-card__copy">
         <h2><a href={paths.request(item.id)}>{item.titulo}</a></h2>

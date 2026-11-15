@@ -8,6 +8,7 @@ import { Field, FormModal } from '../../components/ui/FormModal'
 import { describe } from '../../components/ui/describe'
 import { Stepper } from '../../components/ui/Stepper'
 import { paths } from '../../lib/router'
+import { IMAGE_LIMIT } from '../organizacion/media'
 import {
   cargarCatalogo,
   cargarMiOrganizacion,
@@ -37,6 +38,12 @@ export function NuevaSolicitud({ organizacionId, onClose, onPublicada }: {
   const [cantidades, setCantidades] = useState<Record<string, number>>({})
   const [titulo, setTitulo] = useState('')
   const [descripcion, setDescripcion] = useState('')
+  const [imagen, setImagen] = useState<File | null>(null)
+  const [errorImagen, setErrorImagen] = useState<string | null>(null)
+  const vistaPrevia = useMemo(() => (imagen ? URL.createObjectURL(imagen) : null), [imagen])
+  useEffect(() => () => {
+    if (vistaPrevia) URL.revokeObjectURL(vistaPrevia)
+  }, [vistaPrevia])
   const [cargaFallida, setCargaFallida] = useState(false)
   const [intento, setIntento] = useState(0)
   const [publicando, setPublicando] = useState(false)
@@ -81,6 +88,16 @@ export function NuevaSolicitud({ organizacionId, onClose, onPublicada }: {
   const total = elegidos.reduce((n, a) => n + cantidades[a.id] * a.precio_centavos, 0)
   const puedePublicar = org ? org.verificada && !org.suspendida : false
 
+  const elegirImagen = (file: File | undefined) => {
+    if (!file) return
+    if (file.size > IMAGE_LIMIT || !['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      setErrorImagen('Elige JPG, PNG o WebP de hasta 5 MB.')
+      return
+    }
+    setErrorImagen(null)
+    setImagen(file)
+  }
+
   const cambiar = (id: string, delta: number) =>
     setCantidades((prev) => ({
       ...prev,
@@ -106,6 +123,7 @@ export function NuevaSolicitud({ organizacionId, onClose, onPublicada }: {
         titulo: titulo.trim(),
         descripcion: descripcion.trim(),
         articulos: elegidos.map((a) => ({ articulo_id: a.id, cantidad: cantidades[a.id] })),
+        imagen,
       })
       setPublicadaId(id)
       onPublicada()
@@ -280,6 +298,31 @@ export function NuevaSolicitud({ organizacionId, onClose, onPublicada }: {
                 onChange={(e) => setDescripcion(e.target.value)}
               />
             </Field>
+            <Field
+              id="fund-imagen"
+              label="Imagen (opcional)"
+              hint="JPG, PNG o WebP de hasta 5 MB. Quitamos metadatos y ubicación. Sin imagen usamos una ilustración."
+              error={errorImagen}
+            >
+              <input
+                {...describe('fund-imagen', 'ayuda', errorImagen)}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={(e) => {
+                  elegirImagen(e.target.files?.[0])
+                  e.target.value = ''
+                }}
+              />
+            </Field>
+            {vistaPrevia ? (
+              <figure className="fund-photo">
+                <img src={vistaPrevia} alt={`Vista previa de la imagen de ${titulo.trim() || 'la solicitud'}`} />
+                <figcaption>
+                  <span className="fund-muted">Así se recorta en la tarjeta</span>
+                  <Button variant="ghost" onClick={() => setImagen(null)}>Quitar imagen</Button>
+                </figcaption>
+              </figure>
+            ) : null}
           </fieldset>
           <fieldset className="fm-group">
             <legend>Resumen</legend>
