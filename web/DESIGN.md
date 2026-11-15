@@ -82,3 +82,13 @@ pública sigue disponible y no se ofrecen accesos demo.
 - Navegación: `SiteDock` con Inicio, Solicitudes, Voluntariado, Siguiendo y Cuenta (Cuenta apunta al área actual del rol, o a Siguiendo para quien compra). Dentro de las áreas de rol se conserva `RoleDock` para su navegación interna.
 - Tokens: `--radius-lg` 32 px y `--radius-xl` 40 px (tarjetas más redondeadas); crema base un poco más cálida (`--palette-cream-100`). Nombres sin cambios. Estilos nuevos en `src/styles/social.css` y `src/components/ui/modal.css`; `--color-photo-ground` es el fondo crema de las imágenes en ambos temas.
 - Las ilustraciones de insumos se marcan como "Ilustración de insumos" para no confundirlas con fotos de entrega.
+
+## Pase D9: armonía pública
+
+- Cabecera del Inicio: `CocoSpotlight` (`src/features/feed/CocoSpotlight.tsx`) reemplaza la sección en onda. Coco saluda y presenta una causa real del feed (la que tiene más unidades por cubrir) en una burbuja con título, organización, avance y el CTA "Donar unidades"; si el feed no trae causas, ofrece "Ver causas en curso". Debajo, dos atajos de 48 px: Todas las causas y Voluntariado. `WaveSection` se conserva en `ui/` aunque Inicio ya no la usa.
+- Un solo acento protagonista por pantalla: en Inicio es el CTA rojo de la burbuja; la nota "De cerca" queda con un único enlace.
+- Detalle: la portada usa `--color-surface-2` con borde (ya no amarillo) para separarse del fondo en 768 px; en escritorio es un cuadro de hasta 440 px a la izquierda del encabezado. "Qué falta" ocupa una sola columna. Las leyendas de la donación alinean con el título y el estado "Pago en seguimiento" centra todos sus textos.
+- Organización: las necesidades abiertas muestran la ilustración de su categoría (`requestVisual`). En gestión y escritorio, las publicaciones suben junto a necesidades y formulario.
+- Globales (compatibles con D8): en escritorio la barra de sesión demo se alinea al ancho del contenido y a la derecha, y el `.brand` de la `topbar` se oculta porque la marca ya vive en el dock; `SampleBadge` no se estira en rejillas (`justify-self: start`); `.page-title + .page-lead` lleva `--space-2` de separación; en oscuro, `--color-section-warm` es un amarillo translúcido (antes se veía marrón).
+- Registro y sus formularios: máximo 640 px en escritorio.
+- Hallazgos en pantallas de rol, para D8: `.ai/tasks/D9/hallazgos-roles.md`.
