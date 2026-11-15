@@ -90,6 +90,7 @@ El monto lo calcula el servidor a partir del precio congelado de cada artículo;
 - `supabase/functions/`: `crear-cobro`, `pey-webhook`, `estado-pago` y `t17-imagen` (Edge Functions de Deno).
 - `supabase/tests/`: pruebas pgTAP.
 - `supabase/seed.sql`: datos de ejemplo y cuentas de demostración.
+- `scripts/restablecer-cuentas-demo.mjs`: restablece las cuentas de demostración con `service_role`.
 
 ## Configuración
 
@@ -119,6 +120,18 @@ Las credenciales van en variables de entorno o secretos del backend; nunca en el
 | Comprador | `comprador@demo.agora.test` | Sin perfil |
 
 Contraseña pública de las cuatro cuentas, solo para la demo: `Agora-demo-2026!`. Estas cuentas solo ven datos de ejemplo y no pueden cobrar ni mover dinero.
+
+Protección de las cuentas demo:
+
+- La migración `20261114200000_proteger_cuentas_demo.sql` agrega un disparador en `auth.users` que rechaza cualquier cambio de contraseña o de correo de las cuentas `@demo.agora.test`, salvo volver a la contraseña publicada. El resto de las cuentas no cambia.
+- `supabase/config.toml` activa `secure_password_change` (pide reautenticación si la sesión no es reciente). En el proyecto alojado el ajuste equivalente está en el panel: Authentication, Sign In / Providers, Email, "Secure password change".
+- Si alguien logra cambiarlas (por ejemplo antes de aplicar la migración), se restablecen con la llave `service_role`, que nunca se guarda en el repositorio:
+
+```bash
+SUPABASE_URL=https://<ref>.supabase.co SUPABASE_SERVICE_ROLE_KEY=<llave> node scripts/restablecer-cuentas-demo.mjs
+```
+
+El script deja las cuatro cuentas con su correo, la contraseña publicada, el correo confirmado y sin bloqueo. Termina con código 1 si alguna falla.
 
 ## Modelo de datos
 
