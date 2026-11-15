@@ -4,6 +4,7 @@ import { Button } from '../../components/ui/Button'
 import { Chip } from '../../components/ui/Chip'
 import { CocoLoading } from '../../components/ui/CocoLoading'
 import { EmptyState } from '../../components/ui/EmptyState'
+import { FilePicker } from '../../components/ui/FilePicker'
 import { Field, FormModal } from '../../components/ui/FormModal'
 import { describe } from '../../components/ui/describe'
 import { IconPlus } from '../../components/ui/icons'
@@ -258,14 +259,16 @@ function ImportarCsv({ tiendaId, existentes, onClose, onListo }: {
     }
   }
 
+  const csvAria = describe('tda-csv', 'ayuda', csv && csv.errores.length ? 'x' : null)
+
   return (
     <FormModal open onClose={onClose} title="Subir CSV" description="Columnas: nombre, precio, unidad. Si el nombre ya existe, se actualiza."
       submitLabel={csv ? `Importar ${csv.filas.length}` : 'Elige un archivo'} submittingLabel="Importando…"
       submitting={importando} canSubmit={Boolean(csv && csv.filas.length > 0)} onSubmit={() => void importar()}>
       <Field id="tda-csv" label="Archivo CSV" hint="Ejemplo: Arroz 1 kg, 32.50, paquete"
         error={csv && csv.errores.length ? `${csv.errores.length} filas con error; no se importan.` : null}>
-        <input {...describe('tda-csv', 'ayuda', csv && csv.errores.length ? 'x' : null)} type="file" accept=".csv,text/csv"
-          onChange={(e) => void leer(e.target.files?.[0])} />
+        <FilePicker id="tda-csv" describedBy={csvAria['aria-describedby']} invalid={csvAria['aria-invalid']}
+          accept=".csv,text/csv" buttonLabel="Elegir CSV" onFile={(archivo) => void leer(archivo)} />
       </Field>
       {csv ? (
         <div className="stack">
