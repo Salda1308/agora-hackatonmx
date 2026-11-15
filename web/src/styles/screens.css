@@ -84,6 +84,8 @@
   color: var(--color-text-muted);
   max-width: 42ch;
 }
+/* D9: el texto de apoyo no queda pegado al titular cuando comparten contenedor. */
+.page-title + .page-lead { margin-top: var(--space-2); }
 
 .section-head {
   display: flex;

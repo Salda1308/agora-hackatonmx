@@ -13,6 +13,11 @@
   --reg-error: color-mix(in srgb, var(--color-primary) 50%, var(--color-text));
 }
 
+/* D9: en escritorio los formularios de acceso conservan un ancho de lectura. */
+@media (min-width: 1024px) {
+  .screen:has(.reg-stack, .reg-form) { max-width: 640px; }
+}
+
 .reg-stack {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
