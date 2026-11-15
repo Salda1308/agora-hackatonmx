@@ -13,6 +13,8 @@ import { Field, FormModal } from '../../components/ui/FormModal'
 import { describe } from '../../components/ui/describe'
 import { supabase } from '../../lib/supabase'
 import { paths } from '../../lib/router'
+import { requestVisual } from '../../lib/request-visuals'
+import { categoryFrom } from '../../features/feed/presentation'
 import { cleanImage, videoEmbed } from './media'
 import './organizacion.css'
 
@@ -150,7 +152,7 @@ function Page({ slug, organizationId, own = false }: { slug?: string; organizati
     </header>
     {notice && <p role="status">{notice}</p>}
     <section className="stack"><h2 className="section-title">Necesidades abiertas</h2>
-      {needs.length ? needs.map(n => <Card href={paths.request(n.id)} key={n.id}>{n.es_ejemplo && <SampleBadge />}<h3>{n.titulo}</h3><span>Ver unidades y ayudar →</span></Card>) : <p className="org-muted">Por ahora no hay necesidades abiertas.</p>}
+      {needs.length ? needs.map(n => <Card href={paths.request(n.id)} key={n.id} className="org-need"><img src={requestVisual(categoryFrom(n.titulo))} alt="" width="72" height="72" loading="lazy" /><span className="org-need__copy">{n.es_ejemplo && <SampleBadge />}<h3>{n.titulo}</h3><span>Ver unidades y ayudar <span aria-hidden="true">→</span></span></span></Card>) : <p className="org-muted">Por ahora no hay necesidades abiertas.</p>}
     </section>
     {own && <Button size="lg" block onClick={() => { setNotice(''); setComposing(true) }}>Comparte una actualización</Button>}
     {/* D8: publicar y editar en FormModal; misma lógica y llamadas. */}

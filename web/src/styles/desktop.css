@@ -15,6 +15,8 @@
   .screen__body--top { padding-top: var(--space-5); }
   .screen__body > * { min-width: 0; }
   .page-lead { max-width: 64ch; }
+  /* D9: la marca ya está en la barra superior; en la cabecera de cada pantalla se oculta sin mover el resto. */
+  .topbar > .brand { visibility: hidden; }
 
   /* Una sola navegación, con los destinos y permisos del dock móvil. */
   .ui-dock {
@@ -79,7 +81,10 @@
   .ui-dock__action--active { box-shadow: inset 0 0 0 2px var(--color-on-primary); }
   .ui-dock__action:focus-visible { outline-offset: 3px; }
 
-  .session-controls { padding: 0 0 var(--space-4); }
+  /* D9: la barra demo se alinea al ancho del contenido y queda compacta a la derecha. */
+  .app > .session-controls { width: calc(100% - 2 * var(--space-7)); max-width: 1360px; padding: 0 0 var(--space-3); }
+  .session-controls__summary { width: min(100%, 340px); margin-left: auto; }
+  .session-controls__panel, .session-controls__error { margin-left: auto; }
   .session-controls__roles { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .session-controls__panel { max-width: 760px; }
 

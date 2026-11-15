@@ -15,3 +15,14 @@
 .org-form .org-consent { display: flex; align-items: start; min-height: var(--tap-min); font-size: var(--text-sm); }
 .org-consent input { width: 24px; height: 24px; flex-shrink: 0; }
 .org-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+/* D9: necesidades con la ilustración de su categoría, como en Solicitudes. */
+.org-need { display: grid; grid-template-columns: 72px minmax(0, 1fr); align-items: center; gap: var(--space-4); padding: var(--space-4); }
+.org-need > img { width: 72px; height: 72px; padding: var(--space-2); border-radius: var(--radius-md); background: var(--color-photo-ground); object-fit: contain; }
+.org-need__copy { display: grid; gap: var(--space-1); min-width: 0; }
+.org-need__copy h3 { font-size: var(--text-lg); line-height: var(--leading-snug); overflow-wrap: anywhere; }
+.org-need__copy > span:last-child { color: var(--color-text-muted); font-size: var(--text-sm); font-weight: var(--font-weight-bold); }
+.org-hero > .ui-chip, .org-hero__top > .ui-chip { justify-self: start; }
+/* En gestión, las publicaciones suben junto a necesidades y formulario para no dejar un hueco en escritorio. */
+@media (min-width: 1024px) {
+  .screen .org-page:has(> .ui-card .org-form) > section.stack:last-of-type { grid-column: 2; grid-row: 3 / span 2; }
+}

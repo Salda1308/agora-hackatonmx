@@ -3,10 +3,9 @@ import { useSession } from '../auth/useSession'
 import { ThemeToggle } from '../components/ThemeToggle'
 import { Button } from '../components/ui/Button'
 import { Chip } from '../components/ui/Chip'
-import { Coco } from '../components/ui/Coco'
 import { CocoLoading } from '../components/ui/CocoLoading'
 import { EmptyState } from '../components/ui/EmptyState'
-import { WaveSection } from '../components/ui/WaveSection'
+import { CocoSpotlight } from '../features/feed/CocoSpotlight'
 import { FeedCard } from '../features/feed/FeedCard'
 import { CommentsSheet } from '../features/feed/CommentsSheet'
 import { loadFeed, type FeedItem, type FeedType } from '../features/feed/api'
@@ -66,12 +65,8 @@ function FeedTimeline() {
     <header className="social-home__header"><a className="brand" href={paths.home}>ágora<span className="brand-dot">.</span></a><span className="social-home__tagline">Aquí, cada gesto cuenta.</span><ThemeToggle /></header>
     <div className="social-home__layout">
       <aside className="social-home__intro">
-        <WaveSection className="feed-welcome" aria-labelledby="feed-welcome-title">
-          <div><span className="feed-eyebrow">Una comunidad que suma</span><h1 id="feed-welcome-title">Lo bueno<br />se comparte<span className="brand-dot">.</span></h1><p>Historias, causas y personas haciendo comunidad.</p></div>
-          <Coco size={160} pose="caja-suministros" />
-          <a className="feed-welcome__link" href={paths.directory}>Encuentra dónde ayudar <span aria-hidden="true">↗</span></a>
-        </WaveSection>
-        <div className="feed-community-note"><span className="feed-eyebrow">De cerca</span><h2>Pequeñas acciones.<br />Cambios compartidos.</h2><p>Conoce a las organizaciones, apoya una causa o regala un poco de tu tiempo.</p><a className="feed-text-button" href={paths.jornadas}>Explorar voluntariado ↗</a><a className="feed-text-button" href={paths.panel}>Ver el impacto de la comunidad ↗</a></div>
+        <CocoSpotlight items={items} loading={loading} />
+        <div className="feed-community-note"><span className="feed-eyebrow">De cerca</span><h2>Pequeñas acciones.<br />Cambios compartidos.</h2><p>Conoce a las organizaciones, apoya una causa o regala un poco de tu tiempo.</p><a className="feed-text-button" href={paths.panel}>Ver el impacto de la comunidad ↗</a></div>
       </aside>
       <section className="feed-timeline" aria-label="Novedades de la comunidad">
         <div className="feed-timeline__heading"><h2>En comunidad</h2><span className="feed-muted">Lo más reciente</span></div>

@@ -12,6 +12,7 @@
 .donation legend {
   font-weight: 900;
   margin-bottom: var(--space-3);
+  padding: 0;
 }
 .donation__quantity {
   display: flex;
@@ -110,6 +111,12 @@
 }
 .donation__status-heading p {
   color: var(--color-text-muted);
+}
+.donation--status > p {
+  margin-top: var(--space-3);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  text-align: center;
 }
 .donation__status-meta {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
