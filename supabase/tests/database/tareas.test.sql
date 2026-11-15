@@ -1,11 +1,11 @@
 -- Tareas del repartidor (tarea 09): tarea al marcar listo, tomar atómico (solo uno
 -- la obtiene), una activa por repartidor, liberar, código solo al asignado, regla de
--- voluntario nuevo y alta propia. Fixtures propias (prefijo e9); todo se revierte.
+-- voluntario nuevo y alta propia retirada (T22). Fixtures propias (prefijo e9); todo se revierte.
 -- La concurrencia real (dos conexiones) se probó aparte; ver task.md de T09.
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(31);
+select plan(28);
 
 -- Fixtures (como postgres, sin RLS) ------------------------------------------
 
@@ -147,17 +147,11 @@ select set_config('request.jwt.claims', '{"sub":"e9000000-0000-0000-0000-0000000
 select throws_ok($$select public.tomar_tarea((select otro from t9))$$, '42501', null, 'la tienda no toma tareas');
 select is((select count(*)::int from public.tareas_disponibles()), 0, 'la tienda no ve tareas disponibles');
 
--- Alta propia -----------------------------------------------------------------
-
-select set_config('request.jwt.claims', '{"sub":"e9000000-0000-0000-0000-0000000000c2","role":"authenticated"}', true);
-select throws_ok($$select public.alta_repartidor('Sin Confirmar')$$, '42501', 'Confirma tu correo primero',
-  'sin correo confirmado no hay alta');
+-- Alta propia retirada (T22): el repartidor entra solo por solicitud aprobada ------
 
 select set_config('request.jwt.claims', '{"sub":"e9000000-0000-0000-0000-0000000000c1","role":"authenticated"}', true);
-select lives_ok($$select public.alta_repartidor('  Ana Nueva  ')$$, 'cuenta confirmada se da de alta');
-select is((select rol::text || ':' || nombre_visible from public.perfiles), 'repartidor:Ana Nueva',
-  'el alta crea el perfil de repartidor');
-select throws_ok($$select public.alta_repartidor('Otra vez')$$, '23505', null, 'el alta no se repite');
+select throws_ok($$select public.alta_repartidor('Ana Nueva')$$, '42501', null,
+  'authenticated ya no ejecuta alta_repartidor');
 
 reset role;
 select * from finish();
