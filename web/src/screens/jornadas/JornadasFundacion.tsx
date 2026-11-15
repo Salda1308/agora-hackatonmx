@@ -113,11 +113,9 @@ function TarjetaJornada({ jornada, onCambio }: { jornada: JornadaConInscripcione
     <Card className="jor-item">
       <div className="jor-item__head">
         <h2 className="jor-item__title">{jornada.titulo}</h2>
-        <div className="wrap-row">
-          {porRevisar > 0 ? <Chip tone="yellow">{porRevisar} por revisar</Chip> : null}
-          {jornada.es_ejemplo ? <SampleBadge label="Ejemplo" /> : null}
-        </div>
+        {porRevisar > 0 ? <Chip tone="yellow">{porRevisar} por revisar</Chip> : null}
       </div>
+      {jornada.es_ejemplo ? <SampleBadge /> : null}
       <p className="jor-muted">{formatoHorario(jornada.inicia_en, jornada.termina_en)}</p>
       <ProgressBar
         value={jornada.ocupados}
