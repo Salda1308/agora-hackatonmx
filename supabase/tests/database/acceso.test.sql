@@ -146,15 +146,15 @@ select is((select count(*)::int from public.solicitud_articulos
   where solicitud_id = '40000000-0000-0000-0000-000000000001'), 1,
   'anónimo ve los artículos de la solicitud publicada');
 
-select lives_ok(
-  $$insert into public.inscripciones_jornada (jornada_id, nombre_contacto, contacto, asistentes)
-    values ('80000000-0000-0000-0000-000000000001', 'Empresa X', 'rh@empresa.test', 4)$$,
-  'anónimo se inscribe a una jornada pública');
+select isnt(
+  public.inscribirse_jornada('80000000-0000-0000-0000-000000000001', 'Empresa X', 'rh@empresa.test', 4),
+  null, 'anónimo se inscribe a una jornada pública con la función');
 
+-- T20: el INSERT directo ya no está concedido; solo la función inscribe.
 select throws_ok(
   $$insert into public.inscripciones_jornada (jornada_id, nombre_contacto, contacto, asistentes)
-    values ('80000000-0000-0000-0000-000000000001', 'Empresa Y', 'rh@otra.test', 2)$$,
-  'P0001', null, 'no se pasa del cupo de la jornada');
+    values ('80000000-0000-0000-0000-000000000001', 'Empresa Y', 'rh@otra.test', 1)$$,
+  '42501', null, 'anónimo no inserta inscripciones directo en la tabla');
 
 select throws_ok(
   $$select * from public.inscripciones_jornada$$,

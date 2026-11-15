@@ -76,6 +76,8 @@ const MENSAJES: Record<string, string> = {
   'La jornada no tiene cupo suficiente': 'Ya no hay cupo para tantas personas.',
   'La jornada ya empezó': 'Esta jornada ya empezó.',
   'La jornada no está disponible': 'Esta jornada ya no está disponible.',
+  'Máximo 4 asistentes por inscripción': 'Puedes inscribir hasta 4 personas por registro.',
+  'Este contacto ya inscribió el máximo de asistentes': 'Ese correo o teléfono ya inscribió a 4 personas en esta jornada.',
   'Cambio de estado no permitido': 'Ese cambio no está permitido.',
 }
 
