@@ -89,7 +89,7 @@ pública sigue disponible y no se ofrecen accesos demo.
 - Fundación: nombre, categoría, verificada o suspendida, publicaciones del feed, solicitudes por estado y jornadas próximas con inscripciones por revisar. Tienda: estado, pedidos recientes y catálogo visible u oculto (el estado de cobro de `tiendas_cobro` no es legible y no se muestra). Repartidor: límite de $500 hasta 3 entregas, entregas hechas y tarea actual. Invitado: comprobantes del dispositivo, invitación a `#/registro` y acceso demo con `SampleBadge`.
 - Dock: los roles conservan `RoleDock` con Cuenta al final; comprador e invitado usan `SiteDock`, cuya Cuenta lleva a `#/cuenta`. En escritorio la cuenta es una columna de 760 px.
 - Formularios en `FormModal`: publicar y editar post, nueva jornada, nueva solicitud (tres pasos con `Stepper`; `#/fundacion/publicar` abre el modal sobre la lista), artículo nuevo, cambiar precio, importar CSV, entrega con foto y código de recogida.
-- Listas: tarjetas con la ilustración de la categoría (`requestVisual(categoryFor(...))`), chips de estado, vacíos con Coco y acciones visibles. Las solicitudes no tienen imagen propia: agregarla requiere migración.
+- Listas: tarjetas con la ilustración de la categoría (`requestVisual(categoryFor(...))`), chips de estado, vacíos con Coco y acciones visibles. Las solicitudes pueden tener imagen propia desde T25 (ver abajo).
 
 ## Pase D9: armonía pública
 
@@ -100,3 +100,11 @@ pública sigue disponible y no se ofrecen accesos demo.
 - Globales (compatibles con D8): en escritorio la barra de sesión demo se alinea al ancho del contenido y a la derecha, y el `.brand` de la `topbar` se oculta porque la marca ya vive en el dock; `SampleBadge` no se estira en rejillas (`justify-self: start`); `.page-title + .page-lead` lleva `--space-2` de separación; en oscuro, `--color-section-warm` es un amarillo translúcido (antes se veía marrón).
 - Registro y sus formularios: máximo 640 px en escritorio.
 - Hallazgos en pantallas de rol, para D8: `.ai/tasks/D9/hallazgos-roles.md`.
+
+## T25: imagen propia de la solicitud
+
+- `RequestImage` (`src/components/RequestImage.tsx`) pinta la foto propia de una solicitud (ruta del bucket privado `publicaciones`, firmada por una hora, o la URL que ya trae el feed). Sin foto, o si falla al cargar, usa la ilustración de la categoría (`requestVisual`).
+- La foto lleva `request-photo`: sin padding y `object-fit: cover` dentro del marco de relación fija de cada contenedor (tarjeta de causa y feed 16/10; portada del detalle 220 px en móvil y cuadro 1:1 en escritorio). La ilustración conserva su padding y `contain`.
+- Alt de la foto: "Foto de la solicitud: <título>". La nota "Ilustración de insumos" solo aparece cuando no hay foto.
+- Nueva solicitud, paso 3: campo "Imagen (opcional)" con vista previa 16/10 y botón "Quitar imagen". JPG, PNG o WebP hasta 5 MB; se convierte a JPEG sin metadatos (`cleanImage` y `t17-imagen`, el mismo flujo de publicaciones).
+- Siguen con ilustración: necesidades en la página de la organización y Mis solicitudes de la fundación.

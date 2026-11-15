@@ -25,6 +25,8 @@ export type PublicRequest = {
   updated: string
   state: string
   description: string | null
+  /** Ruta de la foto propia en el bucket `publicaciones` (T25), o null. */
+  image: string | null
   latitude: number | null
   longitude: number | null
   items: {
@@ -84,7 +86,7 @@ export function useRequests(id?: string) {
       let query = client
         .from('solicitudes')
         .select(
-          `id,titulo,descripcion,estado,recurrente,publicada_en,es_ejemplo,
+          `id,titulo,descripcion,imagen_ruta,estado,recurrente,publicada_en,es_ejemplo,
         organizaciones!solicitudes_organizacion_id_fkey(nombre,slug,logo_url,categoria,direccion_publica,latitud,longitud,es_ejemplo),
         tienda:organizaciones!solicitudes_tienda_id_fkey(nombre),
         solicitud_articulos(id,nombre,precio_centavos,cantidad,unidades_pagadas,unidades_listas,unidades_entregadas)`,
@@ -109,6 +111,7 @@ export function useRequests(id?: string) {
                 id: row.id,
                 title: row.titulo,
                 description: row.descripcion,
+                image: row.imagen_ruta ?? null,
                 state: row.estado,
                 sample: row.es_ejemplo || org.es_ejemplo,
                 org: org.nombre,

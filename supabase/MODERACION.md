@@ -104,6 +104,21 @@ Efecto de suspender:
 
 `public.publicar_solicitud(p_tienda_id, p_titulo, p_articulos, p_descripcion)` (migración `20261114130000_publicar_solicitud.sql`) crea y publica en una transacción, con RLS de la fundación. `p_articulos` es `[{"articulo_id": "...", "cantidad": 3}]`. Rechaza: fundación sin verificar o suspendida, lista vacía, artículos de otra tienda o inactivos, tienda sin verificar o suspendida. El precio queda congelado al publicar.
 
+Desde T25 (migración `20261115010000_imagen_solicitud.sql`) acepta un quinto parámetro opcional, `p_imagen`: la ruta que devuelve la Edge Function `t17-imagen` (`<organizacion_id>/<uuid>.jpg` en el bucket privado `publicaciones`, sin EXIF). Se guarda en `solicitudes.imagen_ruta`. El disparador `privado.validar_imagen_solicitud` rechaza (42501, "La imagen no pertenece a tu organización") rutas de otra carpeta, URLs libres y objetos que no existen. La política de storage "T25 imagen de solicitud visible" deja leer la imagen a quien puede ver la solicitud; `feed_publico` la devuelve en `medios`.
+
+## Retirar la imagen de una solicitud
+
+La solicitud sigue publicada y vuelve a mostrar la ilustración de su categoría. Correr como `postgres` y registrar la acción en `acciones_moderacion`:
+
+```sql
+-- 1. Ver la ruta.
+select id, titulo, organizacion_id, imagen_ruta from public.solicitudes where id = '<solicitud_id>';
+-- 2. Quitar el enlace: desde aquí ni el feed ni la política de storage la sirven.
+update public.solicitudes set imagen_ruta = null where id = '<solicitud_id>';
+```
+
+Después borrar el archivo `publicaciones/<ruta>` desde Storage en el panel (o con la API de storage y `service_role`). No borrar la fila de `storage.objects` con SQL: deja el archivo huérfano. Las URLs firmadas ya entregadas caducan en una hora.
+
 ## Moderar comentarios y bloquear usuarios
 
 Migración `20261114230000_feed_social.sql` (T24). Los clientes solo comentan, dan me gusta, reportan y borran por RPC; las tablas `comentarios`, `me_gusta`, `reportes_comentario` y `usuarios_bloqueados` no tienen privilegios para `anon` ni `authenticated`. Correr lo de abajo en el SQL Editor o con `psql` como `postgres` y registrar cada acción en `acciones_moderacion`.

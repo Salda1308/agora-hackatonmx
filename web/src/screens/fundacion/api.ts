@@ -1,4 +1,5 @@
 import { supabase } from '../../lib/supabase'
+import { cleanImage } from '../organizacion/media'
 
 function cliente() {
   if (!supabase) throw new Error('El servicio no está configurado.')
@@ -93,14 +94,28 @@ export async function publicarSolicitud(input: {
   titulo: string
   descripcion: string
   articulos: { articulo_id: string; cantidad: number }[]
+  imagen?: File | null
 }): Promise<string> {
+  // T25: mismo flujo que las publicaciones (T17): se redibuja sin metadatos y
+  // t17-imagen la valida y guarda en la carpeta de la organización.
+  let imagen: string | null = null
+  if (input.imagen) {
+    const blob = await cleanImage(input.imagen)
+    const subida = await cliente().functions.invoke('t17-imagen', { body: blob, headers: { 'Content-Type': 'image/jpeg' } })
+    if (subida.error || !subida.data?.path) throw new Error('No pudimos subir la imagen. Intenta nuevamente.')
+    imagen = String(subida.data.path)
+  }
   const { data, error } = await cliente().rpc('publicar_solicitud', {
     p_tienda_id: input.tiendaId,
     p_titulo: input.titulo,
     p_articulos: input.articulos,
     p_descripcion: input.descripcion,
+    ...(imagen ? { p_imagen: imagen } : {}),
   })
-  if (error) throw new Error(mensajeError(error.message))
+  if (error) {
+    if (imagen) await cliente().storage.from('publicaciones').remove([imagen])
+    throw new Error(mensajeError(error.message))
+  }
   return data as string
 }
 
@@ -112,6 +127,7 @@ function mensajeError(message: string) {
     'La tienda no está verificada',
     'El artículo no está activo en el catálogo de la tienda de la solicitud',
     'Hay artículos que ya no están en el catálogo de la tienda',
+    'La imagen no pertenece a tu organización',
   ]
   return conocidos.find((m) => message.includes(m)) ?? 'No se pudo publicar. Vuelve a intentar.'
 }
