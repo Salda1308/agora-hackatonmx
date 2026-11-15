@@ -13,8 +13,7 @@ nunca se interpreta como confirmación del pago individual. El detalle distingue
 la financiación parcial de una etapa completamente terminada.
 
 El Directorio ya no muestra mapa (D7): las causas se listan como tarjetas con
-imagen. La dependencia `leaflet` sigue en package.json sin uso hasta decidir si se
-retira. El generador QR se carga diferido. `qrcode` dibuja el payload localmente, sin enviarlo a
+imagen. La dependencia `leaflet` se retiró. El generador QR se carga diferido. `qrcode` dibuja el payload localmente, sin enviarlo a
 servicios de imágenes externos.
 
 Donación: 1–10 artículos con cantidades enteras, QR/push/link. El servidor es la
