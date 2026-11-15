@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
-import { useSession } from '../../auth/useSession'
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
-import { Chip } from '../../components/ui/Chip'
+import { Chip, SampleBadge } from '../../components/ui/Chip'
 import { CocoLoading } from '../../components/ui/CocoLoading'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { ProgressBar } from '../../components/ui/Progress'
@@ -24,7 +23,6 @@ const ESTADOS: Record<EstadoSolicitud, { texto: string; tono: 'lime' | 'surface'
 }
 
 export function MisSolicitudes({ organizacionId, nueva }: { organizacionId: string; nueva: boolean }) {
-  const { signOut } = useSession()
   const [org, setOrg] = useState<MiOrganizacion | null>(null)
   const [solicitudes, setSolicitudes] = useState<MiSolicitud[] | null>(null)
   const [error, setError] = useState(false)
@@ -69,9 +67,10 @@ export function MisSolicitudes({ organizacionId, nueva }: { organizacionId: stri
       <Recepciones />
 
       {org && !puedePublicar ? (
-        <Card tone="yellow">
+        <Card className="fund-aviso">
+          <Chip tone="yellow">{org.suspendida ? 'Suspendida' : 'En revisión'}</Chip>
           <strong>{org.suspendida ? 'Tu fundación está suspendida' : 'Verificación pendiente'}</strong>
-          <p className="fund-muted">Podrás publicar cuando el equipo de Ágora la active.</p>
+          <p>Podrás publicar cuando el equipo de Ágora la active.</p>
         </Card>
       ) : null}
 
@@ -113,6 +112,7 @@ export function MisSolicitudes({ organizacionId, nueva }: { organizacionId: stri
                       <h2 className="fund-item__title">{s.titulo}</h2>
                       <Chip tone={estado.tono}>{estado.texto}</Chip>
                     </div>
+                    {s.es_ejemplo ? <SampleBadge /> : null}
                     <p className="fund-muted">
                       {categoria} · {s.tienda?.nombre ?? 'Tienda'} · {formatoPesos(monto)}
                     </p>
@@ -124,10 +124,6 @@ export function MisSolicitudes({ organizacionId, nueva }: { organizacionId: stri
           })}
         </ul>
       )}
-
-      <Button variant="ghost" onClick={() => void signOut().catch(() => {})}>
-        Cerrar sesión
-      </Button>
 
       {abierta ? (
         <NuevaSolicitud organizacionId={organizacionId} onClose={cerrarNueva} onPublicada={() => setPublico(true)} />

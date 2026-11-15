@@ -78,9 +78,10 @@ export function Pedidos({ tiendaId }: { tiendaId: string }) {
       </div>
 
       {tienda?.suspendida ? (
-        <Card tone="yellow">
+        <Card className="tda-aviso">
+          <Chip tone="yellow">Suspendida</Chip>
           <strong>Tu tienda está suspendida</strong>
-          <p className="tda-muted">No recibirás pedidos nuevos hasta que el equipo de Ágora la reactive.</p>
+          <p>No recibirás pedidos nuevos hasta que el equipo de Ágora la reactive.</p>
         </Card>
       ) : null}
 
@@ -90,9 +91,7 @@ export function Pedidos({ tiendaId }: { tiendaId: string }) {
       ) : pedidos === null ? (
         <CocoLoading title="Cargando pedidos…" size={88} />
       ) : pedidos.length === 0 ? (
-        <div className="tda-empty">
-          <EmptyState pose="caja-suministros" title="Sin pedidos por ahora" description="Cuando alguien pague, el pedido aparece aquí." />
-        </div>
+        <EmptyState pose="caja-suministros" title="Sin pedidos por ahora" description="Cuando alguien pague, el pedido aparece aquí." />
       ) : (
         <>
           <section className="stack" aria-labelledby="tda-preparar">
@@ -153,7 +152,7 @@ function TarjetaPedido({ pedido }: { pedido: Pedido }) {
           <h3 className="tda-item__title">{pedido.organizacion_nombre}</h3>
           <span className="tda-muted">{pedido.solicitud_titulo}</span>
         </div>
-        <Chip tone={pedido.estado === 'preparando' ? 'lime' : 'surface'}>{ESTADO[pedido.estado]}</Chip>
+        <Chip tone={pedido.estado === 'preparando' ? 'lime' : 'outline'}>{ESTADO[pedido.estado]}</Chip>
       </div>
       <ul className="tda-lines">
         {pedido.articulos.map((a) => (

@@ -25,13 +25,13 @@ export function RoleScreen({ route }: { route: RoleRoute }) {
               ? <Button variant="ink" href={registroPaths.registro}>Solicitar acceso</Button>
               : <Button variant="ink" href={paths.home}>Ir al inicio</Button>} />}>
           <SampleBadge />
-          <div><p className="session-muted">{roleLabels[route.role]} · {profile?.nombre_visible}</p>
-            <h1 className="page-title">{destination?.label}</h1></div>
+          <div><h1 className="page-title">{destination?.label}</h1>
+            <p className="page-lead">{profile?.nombre_visible}</p></div>
           <EmptyState pose={route.role === 'repartidor' ? 'volando-garrafon' : 'saludando'} title="Tu espacio está listo"
             description="Las herramientas de esta sección estarán disponibles pronto."
             action={<Button variant="outline" href={paths.directory}>Ver solicitudes públicas</Button>} />
         </RequireRole>
-        {role && role !== 'comprador' ? <a href={`#${roleNavigation[role][0].path}`}>Volver a mi área</a> : null}
+        {role && role !== 'comprador' ? <Button variant="ghost" href={`#${roleNavigation[role][0].path}`}>Volver a mi área</Button> : null}
       </div>
     </main>
   )

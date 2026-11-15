@@ -40,3 +40,8 @@
   text-align: center;
   text-transform: uppercase;
 }
+
+/* D11: en oscuro la tarjeta lima conserva su fondo; el texto atenuado se deriva de su tinta. */
+.ui-card--lime .fund-muted {
+  color: color-mix(in srgb, var(--color-on-lime) 78%, transparent);
+}

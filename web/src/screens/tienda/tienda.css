@@ -21,11 +21,6 @@
   font-size: var(--text-sm);
 }
 
-.tda-empty {
-  display: grid;
-  justify-items: center;
-  gap: var(--space-2);
-}
 
 .tda-section {
   font-size: var(--text-lg);
@@ -170,7 +165,8 @@
 /* D8: acciones principales del catálogo, lado a lado cuando caben. */
 .tda-actions {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+  /* D11: 240 px evita que "Agregar artículo" se parta en dos líneas junto a "Subir CSV". */
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
   gap: var(--space-3);
 }
 .tda-item__img {
@@ -186,4 +182,23 @@
   font-size: var(--text-xl);
   letter-spacing: 0.2em;
   text-align: center;
+}
+
+/* D11: aviso con un solo acento; los chips de estado no se estiran en la cabecera. */
+.tda-aviso {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-2);
+}
+.tda-aviso p {
+  margin: 0;
+}
+.tda-item__head > .ui-chip,
+.tda-article__head > .ui-chip {
+  align-self: start;
+  flex-shrink: 0;
+}
+/* D11: en oscuro la tarjeta lima conserva su fondo; el texto atenuado se deriva de su tinta. */
+.ui-card--lime .tda-muted {
+  color: color-mix(in srgb, var(--color-on-lime) 78%, transparent);
 }

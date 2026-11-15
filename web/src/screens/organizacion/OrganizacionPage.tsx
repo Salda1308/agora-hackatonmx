@@ -8,6 +8,7 @@ import { Chip, SampleBadge } from '../../components/ui/Chip'
 import { Coco } from '../../components/ui/Coco'
 import { CocoLoading } from '../../components/ui/CocoLoading'
 import { EmptyState } from '../../components/ui/EmptyState'
+import { FilePicker } from '../../components/ui/FilePicker'
 import { Field, FormModal } from '../../components/ui/FormModal'
 import { describe } from '../../components/ui/describe'
 import { supabase } from '../../lib/supabase'
@@ -162,7 +163,7 @@ function Page({ slug, organizationId, own = false }: { slug?: string; organizati
           <Field id="org-texto" label="¿Qué está pasando?"><textarea id="org-texto" name="texto" required maxLength={5000} placeholder="Cuenta cómo avanza la ayuda…" autoFocus /></Field>
         </fieldset>
         <fieldset className="fm-group"><legend>Medios opcionales</legend>
-          <Field id="org-imagen" label="Imagen" hint="Hasta 5 MB. Quitamos los metadatos y la ubicación al procesar la imagen."><input {...describe('org-imagen', 'ayuda')} name="imagen" type="file" accept="image/jpeg,image/png,image/webp" /></Field>
+          <Field id="org-imagen" label="Imagen" hint="Hasta 5 MB. Quitamos los metadatos y la ubicación al procesar la imagen."><FilePicker id="org-imagen" name="imagen" describedBy="org-imagen-ayuda" accept="image/jpeg,image/png,image/webp" buttonLabel="Elegir imagen" emptyLabel="Ninguna imagen elegida" /></Field>
           <Field id="org-video" label="Video" hint="YouTube o Vimeo. Se incrusta el enlace; no subimos archivos de video."><input {...describe('org-video', 'ayuda')} name="video" type="url" placeholder="https://www.youtube.com/watch?v=…" /></Field>
         </fieldset>
         <label className="fm-check"><input name="consentimiento" type="checkbox" required />Declaro tener consentimiento de las personas que aparecen. No muestro menores de edad.</label>

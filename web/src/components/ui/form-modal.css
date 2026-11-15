@@ -65,6 +65,15 @@
 .fm-check input { width: 24px; height: 24px; flex-shrink: 0; margin: 2px 0 0; }
 .fm-preview { width: 100%; max-height: 240px; object-fit: cover; border-radius: var(--radius-md); }
 
+/* Selector de archivo (D11): botón outline y nombre muted; el input nativo va encima, transparente. */
+.fm-file { position: relative; display: flex; align-items: center; gap: var(--space-3); min-width: 0; min-height: var(--tap-min); }
+.fm-file__button { flex-shrink: 0; pointer-events: none; }
+.fm-file__name { flex: 1 1 auto; min-width: 0; overflow: hidden; color: var(--color-text-muted); font-size: var(--text-sm); white-space: nowrap; text-overflow: ellipsis; }
+.fm-file__name--set { color: var(--color-text); font-weight: var(--font-weight-bold); }
+.fm-field .fm-file__input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.fm-file:focus-within .fm-file__button { outline: 3px solid var(--color-focus); outline-offset: 2px; }
+.fm-field--error .fm-file__button { border-color: var(--color-primary-strong); }
+
 @media (min-width: 768px) {
   .form-modal .ui-modal__footer { margin-inline: calc(-1 * var(--space-7)); padding-inline: var(--space-7); }
 }

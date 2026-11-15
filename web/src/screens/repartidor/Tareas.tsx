@@ -92,11 +92,11 @@ export function Tareas() {
       ) : (
         <>
           {datos.nivel.limite_centavos !== null ? (
-            <Card tone="yellow" className="rep-nivel">
+            <Card className="rep-nivel">
               <Coco size={56} variant="portrait" />
-              <div>
-                <strong>Voluntario nuevo</strong>
-                <p className="rep-muted">Pedidos de hasta {formatoPesos(datos.nivel.limite_centavos)}. Con 3 entregas
+              <div className="rep-nivel__copy">
+                <Chip tone="yellow">Voluntario nuevo</Chip>
+                <p>Pedidos de hasta {formatoPesos(datos.nivel.limite_centavos)}. Con 3 entregas
                   ves todos.</p>
               </div>
             </Card>
@@ -151,7 +151,7 @@ function TareaActiva({ tarea, ocupado, onLiberar, onCambio }: {
     <Card tone="lime" className="rep-stack">
       <div className="rep-head">
         <div className="rep-copy">
-          <span className="rep-muted">Recoge en</span>
+          <span className="rep-muted">{tarea.estado === 'asignada' ? 'Recoge en' : 'Recogido en'}</span>
           <h2 className="rep-title">{tarea.tienda_nombre}</h2>
         </div>
         <Chip>{tarea.estado === 'asignada' ? 'Por recoger' : 'Recogida'}</Chip>
@@ -159,7 +159,8 @@ function TareaActiva({ tarea, ocupado, onLiberar, onCambio }: {
       {tarea.tienda_direccion ? <p className="rep-place"><IconPin /> {tarea.tienda_direccion}</p> : null}
       {mapa ? <Button variant="outline" block href={mapa} target="_blank" rel="noreferrer">Ver en el mapa</Button> : null}
 
-      {tarea.codigo_recogida ? (
+      {/* Ya recogida, el código de recogida no sirve y competiría con el de entrega. */}
+      {tarea.estado === 'asignada' && tarea.codigo_recogida ? (
         <div className="rep-code">
           <span className="rep-muted">Código de recogida</span>
           <strong className="rep-code__value">{tarea.codigo_recogida}</strong>

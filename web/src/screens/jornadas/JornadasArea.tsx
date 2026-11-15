@@ -128,15 +128,16 @@ function Lista() {
         <ul className="jor-list">
           {jornadas.map((j) => (
             <li key={j.id}>
-              <Card href={paths.jornada(j.id)} className="jor-item">
-                <div className="jor-item__head">
+              <Card href={paths.jornada(j.id)} className="jor-item jor-item--media">
+                <img className="jor-item__img" src="/coco/saludando.webp" alt="" width={72} height={72} loading="lazy" />
+                <div className="jor-item__body">
                   <h2 className="jor-item__title">{j.titulo}</h2>
-                  {j.es_ejemplo ? <SampleBadge label="Ejemplo" /> : null}
+                  {j.es_ejemplo ? <SampleBadge /> : null}
+                  <p className="jor-muted">
+                    {j.organizacion?.nombre} · {formatoHorario(j.inicia_en, j.termina_en)}
+                  </p>
+                  <Cupos jornada={j} />
                 </div>
-                <p className="jor-muted">
-                  {j.organizacion?.nombre} · {formatoHorario(j.inicia_en, j.termina_en)}
-                </p>
-                <Cupos jornada={j} />
               </Card>
             </li>
           ))}

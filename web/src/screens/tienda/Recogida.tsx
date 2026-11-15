@@ -85,7 +85,7 @@ export function Recogida({ pedido, onConfirmada }: { pedido: Pedido; onConfirmad
           <Field
             id="tda-codigo"
             label="Código que te muestra el voluntario"
-            hint={`6 letras o números. Quedan ${restantes} intentos.`}
+            hint={aviso ? '6 letras o números.' : `6 letras o números. Quedan ${restantes} intentos.`}
             error={aviso}
           >
             <input
