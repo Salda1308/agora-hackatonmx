@@ -77,6 +77,44 @@ node --test web/tests/auth/local-auth.test.ts
 La prueba local recorre login, cambio entre las cuatro cuentas, refresh,
 restauración y cierre de sesión; rechaza endpoints que no sean loopback.
 
+## Cuentas reales y registro por rol (T23)
+
+Depende del backend de T22 (migración `20261114220000_registro_por_rol.sql`):
+`solicitar_alta` y `mi_solicitud_alta`. Sin esa migración, las pantallas cargan pero
+el envío falla con un mensaje legible.
+
+Rutas hash (`registro-routes.ts`, delegadas por el router):
+
+- `#/entrar`: correo y contraseña con `signIn(email, password)` del contexto
+  (`signInWithPassword`). No hay recuperación de contraseña.
+- `#/crear-cuenta`: `signUp` con mínimo de 10 caracteres, medidor de seguridad y
+  aviso "revisa tu correo". No se guarda rol ni datos en la metadata de Auth.
+- `#/registro`: sin sesión invita a crear cuenta; con sesión sin perfil muestra
+  elegir rol (fundación, tienda, repartidor o "solo quiero donar") o el estado de su
+  solicitud (pendiente, aprobada o rechazada con motivo), consultando
+  `mi_solicitud_alta` cada 10 s.
+- `#/registro/:rol`: formulario del rol según el contrato de T22, con validación
+  previa en `alta-validacion.ts`, bloqueo de doble envío y errores del servidor.
+
+`cuenta.ts` (`createCuentaApi`: crear cuenta y reenviar confirmación) y
+`alta-api.ts` (`createAltaApi`: `solicitarAlta`, `miSolicitudAlta`) traducen los
+errores a mensajes en español. El inicio de sesión fallido usa un mensaje neutro.
+
+`emailRedirectTo` es `origin + pathname` de la página actual (`urlDeRegreso`).
+En el Supabase alojado esa URL debe estar en Auth > URL Configuration > Redirect URLs.
+Al volver del enlace, `useTrasConfirmar` lleva a `#/registro` (sin perfil) o al panel
+del rol; un enlace vencido muestra un aviso en `#/entrar`.
+
+`SessionControls` agrega Entrar y Crear cuenta cuando hay backend (`authEnabled`);
+el selector de demostración no cambia. Los roles siguen saliendo solo de
+`public.perfiles` y `RequireRole` protege cada vista. `alta_repartidor` se retiró de
+la pantalla del repartidor: quien no tiene perfil ve "Solicitar acceso" hacia
+`#/registro/repartidor`.
+
+```sh
+node --test web/tests/auth/registro.test.ts
+```
+
 ## Toma de tareas (resuelto en T09)
 
 R1 documentó que `UPDATE tareas` directo daba `42501`: la fila nueva no pasa la

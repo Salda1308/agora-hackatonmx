@@ -78,11 +78,3 @@ export async function liberarTarea(id: string) {
   const { error } = await cliente().rpc('liberar_tarea', { p_tarea: id })
   if (error) throw mensaje(error, ['No tienes esa tarea o ya la recogiste'], 'No se pudo liberar. Vuelve a intentar.')
 }
-
-export async function altaRepartidor(nombre: string) {
-  const { error } = await cliente().rpc('alta_repartidor', { p_nombre: nombre })
-  if (error) {
-    throw mensaje(error, ['Confirma tu correo primero', 'Tu cuenta ya tiene un perfil', 'Escribe tu nombre',
-      'Inicia sesión primero'], 'No se pudo completar el alta.')
-  }
-}

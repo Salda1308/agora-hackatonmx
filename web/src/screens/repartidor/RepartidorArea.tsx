@@ -1,13 +1,11 @@
 import { useState } from 'react'
-import type { FormEvent } from 'react'
+import { registroPaths } from '../../auth/registro-routes'
 import { useSession } from '../../auth/useSession'
 import { Button } from '../../components/ui/Button'
-import { Card } from '../../components/ui/Card'
 import { CocoLoading } from '../../components/ui/CocoLoading'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { paths } from '../../lib/router'
 import { Marco } from '../fundacion/Marco'
-import { altaRepartidor } from './api'
 import { Tareas } from './Tareas'
 import './repartidor.css'
 
@@ -19,55 +17,18 @@ export default function RepartidorArea() {
   const { status, role, user } = useSession()
   if (status === 'loading') return <Marco><CocoLoading title="Cargando sesión…" size={88} /></Marco>
   if (status === 'ready' && role === 'repartidor') return <Tareas />
-  // Cuenta iniciada sin perfil de rol: puede darse de alta como voluntario.
+  // Cuenta iniciada sin perfil de rol: camino a la solicitud de alta.
   if (status === 'ready' && role === 'comprador' && user) return <Alta />
   return <SinAcceso />
 }
 
+// El alta es por solicitud revisada por el equipo (T22/T23), ya no al instante.
 function Alta() {
-  const { retry } = useSession()
-  const [nombre, setNombre] = useState('')
-  const [acepto, setAcepto] = useState(false)
-  const [enviando, setEnviando] = useState(false)
-  const [fallo, setFallo] = useState<string | null>(null)
-
-  const enviar = async (e: FormEvent) => {
-    e.preventDefault()
-    setFallo(null)
-    setEnviando(true)
-    try {
-      await altaRepartidor(nombre)
-      await retry()
-    } catch (err) {
-      setFallo(err instanceof Error ? err.message : 'No se pudo completar el alta.')
-      setEnviando(false)
-    }
-  }
-
   return (
     <Marco>
-      <div>
-        <h1 className="page-title">Hazte voluntario</h1>
-        <p className="page-lead">Recoge pedidos en la tienda y llévalos a quien los necesita.</p>
-      </div>
-      <Card className="rep-stack">
-        <form className="rep-stack" onSubmit={(e) => void enviar(e)}>
-          <label className="rep-field">
-            Tu nombre
-            <input value={nombre} onChange={(e) => setNombre(e.target.value)} autoComplete="name"
-              minLength={2} maxLength={120} required />
-          </label>
-          <label className="rep-check">
-            <input type="checkbox" checked={acepto} onChange={(e) => setAcepto(e.target.checked)} required />
-            <span>Entregaré completo y mostraré el código solo en la tienda.</span>
-          </label>
-          <p className="rep-muted">Al empezar solo verás pedidos de hasta $500. Tu correo debe estar confirmado.</p>
-          <Button type="submit" size="lg" block disabled={enviando || !acepto || nombre.trim().length < 2}>
-            {enviando ? 'Enviando…' : 'Darme de alta'}
-          </Button>
-          {fallo ? <p className="rep-error" role="alert">{fallo}</p> : null}
-        </form>
-      </Card>
+      <EmptyState pose="volando-garrafon" title="Hazte repartidor"
+        description="Envía tu solicitud. El equipo la revisa y, al aprobarla, verás aquí las tareas cerca de ti."
+        action={<Button variant="ink" href={registroPaths.registroRol('repartidor')}>Solicitar acceso</Button>} />
     </Marco>
   )
 }

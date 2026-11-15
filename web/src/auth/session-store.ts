@@ -1,4 +1,5 @@
 import type { Session, SupabaseClient } from '@supabase/supabase-js'
+import { mensajeEntrada } from './cuenta.ts'
 import { demoCredentials } from './demo.ts'
 import { parseProfile } from './roles.ts'
 import type { Profile, Role } from './roles.ts'
@@ -122,6 +123,33 @@ export function createSessionStore(client: SessionClient | null, demoEnabled = f
         // La cuenta anterior puede seguir autenticada si el login falla.
         // Mantener permisos cerrados hasta reintentar o cerrar sesión.
         if (active) fail(state.session)
+        throw error
+      } finally {
+        changingAccount = false
+      }
+    },
+    /** Inicio de sesión con correo y contraseña reales (T23). Devuelve el perfil resuelto. */
+    async signIn(email: string, password: string): Promise<Profile | null> {
+      if (!client) throw new Error('El acceso no está disponible por ahora.')
+      if (changingAccount) throw new Error('Ya hay un cambio de sesión en curso.')
+      changingAccount = true
+      const operationRevision = ++revision
+      publish({ ...loadingState, session: state.session })
+      try {
+        const { data, error } = await client.auth.signInWithPassword({ email: email.trim().toLowerCase(), password })
+        if (error) {
+          // Un intento fallido no cambia la cuenta: restaurar la sesión vigente.
+          const message = mensajeEntrada(error)
+          const current = await client.auth.getSession()
+          if (current.error) throw new Error(message)
+          if (revision === operationRevision) await resolve(current.data.session, ++revision)
+          throw new Error(message, { cause: 'credentials' })
+        }
+        if (revision === operationRevision) await resolve(data.session, ++revision)
+        else await resolve(state.session, revision)
+        return state.profile
+      } catch (error) {
+        if (active && !(error instanceof Error && error.cause === 'credentials')) fail(state.session)
         throw error
       } finally {
         changingAccount = false

@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { RoleDock } from './auth/RoleDock'
 import { RoleScreen } from './auth/RoleScreen'
 import { SessionControls } from './auth/SessionControls'
+import { useTrasConfirmar } from './auth/useTrasConfirmar'
 import { EmptyState } from './components/ui/EmptyState'
 import { CocoLoading } from './components/ui/CocoLoading'
 import { Button } from './components/ui/Button'
@@ -24,10 +25,13 @@ const JornadasArea = lazy(() => import('./screens/jornadas/JornadasArea'))
 const JornadasFundacion = lazy(() => import('./screens/jornadas/JornadasFundacion'))
 // Tareas del repartidor (T09); "Mis entregas" y "Reconocimiento" siguen en RoleScreen.
 const RepartidorArea = lazy(() => import('./screens/repartidor/RepartidorArea'))
+// Entrar, crear cuenta y solicitud de alta por rol (T23).
+const RegistroArea = lazy(() => import('./screens/registro/RegistroArea'))
 
 function App() {
   const current = useRoute()
   const route = current.name === 'system' && !import.meta.env.DEV ? { name: 'not-found' as const } : current
+  useTrasConfirmar()
 
   let screen
   switch (route.name) {
@@ -67,6 +71,13 @@ function App() {
           />
         </Suspense>
       )
+      break
+    case 'entrar':
+    case 'crear-cuenta':
+    case 'registro':
+    case 'registro-rol':
+    case 'auth-callback':
+      screen = <Suspense fallback={<CocoLoading />}><RegistroArea route={route} /></Suspense>
       break
     case 'system':
       screen = import.meta.env.DEV ? <SystemGallery /> : null

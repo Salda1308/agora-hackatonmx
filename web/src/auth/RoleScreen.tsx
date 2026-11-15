@@ -4,13 +4,14 @@ import { EmptyState } from '../components/ui/EmptyState'
 import { ThemeToggle } from '../components/ThemeToggle'
 import { paths } from '../lib/router'
 import { RequireRole } from './RequireRole'
+import { registroPaths } from './registro-routes'
 import type { RoleRoute } from './role-routes'
 import { roleLabels, roleNavigation } from './roles'
 import { useSession } from './useSession'
 
 /** Punto de sustitución para T06/T08/T09/T17/T18; no simula acciones de negocio. */
 export function RoleScreen({ route }: { route: RoleRoute }) {
-  const { role, profile, status } = useSession()
+  const { role, profile, status, user } = useSession()
   const destination = roleNavigation[route.role].find((entry) => entry.id === route.page)
   return (
     <main className="screen">
@@ -21,7 +22,9 @@ export function RoleScreen({ route }: { route: RoleRoute }) {
           fallback={<EmptyState title={`Acceso para ${roleLabels[route.role].toLowerCase()}`}
             description={status === 'error' ? 'Reintenta o cierra sesión desde el panel de acceso.'
               : 'Esta cuenta no tiene acceso a esa área.'}
-            action={<Button variant="ink" href={paths.home}>Ir al inicio</Button>} />}>
+            action={user && role === 'comprador'
+              ? <Button variant="ink" href={registroPaths.registro}>Solicitar acceso</Button>
+              : <Button variant="ink" href={paths.home}>Ir al inicio</Button>} />}>
           <SampleBadge />
           <div><p className="session-muted">{roleLabels[route.role]} · {profile?.nombre_visible}</p>
             <h1 className="page-title">{destination?.label}</h1></div>
