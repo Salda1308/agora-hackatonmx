@@ -11,6 +11,8 @@ import { CocoLoading } from '../../components/ui/CocoLoading'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { supabase } from '../../lib/supabase'
 import { paths } from '../../lib/router'
+import { requestVisual } from '../../lib/request-visuals'
+import { categoryFrom } from '../../features/feed/presentation'
 import { cleanImage, videoEmbed } from './media'
 import './organizacion.css'
 
@@ -147,7 +149,7 @@ function Page({ slug, organizationId, own = false }: { slug?: string; organizati
     </header>
     {notice && <p role="status">{notice}</p>}
     <section className="stack"><h2 className="section-title">Necesidades abiertas</h2>
-      {needs.length ? needs.map(n => <Card href={paths.request(n.id)} key={n.id}>{n.es_ejemplo && <SampleBadge />}<h3>{n.titulo}</h3><span>Ver unidades y ayudar →</span></Card>) : <p className="org-muted">Por ahora no hay necesidades abiertas.</p>}
+      {needs.length ? needs.map(n => <Card href={paths.request(n.id)} key={n.id} className="org-need"><img src={requestVisual(categoryFrom(n.titulo))} alt="" width="72" height="72" loading="lazy" /><span className="org-need__copy">{n.es_ejemplo && <SampleBadge />}<h3>{n.titulo}</h3><span>Ver unidades y ayudar <span aria-hidden="true">→</span></span></span></Card>) : <p className="org-muted">Por ahora no hay necesidades abiertas.</p>}
     </section>
     {own && <Card><form className="org-form" onSubmit={publish}><h2 className="section-title">Comparte una actualización</h2>
       <label>¿Qué está pasando?<textarea name="texto" required maxLength={5000} placeholder="Cuenta cómo avanza la ayuda…" /></label>
