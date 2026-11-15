@@ -66,6 +66,7 @@ export function Home() {
           </div>
         </section>
         <Button variant="outline" size="lg" block href={paths.jornadas}>Dona tu tiempo: voluntariado</Button>
+        <a className="section-link landing__panel-link" href={paths.panel}>Consulta el panel público</a>
       </div>
     </main>
   )

@@ -15,6 +15,7 @@ export type Route =
   | { name: 'request'; id: string }
   | { name: 'system' }
   | { name: 'following' }
+  | { name: 'panel' }
   | { name: 'fundacion' }
   | { name: 'fundacion-publicar' }
   | { name: 'jornadas' }
@@ -29,6 +30,7 @@ export const paths = {
   request: (id: string) => `#/solicitudes/${encodeURIComponent(id)}`,
   system: '#/sistema',
   following: '#/siguiendo',
+  panel: '#/panel',
   fundacion: '#/fundacion',
   fundacionPublicar: '#/fundacion/publicar',
   jornadas: '#/jornadas',
@@ -43,6 +45,7 @@ export function parseHash(hash: string): Route {
   if (path === '/solicitudes') return { name: 'directory' }
   if (path === '/sistema') return { name: 'system' }
   if (path === '/siguiendo') return { name: 'following' }
+  if (path === '/panel') return { name: 'panel' }
   if (path === '/fundacion') return { name: 'fundacion' }
   if (path === '/fundacion/publicar') return { name: 'fundacion-publicar' }
   const organization = /^\/organizaciones\/([a-z0-9]+(?:-[a-z0-9]+)*)$/.exec(path)

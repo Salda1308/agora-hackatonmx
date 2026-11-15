@@ -10,6 +10,7 @@ import { Directory } from './screens/Directory'
 import { Following } from './screens/Following'
 import { Home } from './screens/Home'
 import { RequestDetail } from './screens/RequestDetail'
+import { Panel } from './screens/Panel'
 import { SystemGallery } from './screens/SystemGallery'
 
 // Área de fundación (T06): carga aparte, con su propia sesión de Supabase.
@@ -44,6 +45,9 @@ function App() {
       break
     case 'following':
       screen = <Following />
+      break
+    case 'panel':
+      screen = <Panel />
       break
     case 'fundacion':
     case 'fundacion-publicar':
