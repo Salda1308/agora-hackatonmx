@@ -244,7 +244,7 @@ function Fundacion({ organizacionId }: { organizacionId: string }) {
 
 const ESTADO_PEDIDO: Record<Pedido['estado'], { texto: string; tono: 'lime' | 'surface' | 'outline' }> = {
   preparando: { texto: 'Por preparar', tono: 'lime' },
-  listo: { texto: 'Listo', tono: 'surface' },
+  listo: { texto: 'Listo', tono: 'outline' },
   recogido: { texto: 'Recogido', tono: 'outline' },
   entregado: { texto: 'Entregado', tono: 'outline' },
 }
@@ -305,7 +305,8 @@ function Tienda({ tiendaId }: { tiendaId: string }) {
 function Repartidor() {
   const { profile } = useSession()
   const nivel = useLectura<Nivel>(() => cargarNivel(), ['nivel'])
-  const tarea = useLectura<MiTarea | null>(() => cargarMiTarea(), ['tarea'])
+  // Se envuelve porque `null` es un resultado válido (sin tarea) y useLectura lo usa para "cargando".
+  const lectura = useLectura<{ t: MiTarea | null }>(() => cargarMiTarea().then((t) => ({ t })), ['tarea'])
 
   if (nivel === null) return <CocoLoading title="Cargando tu estado…" size={88} />
   const estado = nivel ? nivelRepartidor(nivel.entregas, nivel.limite_centavos) : null
@@ -333,13 +334,13 @@ function Repartidor() {
       ) : null}
 
       <Seccion titulo="Tarea actual" accion={<a className="section-link" href="#/repartidor">Ver tareas</a>}>
-        {tarea === null ? <CocoLoading title="Cargando…" size={64} /> : tarea === undefined ? null : tarea ? (
+        {lectura === null ? <CocoLoading title="Cargando…" size={64} /> : lectura === undefined ? null : lectura.t ? (
           <Card tone="lime" href="#/repartidor" className="cta-row">
             <div className="cta-row__copy">
-              <strong>{tarea.tienda_nombre}</strong>
-              <span>Para {tarea.destino_nombre} · {formatoPesos(tarea.total_centavos)}</span>
+              <strong>{lectura.t.tienda_nombre}</strong>
+              <span>Para {lectura.t.destino_nombre} · {formatoPesos(lectura.t.total_centavos)}</span>
             </div>
-            <Chip>{tarea.estado === 'asignada' ? 'Por recoger' : 'Recogida'}</Chip>
+            <Chip>{lectura.t.estado === 'asignada' ? 'Por recoger' : 'Recogida'}</Chip>
           </Card>
         ) : (
           <Card><p className="cta-muted">No tienes una tarea en curso.</p></Card>
