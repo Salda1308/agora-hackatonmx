@@ -7,10 +7,10 @@ insert into public.organizaciones
   (id, tipo, categoria, nombre, slug, descripcion, verificada, verificada_en, es_ejemplo)
 values
   ('f2000000-0000-0000-0000-000000000001', 'fundacion', 'asilo',
-   'Casa de la Abuela — ejemplo', 'casa-abuela-demo',
+   'Casa de la Abuela (ejemplo)', 'casa-abuela-demo',
    'Organización ficticia para probar Ágora.', true, now(), true),
   ('f2000000-0000-0000-0000-000000000002', 'tienda', null,
-   'Despensa del Barrio — ejemplo', 'despensa-barrio-demo',
+   'Despensa del Barrio (ejemplo)', 'despensa-barrio-demo',
    'Tienda ficticia para probar Ágora. No tiene credenciales de cobro.', true, now(), true)
 on conflict (id) do nothing;
 
@@ -58,19 +58,19 @@ begin;
 insert into public.organizaciones
   (id, tipo, categoria, nombre, slug, descripcion, direccion_publica, latitud, longitud, verificada, verificada_en, es_ejemplo)
 values
-  ('f5000000-0000-0000-0000-000000000001', 'fundacion', 'albergue', 'Albergue Coco — ejemplo', 'albergue-coco-t05', 'Organización ficticia para probar donaciones.', 'Ciudad de México (ubicación de ejemplo)', 19.4326, -99.1332, true, now(), true),
-  ('f5000000-0000-0000-0000-000000000002', 'tienda', null, 'Tienda Coco — ejemplo', 'tienda-coco-t05', 'Tienda ficticia sin cuenta de cobro.', null, null, null, true, now(), true),
-  ('f5000000-0000-0000-0000-000000000003', 'fundacion', 'asilo', 'Casa Coco — ejemplo', 'casa-coco-t05', 'Organización ficticia con ubicación no publicada.', null, null, null, true, now(), true)
+  ('f5000000-0000-0000-0000-000000000001', 'fundacion', 'albergue', 'Albergue Coco (ejemplo)', 'albergue-coco-t05', 'Organización ficticia para probar donaciones.', 'Ciudad de México (ubicación de ejemplo)', 19.4326, -99.1332, true, now(), true),
+  ('f5000000-0000-0000-0000-000000000002', 'tienda', null, 'Tienda Coco (ejemplo)', 'tienda-coco-t05', 'Tienda ficticia sin cuenta de cobro.', null, null, null, true, now(), true),
+  ('f5000000-0000-0000-0000-000000000003', 'fundacion', 'asilo', 'Casa Coco (ejemplo)', 'casa-coco-t05', 'Organización ficticia con ubicación no publicada.', null, null, null, true, now(), true)
 on conflict (id) do nothing;
 insert into public.catalogo_articulos (id, tienda_id, nombre, unidad, precio_centavos, es_ejemplo)
 values
-  ('f5100000-0000-0000-0000-000000000001', 'f5000000-0000-0000-0000-000000000002', 'Garrafón de agua — prueba', 'pieza', 1, true),
-  ('f5100000-0000-0000-0000-000000000002', 'f5000000-0000-0000-0000-000000000002', 'Jabón — prueba', 'pieza', 1, true)
+  ('f5100000-0000-0000-0000-000000000001', 'f5000000-0000-0000-0000-000000000002', 'Garrafón de agua (prueba)', 'pieza', 1, true),
+  ('f5100000-0000-0000-0000-000000000002', 'f5000000-0000-0000-0000-000000000002', 'Jabón (prueba)', 'pieza', 1, true)
 on conflict (id) do nothing;
 insert into public.solicitudes (id, organizacion_id, tienda_id, titulo, descripcion, estado, publicada_en, es_ejemplo)
 values
-  ('f5200000-0000-0000-0000-000000000001', 'f5000000-0000-0000-0000-000000000001', 'f5000000-0000-0000-0000-000000000002', 'Agua para el albergue — ejemplo', 'Cada unidad cuesta $0.01 para probar el flujo. No es una solicitud real.', 'publicada', now(), true),
-  ('f5200000-0000-0000-0000-000000000002', 'f5000000-0000-0000-0000-000000000003', 'f5000000-0000-0000-0000-000000000002', 'Higiene para Casa Coco — ejemplo', 'Solicitud ficticia sin ubicación pública.', 'publicada', now(), true)
+  ('f5200000-0000-0000-0000-000000000001', 'f5000000-0000-0000-0000-000000000001', 'f5000000-0000-0000-0000-000000000002', 'Agua para el albergue (ejemplo)', 'Cada unidad cuesta $0.01 para probar el flujo. No es una solicitud real.', 'publicada', now(), true),
+  ('f5200000-0000-0000-0000-000000000002', 'f5000000-0000-0000-0000-000000000003', 'f5000000-0000-0000-0000-000000000002', 'Higiene para Casa Coco (ejemplo)', 'Solicitud ficticia sin ubicación pública.', 'publicada', now(), true)
 on conflict (id) do nothing;
 insert into public.solicitud_articulos (id, solicitud_id, articulo_id, cantidad)
 values
@@ -85,14 +85,14 @@ commit;
 begin;
 insert into public.catalogo_articulos (id, tienda_id, nombre, unidad, precio_centavos, es_ejemplo)
 values
-  ('f8100000-0000-0000-0000-000000000001', 'f2000000-0000-0000-0000-000000000002', 'Paquete de pañales adulto — ejemplo', 'paquete', 28900, true),
-  ('f8100000-0000-0000-0000-000000000002', 'f2000000-0000-0000-0000-000000000002', 'Arroz 1 kg — ejemplo', 'bolsa', 3200, true),
-  ('f8100000-0000-0000-0000-000000000003', 'f2000000-0000-0000-0000-000000000002', 'Leche 1 L — ejemplo', 'pieza', 2800, true),
-  ('f8100000-0000-0000-0000-000000000004', 'f2000000-0000-0000-0000-000000000002', 'Jabón de tocador — ejemplo', 'pieza', 1500, true)
+  ('f8100000-0000-0000-0000-000000000001', 'f2000000-0000-0000-0000-000000000002', 'Paquete de pañales adulto (ejemplo)', 'paquete', 28900, true),
+  ('f8100000-0000-0000-0000-000000000002', 'f2000000-0000-0000-0000-000000000002', 'Arroz 1 kg (ejemplo)', 'bolsa', 3200, true),
+  ('f8100000-0000-0000-0000-000000000003', 'f2000000-0000-0000-0000-000000000002', 'Leche 1 L (ejemplo)', 'pieza', 2800, true),
+  ('f8100000-0000-0000-0000-000000000004', 'f2000000-0000-0000-0000-000000000002', 'Jabón de tocador (ejemplo)', 'pieza', 1500, true)
 on conflict (id) do nothing;
 insert into public.solicitudes (id, organizacion_id, tienda_id, titulo, descripcion, estado, publicada_en, es_ejemplo)
 values
-  ('f8200000-0000-0000-0000-000000000001', 'f2000000-0000-0000-0000-000000000001', 'f2000000-0000-0000-0000-000000000002', 'Despensa de noviembre — ejemplo', 'Solicitud ficticia para el panel de la tienda.', 'publicada', now(), true)
+  ('f8200000-0000-0000-0000-000000000001', 'f2000000-0000-0000-0000-000000000001', 'f2000000-0000-0000-0000-000000000002', 'Despensa de noviembre (ejemplo)', 'Solicitud ficticia para el panel de la tienda.', 'publicada', now(), true)
 on conflict (id) do nothing;
 insert into public.solicitud_articulos (id, solicitud_id, articulo_id, cantidad)
 values
@@ -134,15 +134,15 @@ insert into public.jornadas
   (id, organizacion_id, titulo, descripcion, requisitos, ubicacion, inicia_en, termina_en, cupos, es_ejemplo)
 values
   ('f1800000-0000-0000-0000-000000000001', 'f2000000-0000-0000-0000-000000000001',
-   'Tarde de lectura con abuelos — ejemplo', 'Leer y platicar con las personas residentes.',
+   'Tarde de lectura con abuelos (ejemplo)', 'Leer y platicar con las personas residentes.',
    'Mayores de 16 años. Ropa cómoda.', 'Ciudad de México (ubicación de ejemplo)',
    (date_trunc('day', now() at time zone 'America/Mexico_City') + interval '7 days 16 hours') at time zone 'America/Mexico_City', (date_trunc('day', now() at time zone 'America/Mexico_City') + interval '7 days 19 hours') at time zone 'America/Mexico_City', 12, true),
   ('f1800000-0000-0000-0000-000000000002', 'f5000000-0000-0000-0000-000000000001',
-   'Limpieza del albergue — ejemplo', 'Lavar áreas comunes y ordenar la bodega.',
+   'Limpieza del albergue (ejemplo)', 'Lavar áreas comunes y ordenar la bodega.',
    'Guantes y agua. Mayores de 18 años.', 'Ciudad de México (ubicación de ejemplo)',
    (date_trunc('day', now() at time zone 'America/Mexico_City') + interval '5 days 9 hours') at time zone 'America/Mexico_City', (date_trunc('day', now() at time zone 'America/Mexico_City') + interval '5 days 13 hours') at time zone 'America/Mexico_City', 3, true),
   ('f1800000-0000-0000-0000-000000000003', 'f2000000-0000-0000-0000-000000000001',
-   'Pintura del comedor — ejemplo', 'Jornada pasada para probar la confirmación de asistencia.',
+   'Pintura del comedor (ejemplo)', 'Jornada pasada para probar la confirmación de asistencia.',
    'Ropa que se pueda manchar.', 'Ciudad de México (ubicación de ejemplo)',
    (date_trunc('day', now() at time zone 'America/Mexico_City') - interval '2 days' + interval '9 hours') at time zone 'America/Mexico_City', (date_trunc('day', now() at time zone 'America/Mexico_City') - interval '2 days' + interval '14 hours') at time zone 'America/Mexico_City', 20, true)
 on conflict (id) do nothing;
@@ -176,7 +176,7 @@ set direccion_publica = 'Mercado de ejemplo, local 12, Ciudad de México', latit
 where id = 'f2000000-0000-0000-0000-000000000002' and direccion_publica is null;
 insert into public.solicitudes (id, organizacion_id, tienda_id, titulo, descripcion, estado, publicada_en, es_ejemplo)
 values
-  ('f9200000-0000-0000-0000-000000000001', 'f2000000-0000-0000-0000-000000000001', 'f2000000-0000-0000-0000-000000000002', 'Leche y pañales — ejemplo', 'Solicitud ficticia para el recorrido del repartidor.', 'publicada', now(), true)
+  ('f9200000-0000-0000-0000-000000000001', 'f2000000-0000-0000-0000-000000000001', 'f2000000-0000-0000-0000-000000000002', 'Leche y pañales (ejemplo)', 'Solicitud ficticia para el recorrido del repartidor.', 'publicada', now(), true)
 on conflict (id) do nothing;
 insert into public.solicitud_articulos (id, solicitud_id, articulo_id, cantidad)
 values
