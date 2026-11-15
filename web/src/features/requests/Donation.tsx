@@ -165,7 +165,7 @@ export function Donation({ request }: { request: PublicRequest }) {
         )
       } else if (
         http &&
-        [400, 404, 409, 413, 415, 422].includes(http.status) &&
+        [400, 404, 409, 413, 415, 422, 429].includes(http.status) &&
         !body?.pagoId
       ) {
         setMessage(

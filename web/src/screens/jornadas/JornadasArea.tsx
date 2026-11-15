@@ -263,7 +263,7 @@ function FormularioInscripcion({
           type="number"
           required
           min={1}
-          max={Math.min(libres, 500)}
+          max={Math.min(libres, 4)}
           value={asistentes}
           onChange={(e) => setAsistentes(Number(e.target.value))}
         />

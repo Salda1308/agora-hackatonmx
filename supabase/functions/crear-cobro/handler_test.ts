@@ -1,11 +1,12 @@
 import {
   Almacen,
+  ErrorCobro,
   Metodo,
   Reserva,
   ResultadoPey,
   validarEntrada,
 } from "./domain.ts";
-import { crearHandler } from "./handler.ts";
+import { crearClaveOrigen, crearHandler, ipDe } from "./handler.ts";
 import { Configuracion, leerCuenta } from "./pey.ts";
 import { assert, igual } from "./test_helpers.ts";
 
@@ -363,4 +364,52 @@ Deno.test("token de seguimiento acompaña 201, 202 y 502 sin enviarse a pey", as
     const body = await response.json();
     igual(body.seguimientoToken, `signed-token-${body.pagoId}`);
   }
+});
+
+Deno.test("T20: la clave de origen es un HMAC de la IP y llega al almacén", async () => {
+  const clave = crearClaveOrigen("x".repeat(32));
+  const conIp = (headers: Record<string, string>) =>
+    new Request("https://example.com/crear-cobro", { method: "POST", headers });
+  igual(
+    ipDe(conIp({ "x-forwarded-for": " 203.0.113.9 , 10.0.0.1" })),
+    "203.0.113.9",
+  );
+  igual(
+    ipDe(
+      conIp({
+        "cf-connecting-ip": "198.51.100.7",
+        "x-forwarded-for": "1.1.1.1",
+      }),
+    ),
+    "198.51.100.7",
+  );
+  igual(ipDe(conIp({})), null);
+  igual(await clave(conIp({})), null);
+  const a = await clave(conIp({ "x-real-ip": "203.0.113.9" }));
+  assert(a && /^[0-9a-f]{64}$/.test(a) && !a.includes("203"));
+  igual(await clave(conIp({ "x-forwarded-for": "203.0.113.9" })), a);
+  assert(a !== await clave(conIp({ "x-real-ip": "203.0.113.10" })));
+
+  const vistos: (string | undefined)[] = [];
+  const almacen: Almacen = {
+    reservar(_input, _validate, origen) {
+      vistos.push(origen);
+      return Promise.reject(
+        new ErrorCobro(
+          429,
+          "DEMASIADOS_INTENTOS",
+          "Demasiados intentos de pago. Espera unos minutos.",
+        ),
+      );
+    },
+    guardarResultado: () => Promise.resolve(),
+    marcarIntento: () => Promise.resolve(),
+  };
+  const handler = crearHandler(almacen, config, neverFetch, undefined, clave);
+  const req = request(base());
+  req.headers.set("x-real-ip", "203.0.113.9");
+  const res = await handler(req);
+  igual(res.status, 429);
+  igual((await res.json()).error.codigo, "DEMASIADOS_INTENTOS");
+  igual(vistos, [a]);
 });

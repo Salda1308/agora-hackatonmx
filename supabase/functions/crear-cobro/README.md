@@ -58,6 +58,7 @@ Errores `{ "error": { "codigo": "…", "mensaje": "…" } }`:
 | 409       | Unidades ya pagadas o reservadas por otro intento                         |
 | 413 / 415 | Cuerpo mayor a 16 KiB / tipo distinto de JSON                             |
 | 422       | Total calculado superior al límite del servidor                           |
+| 429       | `DEMASIADOS_PAGOS_PENDIENTES` o `DEMASIADOS_INTENTOS` (límites de T20)    |
 | 503       | Cuenta/configuración incompleta o DB no disponible                        |
 | 502       | Pey rechazó explícitamente la petición; pago `fallido` y reserva liberada |
 | 202       | Creación incierta: conservar `pagoId`, no repetir automáticamente         |
@@ -99,9 +100,9 @@ hace falta agregar una columna con la CLABE completa.
 
 El flujo de donante es anónimo. Para habilitarlo al desplegar, Supabase necesita
 servir esta función con `--no-verify-jwt`; no cambia políticas de tablas. CORS
-permite las llamadas desde web. La función no ofrece autenticación de donantes
-ni rate limiting persistente: protección contra abuso queda para T13. **Este
-ticket entrega código local; no despliega ni crea cobros reales.**
+permite las llamadas desde web. La función no ofrece autenticación de donantes;
+los límites de abuso están en la sección de T20. **Este ticket entrega código
+local; no despliega ni crea cobros reales.**
 
 ## Persistencia y contrato para T04
 
@@ -134,13 +135,12 @@ antes de guardar los identificadores; `pago_id` y el detalle ya existen. Al
 guardar el resultado la función conserva `estado`, `pagado_en`, una transacción
 ya asignada y las demás claves de metadata del webhook.
 
-Todos los `pagos.estado = 'creado'` reservan unidades. **No se liberan solo por
-antigüedad**: el link no tiene vencimiento documentado y un push puede quedar
-PENDING incluso después de que el banco muestre "pagado". La caducidad enviada
-de 600 segundos no demuestra que no se haya pagado. T04/conciliación debe
-confirmar el estado y cambiar a `fallido`/`expirado` únicamente con evidencia.
-Esto puede mantener unidades reservadas si el proceso termina tras reservar y
-antes de llamar a pey; requiere conciliación, no un reintento automático.
+Un pago `creado` reserva unidades solo durante 15 minutos desde `creado_en`
+(T20; ver la sección de límites de abuso). Pasado ese plazo deja de reservar,
+pero **su estado no cambia**: sigue en `creado` y el webhook aún puede
+confirmarlo. El link no tiene vencimiento documentado y un push puede quedar
+PENDING incluso después de que el banco muestre "pagado"; por eso nada lo marca
+como `expirado` sin evidencia de pey.
 
 Para confirmar un pago, T04 debe actualizar pago y contadores de artículos **en
 una sola transacción**, tomando los artículos en orden de id, antes del pago.
@@ -178,3 +178,35 @@ aceptar cobros. No se envía a pey ni se guarda en metadata. No ponerlo en URLs,
 logs ni analítica. La web conserva el intento solo en sessionStorage de la
 pestaña, sin teléfono. Cambiar el secreto invalida todos los tokens anteriores.
 Ver `../estado-pago/README.md` para consulta pública sin relajar RLS.
+
+## Límites de abuso (T20, hallazgo A1 de T13)
+
+- **Reserva con caducidad**: solo los pagos `creado` con `creado_en` de los
+  últimos 15 minutos (`RESERVA_MINUTOS` en `store.ts`) descuentan unidades. El
+  QR y el push de pey caducan a los 600 segundos; los 5 minutos extra cubren
+  latencia del banco.
+- **Pago tardío**: un pago viejo nunca se borra ni se marca `expirado`. Si pey
+  lo confirma después, `pey-webhook` lo trata igual que a cualquier `creado`:
+  - si aún caben sus unidades, queda `pagado` y suma a la barra como siempre;
+  - si mientras tanto otro donante pagó esas unidades, el webhook no lo
+    sobrevende: deja el pago en `creado` y anota la anomalía `excede_cantidad`
+    en `pagos.metadata.anomalias` con el `transactionId` y el monto. El dinero
+    ya llegó a la tienda; el equipo lo concilia a mano (reembolso o asignación a
+    otro artículo). No se pierde el registro.
+- **Tope por solicitud**: máximo 3 pagos `creado` recientes a la vez por
+  solicitud (`MAX_PENDIENTES_POR_SOLICITUD`); el cuarto recibe 429
+  `DEMASIADOS_PAGOS_PENDIENTES`. Los `fallido` y los viejos no cuentan.
+- **Tope por origen**: 20 intentos por ventana de 10 minutos
+  (`MAX_COBROS_POR_ORIGEN`, `VENTANA_ORIGEN_SEGUNDOS`); el siguiente recibe 429
+  `DEMASIADOS_INTENTOS`. Cuentan también los intentos rechazados. La clave es un
+  HMAC-SHA256 de la IP con `AGORA_SEGUIMIENTO_SECRET`; la IP no se guarda. Se
+  toma de `cf-connecting-ip`, `x-real-ip` o el primer valor de
+  `x-forwarded-for`, así que es de mejor esfuerzo: quien controle esas cabeceras
+  puede rotarla. Sin IP no se aplica este tope (los otros dos sí). El conteo
+  vive en `privado.limites_cobro` (migración
+  `20261114203000_limites_abuso.sql`), solo para `service_role`; las filas de
+  más de una hora se borran en cada intento.
+- La función depende de esa tabla: **aplicar la migración antes de desplegar**
+  esta versión, o cada cobro con IP responderá 503.
+- Mantener `PEY_MAXIMO_CENTAVOS` bajo en la demo sigue siendo la tercera
+  barrera.

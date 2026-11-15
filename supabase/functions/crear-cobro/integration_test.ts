@@ -115,16 +115,68 @@ Deno.test({
         },
       );
       await t.step(
-        "creado antiguo o incierto mantiene reserva; no caduca solo por reloj",
+        "T20: un pendiente reserva 15 minutos y después sigue en creado para el webhook",
         async () => {
           await reset();
           const r = await storage.reservar(input(), noConfig);
           await storage.marcarIntento(r, "incierto");
-          await sql`update public.pagos set creado_en = now() - interval '2 days' where id = ${r.id}`;
+          await sql`update public.pagos set creado_en = now() - interval '14 minutes' where id = ${r.id}`;
           await rechazo(
             () => storage.reservar(input(), noConfig),
             "UNIDADES_NO_DISPONIBLES",
           );
+          await sql`update public.pagos set creado_en = now() - interval '16 minutes' where id = ${r.id}`;
+          const nuevo = await storage.reservar(input(), noConfig);
+          const [viejo] =
+            await sql`select estado from public.pagos where id = ${r.id}`;
+          igual(viejo.estado, "creado");
+          assert(nuevo.id !== r.id);
+        },
+      );
+      await t.step(
+        "T20: máximo 3 pendientes recientes por solicitud",
+        async () => {
+          await reset(10);
+          const pagos = [];
+          for (let i = 0; i < 3; i++) {
+            pagos.push(await storage.reservar(input(), noConfig));
+          }
+          await rechazo(
+            () => storage.reservar(input(), noConfig),
+            "DEMASIADOS_PAGOS_PENDIENTES",
+          );
+          await storage.marcarIntento(pagos[0], "rechazado");
+          pagos.push(await storage.reservar(input(), noConfig));
+          await sql`update public.pagos set creado_en = now() - interval '16 minutes' where id = ${
+            pagos[1].id
+          }`;
+          await storage.reservar(input(), noConfig);
+          await rechazo(
+            () => storage.reservar(input(), noConfig),
+            "DEMASIADOS_PAGOS_PENDIENTES",
+          );
+        },
+      );
+      await t.step(
+        "T20: límite por origen cuenta también intentos rechazados",
+        async () => {
+          await reset(10);
+          const clave = `t20-${crypto.randomUUID()}`;
+          const otra = `t20-${crypto.randomUUID()}`;
+          try {
+            await storage.reservar(input(), noConfig, clave);
+            await sql`update privado.limites_cobro set intentos = 20 where clave = ${clave}`;
+            await rechazo(
+              () => storage.reservar(input(), noConfig, clave),
+              "DEMASIADOS_INTENTOS",
+            );
+            const [fila] =
+              await sql`select sum(intentos)::integer as n from privado.limites_cobro where clave = ${clave}`;
+            igual(fila.n, 21);
+            await storage.reservar(input(), noConfig, otra);
+          } finally {
+            await sql`delete from privado.limites_cobro where clave in (${clave}, ${otra})`;
+          }
         },
       );
       await t.step(
