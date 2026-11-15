@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ThemeToggle } from '../components/ThemeToggle'
 import { Button } from '../components/ui/Button'
 import { Card } from '../components/ui/Card'
 import { EmptyState } from '../components/ui/EmptyState'
@@ -100,7 +99,6 @@ export function Following() {
       <div className="screen__body screen__body--top">
         <div className="topbar">
           <span className="brand brand--ink">Ágora</span>
-          <ThemeToggle />
         </div>
         <h1 className="page-title">
           Mis <span className="highlight highlight--lime">comprobantes</span>

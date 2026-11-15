@@ -1,4 +1,3 @@
-import { ThemeToggle } from '../components/ThemeToggle'
 import { Button } from '../components/ui/Button'
 import { Card } from '../components/ui/Card'
 import { Chip, SampleBadge } from '../components/ui/Chip'
@@ -50,7 +49,6 @@ export function RequestDetail({ id }: { id: string }) {
             <IconBack />
           </a>
           {request.sample && <SampleBadge />}
-          <ThemeToggle />
         </div>
         <div className="detail-cover"><img src={requestVisual(request.category)} alt={`Ilustración de insumos de ${request.category.toLowerCase()}`} /><span>Una causa, muchas manos</span></div>
         <div className="detail-hero__chips">

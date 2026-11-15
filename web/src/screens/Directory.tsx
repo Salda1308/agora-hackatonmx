@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { RequestCard } from '../components/RequestCard'
-import { ThemeToggle } from '../components/ThemeToggle'
 import { Button } from '../components/ui/Button'
 import { Chip } from '../components/ui/Chip'
 import { CocoLoading } from '../components/ui/CocoLoading'
@@ -32,7 +31,6 @@ export function Directory() {
       <div className="screen__body screen__body--top">
         <div className="topbar">
           <span>Causas en curso</span>
-          <ThemeToggle />
         </div>
         <div className="directory-heading">
           <h1 className="page-title">Hagamos que suceda.</h1>

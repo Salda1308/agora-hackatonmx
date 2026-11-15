@@ -1,7 +1,6 @@
 import { Button } from '../components/ui/Button'
 import { SampleBadge } from '../components/ui/Chip'
 import { EmptyState } from '../components/ui/EmptyState'
-import { ThemeToggle } from '../components/ThemeToggle'
 import { paths } from '../lib/router'
 import { RequireRole } from './RequireRole'
 import { registroPaths } from './registro-routes'
@@ -16,7 +15,7 @@ export function RoleScreen({ route }: { route: RoleRoute }) {
   return (
     <main className="screen">
       <div className="screen__body screen__body--top">
-        <div className="topbar"><span className="brand">Ágora</span><ThemeToggle /></div>
+        <div className="topbar"><span className="brand">Ágora</span></div>
         <RequireRole allowed={[route.role]}
           pending={<EmptyState title="Cargando tu sesión" description="Estamos comprobando tu acceso." />}
           fallback={<EmptyState title={`Acceso para ${roleLabels[route.role].toLowerCase()}`}

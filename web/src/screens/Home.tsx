@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 import { useSession } from '../auth/useSession'
-import { ThemeToggle } from '../components/ThemeToggle'
 import { Button } from '../components/ui/Button'
 import { Chip } from '../components/ui/Chip'
 import { Coco } from '../components/ui/Coco'
@@ -70,7 +69,6 @@ function FeedTimeline() {
     <header className="social-home__header">
       <a className="brand" href={paths.home} aria-label="Ágora, inicio"><Coco size={40} variant="portrait" />ágora<span className="brand-dot">.</span></a>
       <span className="social-home__tagline">Aquí, cada gesto cuenta.</span>
-      <ThemeToggle />
       <a className="social-home__cta" href={paths.directory}>Donar</a>
     </header>
     <Portada causes={portadaCauses(requests, items)} feed={items} social={social} loading={loading} onFeedChange={updateItem} />

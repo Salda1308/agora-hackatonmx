@@ -3,7 +3,7 @@
 Guía corta para las tareas de frontend. Web móvil primero: una columna de hasta 480 px, centrada en escritorio.
 
 ## Dónde está
-- `src/styles/tokens.css`: color, tipografía, radios, espacios, sombras y movimiento. Modo claro por defecto; oscuro con `prefers-color-scheme` o con `data-theme="dark"` en `<html>` (el botón de tema lo fija y lo guarda).
+- `src/styles/tokens.css`: color, tipografía, radios, espacios, sombras y movimiento. La interfaz usa el tema claro fijo (`data-theme="light"` en `<html>`); no muestra un selector de tema.
 - `src/styles/components.css`: estilos de los componentes base (prefijo `ui-`).
 - `src/styles/screens.css`: estilos de las pantallas ancla.
 - `src/components/ui/`: componentes base.
@@ -107,3 +107,7 @@ pública sigue disponible y no se ofrecen accesos demo.
 - Las causas y sus unidades salen de solicitudes publicadas; si esa consulta aún no aporta datos, se usan las causas cargadas en el feed. Los conteos y la prueba social se calculan con esos datos, sin cifras de marketing. Los datos de ejemplo se identifican con `SampleBadge`.
 - En escritorio, `SiteDock` presenta marca, cinco destinos y acciones en una píldora superior. En móvil, la cabecera del Inicio es compacta y el dock inferior usa la misma superficie clara con el destino activo en tinta. `RoleDock` hereda este tratamiento mediante el componente `Dock`, sin cambiar sus destinos.
 - El hero usa un único bloque cálido en claro y una versión sobria en oscuro. Categorías y tarjetas mantienen superficies neutras; el rojo de Coco queda como acento del titular.
+
+## Ajuste posterior: tema claro fijo
+
+- Por preferencia del usuario se retiró el control de modo oscuro de todas las pantallas. La aplicación fija el tema claro desde `index.html`, incluso si el sistema o una elección anterior indicaban oscuro. Las reglas de CSS del tema oscuro quedan sin uso.

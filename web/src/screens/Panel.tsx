@@ -1,4 +1,3 @@
-import { ThemeToggle } from '../components/ThemeToggle'
 import './panel/panel.css'
 import { Button } from '../components/ui/Button'
 import { Card } from '../components/ui/Card'
@@ -100,7 +99,7 @@ export function Panel() {
     return (
       <main className="screen panel">
         <div className="screen__body screen__body--top">
-          <div className="topbar"><span className="brand">Panel público</span><ThemeToggle /></div>
+          <div className="topbar"><span className="brand">Panel público</span></div>
           <EmptyState pose="volando-garrafon" title="Coco está reuniendo las cifras" description="Un momento, estamos leyendo los avances públicos." />
         </div>
       </main>
@@ -111,7 +110,7 @@ export function Panel() {
     return (
       <main className="screen panel">
         <div className="screen__body screen__body--top">
-          <div className="topbar"><span className="brand">Panel público</span><ThemeToggle /></div>
+          <div className="topbar"><span className="brand">Panel público</span></div>
           <EmptyState
             title="El panel no está disponible"
             description={error || 'No encontramos datos públicos todavía.'}
@@ -129,7 +128,6 @@ export function Panel() {
         <div className="topbar">
           <a className="ui-icon-button" href={paths.home} aria-label="Volver al inicio">←</a>
           <span className="brand">Panel público</span>
-          <ThemeToggle />
         </div>
 
         <header className="panel-heading">
