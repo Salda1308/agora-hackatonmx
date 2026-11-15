@@ -35,6 +35,21 @@ export function Pedidos({ tiendaId }: { tiendaId: string }) {
     }
   }, [tiendaId, intento])
 
+  // Actualiza la lista cada 5 s para ver pedidos nuevos sin recargar; un fallo aquí no tapa la lista.
+  useEffect(() => {
+    let vigente = true
+    const id = window.setInterval(() => {
+      if (document.visibilityState === 'hidden') return
+      cargarPedidos()
+        .then((p) => vigente && setPedidos(p))
+        .catch(() => undefined)
+    }, 5000)
+    return () => {
+      vigente = false
+      window.clearInterval(id)
+    }
+  }, [tiendaId])
+
   const marcar = async (id: string) => {
     setFallo(null)
     setMarcando(id)
