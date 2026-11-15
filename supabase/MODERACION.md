@@ -47,3 +47,51 @@ Efecto de suspender:
 ## Publicar (lo hace la fundación)
 
 `public.publicar_solicitud(p_tienda_id, p_titulo, p_articulos, p_descripcion)` (migración `20261114130000_publicar_solicitud.sql`) crea y publica en una transacción, con RLS de la fundación. `p_articulos` es `[{"articulo_id": "...", "cantidad": 3}]`. Rechaza: fundación sin verificar o suspendida, lista vacía, artículos de otra tienda o inactivos, tienda sin verificar o suspendida. El precio queda congelado al publicar.
+
+## Moderar comentarios y bloquear usuarios
+
+Migración `20261114230000_feed_social.sql` (T24). Los clientes solo comentan, dan me gusta, reportan y borran por RPC; las tablas `comentarios`, `me_gusta`, `reportes_comentario` y `usuarios_bloqueados` no tienen privilegios para `anon` ni `authenticated`. Correr lo de abajo en el SQL Editor o con `psql` como `postgres` y registrar cada acción en `acciones_moderacion`.
+
+Reglas automáticas (en servidor): texto de 1 a 500 caracteres sin controles, enlaces, correos ni teléfonos; nada de repetir el mismo texto en 10 minutos; máximo 5 comentarios en 10 minutos y 30 en 24 horas; máximo 60 me gusta o quitar en 10 minutos; solo cuentas con correo confirmado; un reporte por cuenta y comentario. Con 3 reportes de cuentas distintas el comentario queda `oculto = true` y deja de mostrarse, pero se conserva para revisión. Las cuentas `@demo.agora.test` pueden participar con los mismos límites.
+
+Ver comentarios reportados u ocultos:
+
+```sql
+select c.id, c.tipo, c.objetivo_id, c.usuario_id, u.email, c.texto, c.oculto, c.borrado_en,
+       count(r.*) as reportes, string_agg(r.motivo, ' | ') as motivos
+from public.comentarios c
+join auth.users u on u.id = c.usuario_id
+left join public.reportes_comentario r on r.comentario_id = c.id
+group by c.id, u.email
+having count(r.*) > 0 or c.oculto
+order by c.oculto desc, reportes desc;
+```
+
+Ocultar, restaurar o borrar un comentario:
+
+```sql
+update public.comentarios set oculto = true, oculto_en = now() where id = '<comentario_id>';
+-- Restaurar uno ocultado por error (los reportes quedan atendidos para que no vuelva a ocultarse solo por ellos).
+update public.comentarios set oculto = false, oculto_en = null where id = '<comentario_id>';
+update public.reportes_comentario set estado = 'descartado' where comentario_id = '<comentario_id>';
+-- Borrado lógico (lo mismo que hace public.borrar_comentario con service_role).
+update public.comentarios set borrado_en = now() where id = '<comentario_id>';
+insert into public.acciones_moderacion (moderador, accion, objetivo_tabla, objetivo_id, motivo)
+values ('<quien>', 'ocultar_comentario', 'comentarios', '<comentario_id>', '<motivo>');
+```
+
+Nota: un comentario restaurado con 3 o más reportes no se vuelve a ocultar solo, porque el ocultado automático solo ocurre al llegar un reporte nuevo de otra cuenta.
+
+Bloquear y desbloquear una cuenta (no puede comentar, dar me gusta ni reportar; sus comentarios dejan de mostrarse mientras siga bloqueada):
+
+```sql
+insert into public.usuarios_bloqueados (usuario_id, motivo, bloqueado_por)
+values ('<auth.users.id>', '<motivo>', '<quien>');
+insert into public.acciones_moderacion (moderador, accion, objetivo_tabla, objetivo_id, motivo)
+values ('<quien>', 'bloquear_usuario', 'usuarios_bloqueados', '<auth.users.id>', '<motivo>');
+
+-- Desbloquear: sus comentarios vuelven a verse.
+delete from public.usuarios_bloqueados where usuario_id = '<auth.users.id>';
+```
+
+Buscar la cuenta por correo: `select id from auth.users where email = '<correo>';`. La interfaz nunca muestra el correo: el autor aparece con `perfiles.nombre_visible` o como "Vecino XXXX".
