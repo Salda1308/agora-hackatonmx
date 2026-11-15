@@ -52,7 +52,9 @@ where id in ('ea500000-0000-0000-0000-000000000001', 'ea500000-0000-0000-0000-00
 create temp table t10 on commit drop as
 select
   (select id from public.tareas where pedido_id = 'ea500000-0000-0000-0000-000000000001') as uno,
-  (select id from public.tareas where pedido_id = 'ea500000-0000-0000-0000-000000000002') as dos;
+  (select id from public.tareas where pedido_id = 'ea500000-0000-0000-0000-000000000002') as dos,
+  (select codigo_recogida from public.pedidos where id = 'ea500000-0000-0000-0000-000000000001') as cod_uno,
+  (select codigo_recogida from public.pedidos where id = 'ea500000-0000-0000-0000-000000000002') as cod_dos;
 create temp table t10_codigo (cual text primary key, codigo text) on commit drop;
 grant select on t10 to authenticated, anon;
 grant select, insert on t10_codigo to authenticated;
@@ -71,9 +73,13 @@ select throws_ok($$select public.registrar_entrega((select uno from t10), (selec
 select throws_ok($$insert into storage.objects (bucket_id, name, owner_id)
   values ('entregas', (select uno from t10)::text || '/ea600000-0000-0000-0000-000000000009.jpg', auth.uid()::text)$$,
   '42501', null, 'no se sube foto antes de recoger');
-select throws_ok($$select public.marcar_recogida((select dos from t10))$$, 'P0002', 'No tienes esa tarea por recoger',
-  'no se recoge una tarea ajena');
-select lives_ok($$select public.marcar_recogida((select uno from t10))$$, 'repartidor 1 marca recogida');
+select throws_ok($$select * from public.confirmar_recogida((select uno from t10), (select cod_uno from t10))$$,
+  '42501', 'Solo la tienda del pedido confirma la recogida', 'el repartidor no confirma su propia recogida');
+-- La tienda teclea el código que le muestra el repartidor (T21).
+select set_config('request.jwt.claims', '{"sub":"ea000000-0000-0000-0000-0000000000a1","role":"authenticated"}', true);
+select is((select resultado from public.confirmar_recogida((select uno from t10), (select cod_uno from t10))),
+  'confirmada', 'la tienda confirma la recogida con el código');
+select set_config('request.jwt.claims', '{"sub":"ea000000-0000-0000-0000-0000000000b1","role":"authenticated"}', true);
 select is((select estado::text from public.mi_tarea()), 'recogida', 'la tarea queda recogida');
 
 select throws_ok($$insert into storage.objects (bucket_id, name, owner_id)
@@ -171,7 +177,9 @@ select is((select array_agg(tipo::text order by id) from public.eventos_tarea wh
 
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"ea000000-0000-0000-0000-0000000000b2","role":"authenticated"}', true);
-select public.marcar_recogida((select dos from t10));
+select set_config('request.jwt.claims', '{"sub":"ea000000-0000-0000-0000-0000000000a1","role":"authenticated"}', true);
+select public.confirmar_recogida((select dos from t10), (select cod_dos from t10));
+select set_config('request.jwt.claims', '{"sub":"ea000000-0000-0000-0000-0000000000b2","role":"authenticated"}', true);
 insert into storage.objects (bucket_id, name, owner_id)
 values ('entregas', (select dos from t10)::text || '/ea600000-0000-0000-0000-000000000002.jpg', auth.uid()::text);
 insert into t10_codigo

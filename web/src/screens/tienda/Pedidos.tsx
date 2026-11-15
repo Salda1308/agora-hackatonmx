@@ -9,6 +9,7 @@ import { formatoPesos } from '../fundacion/api'
 import { Marco } from '../fundacion/Marco'
 import { cargarMiTienda, cargarPedidos, marcarListo } from './api'
 import type { MiTienda, Pedido } from './api'
+import { Recogida } from './Recogida'
 
 export function Pedidos({ tiendaId }: { tiendaId: string }) {
   const [tienda, setTienda] = useState<MiTienda | null>(null)
@@ -38,10 +39,10 @@ export function Pedidos({ tiendaId }: { tiendaId: string }) {
     setFallo(null)
     setMarcando(id)
     try {
-      const codigo = await marcarListo(id)
-      setPedidos((prev) => prev?.map((p) => (p.id === id
-        ? { ...p, estado: 'listo', codigo_recogida: codigo, listo_en: new Date().toISOString() } : p)) ?? null)
+      await marcarListo(id)
       setRecien(id)
+      // Recarga para traer la tarea de recogida que se acaba de crear.
+      setIntento((n) => n + 1)
     } catch (e) {
       setFallo({ id, texto: e instanceof Error ? e.message : 'No se pudo marcar.' })
     } finally {
@@ -105,13 +106,8 @@ export function Pedidos({ tiendaId }: { tiendaId: string }) {
                   <li key={p.id}>
                     <Card tone={recien === p.id ? 'lime' : 'surface'} className="tda-item">
                       <TarjetaPedido pedido={p} />
-                      {p.codigo_recogida ? (
-                        <div className="tda-code" role={recien === p.id ? 'status' : undefined}>
-                          <span className="tda-muted">Código de recogida</span>
-                          <strong className="tda-code__value">{p.codigo_recogida}</strong>
-                          <span className="tda-muted">Pídelo al voluntario al entregar.</span>
-                        </div>
-                      ) : null}
+                      <Recogida key={`${p.tarea_estado}-${p.intentos_restantes}`} pedido={p}
+                        onConfirmada={() => setIntento((n) => n + 1)} />
                     </Card>
                   </li>
                 ))}

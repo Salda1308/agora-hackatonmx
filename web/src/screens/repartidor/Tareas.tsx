@@ -157,7 +157,7 @@ function TareaActiva({ tarea, ocupado, onLiberar, onCambio }: {
         <div className="rep-code">
           <span className="rep-muted">Código de recogida</span>
           <strong className="rep-code__value">{tarea.codigo_recogida}</strong>
-          <span className="rep-muted">Muéstralo solo en la tienda.</span>
+          <span className="rep-muted">Muéstralo en la tienda para que lo confirmen.</span>
         </div>
       ) : null}
 

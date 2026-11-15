@@ -27,14 +27,6 @@ export async function cargarMiEntrega(): Promise<MiEntrega | null> {
   return ((data ?? []) as MiEntrega[])[0] ?? null
 }
 
-export async function marcarRecogida(tarea: string) {
-  const { error } = await cliente().rpc('marcar_recogida', { p_tarea: tarea })
-  if (error) {
-    throw mensaje(error, ['No tienes esa tarea por recoger', 'El pedido no está listo'],
-      'No se pudo marcar. Vuelve a intentar.')
-  }
-}
-
 const LADO_MAXIMO = 1280
 const PESO_MAXIMO = 3 * 1024 * 1024
 
