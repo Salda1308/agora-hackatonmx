@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { useSession } from '../../auth/useSession'
 import { RequireRole } from '../../auth/RequireRole'
-import { ThemeToggle } from '../../components/ThemeToggle'
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { Chip, SampleBadge } from '../../components/ui/Chip'
@@ -32,7 +31,7 @@ export default function OrganizacionPage({ slug, own = false, ownerRole }: { slu
 }
 function Shell({ children }: { children: React.ReactNode }) {
   return <main className="screen"><div className="screen__body screen__body--top org-page">
-    <div className="topbar"><a className="ui-icon-button" href={paths.directory} aria-label="Volver a solicitudes">←</a><span className="brand">Ágora</span><ThemeToggle /></div>{children}
+    <div className="topbar"><a className="ui-icon-button" href={paths.directory} aria-label="Volver a solicitudes">←</a><span className="brand">Ágora</span></div>{children}
   </div></main>
 }
 function Page({ slug, organizationId, own = false }: { slug?: string; organizationId?: string; own?: boolean }) {

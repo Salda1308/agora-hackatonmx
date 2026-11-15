@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import type { FormEvent, ReactNode } from 'react'
-import { ThemeToggle } from '../../components/ThemeToggle'
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { Chip, SampleBadge } from '../../components/ui/Chip'
@@ -41,7 +40,6 @@ export function Pantalla({ children, atras }: { children: ReactNode; atras?: str
           ) : (
             <span className="brand">Ágora</span>
           )}
-          <ThemeToggle />
         </div>
         {children}
       </div>

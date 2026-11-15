@@ -6,7 +6,6 @@ import { registroPaths } from '../../auth/registro-routes'
 import { roleLabels, roleNavigation } from '../../auth/roles'
 import type { Role } from '../../auth/roles'
 import { useSession } from '../../auth/useSession'
-import { ThemeToggle } from '../../components/ThemeToggle'
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { Chip, SampleBadge } from '../../components/ui/Chip'
@@ -43,7 +42,6 @@ export default function Cuenta() {
       <div className="screen__body screen__body--top cta-page">
         <div className="topbar">
           <span className="brand brand--ink">Ágora</span>
-          <ThemeToggle />
         </div>
         <h1 className="page-title">Mi cuenta</h1>
         {vista === 'cargando' ? <CocoLoading title="Cargando tu cuenta…" size={88} /> : null}

@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { ThemeToggle } from '../components/ThemeToggle'
 import { Button } from '../components/ui/Button'
 import { Card } from '../components/ui/Card'
 import { Chip, SampleBadge } from '../components/ui/Chip'
@@ -30,7 +29,6 @@ export function SystemGallery() {
       <div className="screen__body screen__body--top">
         <div className="topbar">
           <span className="brand brand--ink">Ágora · sistema</span>
-          <ThemeToggle />
         </div>
         <h1 className="page-title">
           Sistema de <span className="highlight highlight--yellow">diseño</span>

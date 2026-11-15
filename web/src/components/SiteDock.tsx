@@ -1,5 +1,5 @@
 import { Dock } from './ui/Dock'
-import { IconBookmark, IconHeart, IconHome, IconList, IconUser } from './ui/icons'
+import { IconBookmark, IconHeart, IconHome, IconList, IconSearch, IconUser } from './ui/icons'
 import { paths, type Route } from '../lib/router'
 
 /** Destinos actuales; D8 puede cambiar la cuenta sin tocar la navegación pública. */
@@ -15,5 +15,10 @@ export function SiteDock({ route }: { route: Route }) {
     { key: 'following', label: 'Siguiendo', href: paths.following, icon: <IconBookmark /> },
     { key: 'account', label: 'Cuenta', href: account, icon: <IconUser /> },
   ]
-  return <Dock activeKey={active} start={entries.slice(0, 2)} end={entries.slice(2)} />
+  // D10: en escritorio la barra lleva búsqueda (el directorio tiene el buscador) y el CTA oscuro.
+  const actions = <>
+    <a className="ui-icon-button" href={paths.directory} aria-label="Buscar causas"><IconSearch /></a>
+    <a className="ui-dock__cta" href={paths.directory}>Donar <span className="ui-dock__cta-arrow" aria-hidden="true">→</span></a>
+  </>
+  return <Dock activeKey={active} start={entries.slice(0, 2)} end={entries.slice(2)} actions={actions} />
 }

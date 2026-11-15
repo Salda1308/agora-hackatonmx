@@ -14,10 +14,12 @@ type DockProps = {
   action?: DockItem
   activeKey: string
   label?: string
+  /** Acciones a la derecha de la barra en escritorio (búsqueda, CTA). En móvil no se muestran. */
+  actions?: ReactNode
 }
 
 /** Navegación flotante; admite una acción central explícita si el flujo la necesita. */
-export function Dock({ start, end, action, activeKey, label = 'Navegación principal' }: DockProps) {
+export function Dock({ start, end, action, activeKey, label = 'Navegación principal', actions }: DockProps) {
   const renderItem = (item: DockItem) => {
     const active = item.key === activeKey
     return (
@@ -36,7 +38,9 @@ export function Dock({ start, end, action, activeKey, label = 'Navegación princ
 
   return (
     <nav className="ui-dock" aria-label={label}>
-      <a className="ui-dock__brand" href="#/" aria-label="Ágora, inicio">Ágora</a>
+      <a className="ui-dock__brand" href="#/" aria-label="Ágora, inicio">
+        <img src="/coco-portrait.svg" alt="" width="40" height="44" />ágora<span className="brand-dot">.</span>
+      </a>
       <ul className="ui-dock__list">
         {start.map(renderItem)}
         {action ? <li className="ui-dock__action-slot">
@@ -51,6 +55,7 @@ export function Dock({ start, end, action, activeKey, label = 'Navegación princ
         </li> : null}
         {end.map(renderItem)}
       </ul>
+      {actions ? <div className="ui-dock__actions">{actions}</div> : null}
     </nav>
   )
 }

@@ -4,6 +4,7 @@
 @import './styles/screens.css';
 @import './styles/desktop.css';
 @import './styles/social.css';
+@import './styles/portada.css';
 
 *,
 *::before,
