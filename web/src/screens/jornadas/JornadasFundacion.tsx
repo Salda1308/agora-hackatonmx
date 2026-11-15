@@ -107,7 +107,7 @@ function Gestion({ organizacionId }: { organizacionId: string }) {
 }
 
 function TarjetaJornada({ jornada, onCambio }: { jornada: JornadaConInscripciones; onCambio: () => void }) {
-  const inscripciones = [...jornada.inscripciones_jornada].sort((a, b) => a.creada_en.localeCompare(b.creada_en))
+  const inscripciones = [...(jornada.inscripciones_jornada ?? [])].sort((a, b) => a.creada_en.localeCompare(b.creada_en))
   const porRevisar = inscripciones.filter((i) => i.estado === 'pendiente').length
   return (
     <Card className="jor-item">
