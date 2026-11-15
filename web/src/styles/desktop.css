@@ -121,25 +121,9 @@
   .landing__needs > .stack { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .landing__need-summary { grid-template-columns: 72px minmax(0, 1fr); }
 
-  /* La lista conserva el orden del DOM y el mapa queda al lado. */
+  /* D7: las causas ocupan el ancho disponible, sin mapa. */
   .directory .search { max-width: 760px; }
   .directory .chip-row { margin-inline: 0; padding-inline: var(--space-1); flex-wrap: wrap; }
-  .directory-results {
-    display: grid;
-    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
-    gap: var(--space-6);
-    align-items: start;
-  }
-  .directory-results > section {
-    grid-column: 2;
-    grid-row: 1;
-    position: sticky;
-    top: 120px;
-    min-width: 0;
-  }
-  .directory-results > .stack { grid-column: 1; grid-row: 1; }
-  .directory-results .request-map { height: min(60vh, 560px); }
-  .directory-results > :only-child { grid-column: 1 / -1; }
 
   .request-detail .detail-hero {
     margin-top: var(--space-5);
@@ -194,9 +178,4 @@
   .screen .org-post img { max-height: 480px; object-fit: contain; }
   .screen__body > .ui-empty { max-width: 900px; width: 100%; justify-self: center; }
   .screen__body > .ui-button--block { justify-self: start; width: auto; min-width: 320px; }
-}
-
-@media screen and (min-width: 1280px) {
-  .directory-results { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
-  .directory-results > .stack { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

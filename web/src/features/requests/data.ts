@@ -13,6 +13,8 @@ export const CATEGORIES: Category[] = [
 export type PublicRequest = {
   id: string
   sample: boolean
+  orgLogo?: string | null
+  store?: string | null
   orgSlug: string
   org: string
   orgType: string
@@ -83,7 +85,8 @@ export function useRequests(id?: string) {
         .from('solicitudes')
         .select(
           `id,titulo,descripcion,estado,recurrente,publicada_en,es_ejemplo,
-        organizaciones!solicitudes_organizacion_id_fkey(nombre,slug,categoria,direccion_publica,latitud,longitud,es_ejemplo),
+        organizaciones!solicitudes_organizacion_id_fkey(nombre,slug,logo_url,categoria,direccion_publica,latitud,longitud,es_ejemplo),
+        tienda:organizaciones!solicitudes_tienda_id_fkey(nombre),
         solicitud_articulos(id,nombre,precio_centavos,cantidad,unidades_pagadas,unidades_listas,unidades_entregadas)`,
         )
         .in('estado', ['publicada', 'cerrada'])
@@ -109,6 +112,8 @@ export function useRequests(id?: string) {
                 state: row.estado,
                 sample: row.es_ejemplo || org.es_ejemplo,
                 org: org.nombre,
+                orgLogo: org.logo_url,
+                store: (Array.isArray(row.tienda) ? row.tienda[0] : row.tienda)?.nombre ?? null,
                 orgSlug: org.slug,
                 orgType: org.categoria ?? '',
                 city: org.direccion_publica || 'Ubicación no publicada',
