@@ -5,6 +5,8 @@ import { Chip } from '../../components/ui/Chip'
 import { CocoLoading } from '../../components/ui/CocoLoading'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { IconCheck } from '../../components/ui/icons'
+import { categoryFor } from '../../features/requests/data'
+import { requestVisual } from '../../lib/request-visuals'
 import { formatoPesos } from '../fundacion/api'
 import { Marco } from '../fundacion/Marco'
 import { cargarMiTienda, cargarPedidos, marcarListo } from './api'
@@ -121,7 +123,7 @@ export function Pedidos({ tiendaId }: { tiendaId: string }) {
                   <li key={p.id}>
                     <Card tone={recien === p.id ? 'lime' : 'surface'} className="tda-item">
                       <TarjetaPedido pedido={p} />
-                      <Recogida key={`${p.tarea_estado}-${p.intentos_restantes}`} pedido={p}
+                      <Recogida key={p.tarea_estado ?? 'sin-tarea'} pedido={p}
                         onConfirmada={() => setIntento((n) => n + 1)} />
                     </Card>
                   </li>
@@ -145,6 +147,8 @@ function TarjetaPedido({ pedido }: { pedido: Pedido }) {
   return (
     <>
       <div className="tda-item__head">
+        <img className="tda-item__img" src={requestVisual(categoryFor(pedido.articulos.map((a) => a.nombre).join(' ')))}
+          alt="" width={56} height={56} loading="lazy" />
         <div className="tda-item__copy">
           <h3 className="tda-item__title">{pedido.organizacion_nombre}</h3>
           <span className="tda-muted">{pedido.solicitud_titulo}</span>

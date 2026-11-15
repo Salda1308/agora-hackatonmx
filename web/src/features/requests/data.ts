@@ -61,7 +61,7 @@ export function requestTotals(request: Pick<PublicRequest, 'items'>) {
     },
   )
 }
-function categoryFor(names: string): Category {
+export function categoryFor(names: string): Category {
   if (/agua|garraf[oó]n/i.test(names)) return 'Agua'
   if (/pa[ñn]al|jab[oó]n|higiene|toall/i.test(names)) return 'Higiene'
   if (/pala|guante|herramienta/i.test(names)) return 'Herramientas'

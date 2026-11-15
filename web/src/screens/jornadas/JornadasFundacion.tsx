@@ -4,9 +4,11 @@ import { RequireRole } from '../../auth/RequireRole'
 import { useSession } from '../../auth/useSession'
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
-import { SampleBadge } from '../../components/ui/Chip'
+import { Chip, SampleBadge } from '../../components/ui/Chip'
 import { CocoLoading } from '../../components/ui/CocoLoading'
 import { EmptyState } from '../../components/ui/EmptyState'
+import { Field, FormModal } from '../../components/ui/FormModal'
+import { describe } from '../../components/ui/describe'
 import { ProgressBar } from '../../components/ui/Progress'
 import { IconPlus } from '../../components/ui/icons'
 import { paths } from '../../lib/router'
@@ -59,19 +61,6 @@ function Gestion({ organizacionId }: { organizacionId: string }) {
 
   const recargar = () => setIntento((n) => n + 1)
 
-  if (creando) {
-    return (
-      <NuevaJornada
-        organizacionId={organizacionId}
-        onCancelar={() => setCreando(false)}
-        onCreada={() => {
-          setCreando(false)
-          recargar()
-        }}
-      />
-    )
-  }
-
   return (
     <Pantalla>
       <div>
@@ -87,7 +76,12 @@ function Gestion({ organizacionId }: { organizacionId: string }) {
       ) : jornadas === null ? (
         <CocoLoading title="Cargando jornadas…" size={88} />
       ) : jornadas.length === 0 ? (
-        <EmptyState title="Aún no hay jornadas" description="Abre una con fecha, lugar y cupos." />
+        <EmptyState
+          title="Aún no hay jornadas"
+          description="Abre una con fecha, lugar y cupos."
+          pose="saludando"
+          action={<Button icon={<IconPlus />} onClick={() => setCreando(true)}>Nueva jornada</Button>}
+        />
       ) : (
         <ul className="jor-list">
           {jornadas.map((j) => (
@@ -97,17 +91,32 @@ function Gestion({ organizacionId }: { organizacionId: string }) {
           ))}
         </ul>
       )}
+
+      {creando ? (
+        <NuevaJornada
+          organizacionId={organizacionId}
+          onCancelar={() => setCreando(false)}
+          onCreada={() => {
+            setCreando(false)
+            recargar()
+          }}
+        />
+      ) : null}
     </Pantalla>
   )
 }
 
 function TarjetaJornada({ jornada, onCambio }: { jornada: JornadaConInscripciones; onCambio: () => void }) {
   const inscripciones = [...jornada.inscripciones_jornada].sort((a, b) => a.creada_en.localeCompare(b.creada_en))
+  const porRevisar = inscripciones.filter((i) => i.estado === 'pendiente').length
   return (
     <Card className="jor-item">
       <div className="jor-item__head">
         <h2 className="jor-item__title">{jornada.titulo}</h2>
-        {jornada.es_ejemplo ? <SampleBadge label="Ejemplo" /> : null}
+        <div className="wrap-row">
+          {porRevisar > 0 ? <Chip tone="yellow">{porRevisar} por revisar</Chip> : null}
+          {jornada.es_ejemplo ? <SampleBadge label="Ejemplo" /> : null}
+        </div>
       </div>
       <p className="jor-muted">{formatoHorario(jornada.inicia_en, jornada.termina_en)}</p>
       <ProgressBar
@@ -188,6 +197,9 @@ function FilaInscripcion({ inscripcion, onCambio }: { inscripcion: Inscripcion; 
   )
 }
 
+const JORNADA_FORM = 'jor-nueva'
+
+/** Nueva jornada en `FormModal` (D8): mismos campos, validaciones y llamada de T18. */
 function NuevaJornada({
   organizacionId,
   onCancelar,
@@ -207,6 +219,8 @@ function NuevaJornada({
   const [cupos, setCupos] = useState(10)
   const [enviando, setEnviando] = useState(false)
   const [fallo, setFallo] = useState<string | null>(null)
+  const [errorFecha, setErrorFecha] = useState<string | null>(null)
+  const [errorFin, setErrorFin] = useState<string | null>(null)
 
   useEffect(() => {
     let vigente = true
@@ -220,11 +234,15 @@ function NuevaJornada({
 
   const enviar = async (e: FormEvent) => {
     e.preventDefault()
+    if (enviando) return
     const iniciaEn = new Date(`${fecha}T${inicio}`)
     const terminaEn = new Date(`${fecha}T${fin}`)
-    if (!(terminaEn > iniciaEn)) return setFallo('La hora de fin debe ser después del inicio.')
-    if (iniciaEn <= new Date()) return setFallo('Elige una fecha futura.')
+    const malFin = !(terminaEn > iniciaEn) ? 'La hora de fin debe ser después del inicio.' : null
+    const malFecha = !malFin && iniciaEn <= new Date() ? 'Elige una fecha futura.' : null
+    setErrorFin(malFin)
+    setErrorFecha(malFecha)
     setFallo(null)
+    if (malFin || malFecha) return
     setEnviando(true)
     try {
       await crearJornada({
@@ -245,50 +263,52 @@ function NuevaJornada({
   }
 
   return (
-    <Pantalla>
-      <h1 className="page-title">Nueva jornada</h1>
-      <form className="jor-form" onSubmit={(e) => void enviar(e)}>
-        <label className="jor-field">
-          Título
-          <input required maxLength={200} value={titulo} onChange={(e) => setTitulo(e.target.value)} />
-        </label>
-        <label className="jor-field">
-          Qué harán
-          <textarea required rows={3} maxLength={1000} value={descripcion} onChange={(e) => setDescripcion(e.target.value)} />
-        </label>
-        <label className="jor-field">
-          Requisitos
-          <textarea required rows={2} maxLength={500} value={requisitos} onChange={(e) => setRequisitos(e.target.value)} />
-        </label>
-        <label className="jor-field">
-          Lugar
-          <input required maxLength={300} value={ubicacion} onChange={(e) => setUbicacion(e.target.value)} />
-        </label>
-        <label className="jor-field">
-          Fecha
-          <input type="date" required value={fecha} onChange={(e) => setFecha(e.target.value)} />
-        </label>
-        <div className="jor-pair">
-          <label className="jor-field">
-            Inicio
-            <input type="time" required value={inicio} onChange={(e) => setInicio(e.target.value)} />
-          </label>
-          <label className="jor-field">
-            Fin
-            <input type="time" required value={fin} onChange={(e) => setFin(e.target.value)} />
-          </label>
-        </div>
-        <label className="jor-field">
-          Cupos
-          <input type="number" required min={1} max={500} value={cupos} onChange={(e) => setCupos(Number(e.target.value))} />
-        </label>
-        <p className="jor-muted">El lugar es público. Sin dinero de por medio: las empresas que quieran donar compran unidades.</p>
-        {fallo ? <p className="jor-error" role="alert">{fallo}</p> : null}
-        <Button type="submit" size="lg" block disabled={enviando}>
-          {enviando ? 'Guardando…' : 'Abrir jornada'}
-        </Button>
-        <Button variant="ghost" block onClick={onCancelar}>Cancelar</Button>
+    <FormModal
+      open
+      onClose={onCancelar}
+      title="Nueva jornada"
+      description="Voluntariado con fecha, lugar y cupos."
+      submitLabel="Abrir jornada"
+      submittingLabel="Guardando…"
+      submitting={enviando}
+      formId={JORNADA_FORM}
+    >
+      <form id={JORNADA_FORM} className="fm-form" onSubmit={(e) => void enviar(e)}>
+        <fieldset className="fm-group">
+          <legend>Qué harán</legend>
+          <Field id="jor-titulo" label="Título">
+            <input id="jor-titulo" required maxLength={200} value={titulo} onChange={(e) => setTitulo(e.target.value)} />
+          </Field>
+          <Field id="jor-descripcion" label="Qué harán">
+            <textarea id="jor-descripcion" required rows={3} maxLength={1000} value={descripcion} onChange={(e) => setDescripcion(e.target.value)} />
+          </Field>
+          <Field id="jor-requisitos" label="Requisitos" hint="Ropa, edad mínima, lo que deben llevar.">
+            <textarea {...describe('jor-requisitos', 'ayuda')} required rows={2} maxLength={500} value={requisitos} onChange={(e) => setRequisitos(e.target.value)} />
+          </Field>
+        </fieldset>
+        <fieldset className="fm-group">
+          <legend>Cuándo y dónde</legend>
+          <Field id="jor-lugar" label="Lugar" hint="El lugar es público.">
+            <input {...describe('jor-lugar', 'ayuda')} required maxLength={300} value={ubicacion} onChange={(e) => setUbicacion(e.target.value)} />
+          </Field>
+          <Field id="jor-fecha" label="Fecha" error={errorFecha}>
+            <input {...describe('jor-fecha', undefined, errorFecha)} type="date" required value={fecha} onChange={(e) => setFecha(e.target.value)} />
+          </Field>
+          <div className="fm-row">
+            <Field id="jor-inicio" label="Inicio">
+              <input id="jor-inicio" type="time" required value={inicio} onChange={(e) => setInicio(e.target.value)} />
+            </Field>
+            <Field id="jor-fin" label="Fin" error={errorFin}>
+              <input {...describe('jor-fin', undefined, errorFin)} type="time" required value={fin} onChange={(e) => setFin(e.target.value)} />
+            </Field>
+          </div>
+          <Field id="jor-cupos" label="Cupos" hint="De 1 a 500 personas.">
+            <input {...describe('jor-cupos', 'ayuda')} type="number" inputMode="numeric" required min={1} max={500} value={cupos} onChange={(e) => setCupos(Number(e.target.value))} />
+          </Field>
+        </fieldset>
+        <p className="fm-hint">Sin dinero de por medio: las empresas que quieran donar compran unidades.</p>
+        {fallo ? <p className="fm-alert" role="alert">{fallo}</p> : null}
       </form>
-    </Pantalla>
+    </FormModal>
   )
 }

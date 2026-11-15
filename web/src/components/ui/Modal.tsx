@@ -9,10 +9,12 @@ export type ModalProps = {
   description?: string
   children: ReactNode
   footer?: ReactNode
+  /** Clase extra del diálogo (p. ej. `form-modal` de D8). */
+  className?: string
 }
 
 /** Hoja móvil y diálogo de escritorio. showModal hace inerte el fondo. */
-export function Modal({ open, onClose, title, description, children, footer }: ModalProps) {
+export function Modal({ open, onClose, title, description, children, footer, className }: ModalProps) {
   const dialog = useRef<HTMLDialogElement>(null)
   const titleId = useId()
   const descriptionId = useId()
@@ -30,7 +32,7 @@ export function Modal({ open, onClose, title, description, children, footer }: M
     }
   }, [open])
 
-  return createPortal(<dialog ref={dialog} className="ui-modal" aria-labelledby={titleId}
+  return createPortal(<dialog ref={dialog} className={className ? `ui-modal ${className}` : 'ui-modal'} aria-labelledby={titleId}
     aria-describedby={description ? descriptionId : undefined}
     onCancel={(event) => { event.preventDefault(); onClose() }}
     onClick={(event) => { if (event.target === event.currentTarget) onClose() }}

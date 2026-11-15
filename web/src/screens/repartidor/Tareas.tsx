@@ -7,6 +7,8 @@ import { Coco } from '../../components/ui/Coco'
 import { CocoLoading } from '../../components/ui/CocoLoading'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { IconCheck, IconPin } from '../../components/ui/icons'
+import { categoryFor } from '../../features/requests/data'
+import { requestVisual } from '../../lib/request-visuals'
 import { formatoPesos } from '../fundacion/api'
 import { Marco } from '../fundacion/Marco'
 import { cargarDisponibles, cargarMiTarea, cargarNivel, liberarTarea, tomarTarea } from './api'
@@ -101,13 +103,17 @@ export function Tareas() {
           ) : null}
 
           {datos.disponibles.length === 0 ? (
-            <EmptyState title="Sin tareas por ahora" description="Cuando una tienda tenga un pedido listo, aparece aquí." />
+            <EmptyState pose="volando-garrafon" title="Sin tareas por ahora"
+              description="Cuando una tienda tenga un pedido listo, aparece aquí."
+              action={<Button variant="ink" onClick={recargar}>Buscar de nuevo</Button>} />
           ) : (
             <ul className="rep-list">
               {datos.disponibles.map((t) => (
                 <li key={t.id}>
                   <Card className="rep-stack">
                     <div className="rep-head">
+                      <img className="rep-img" src={requestVisual(categoryFor(t.articulos.map((a) => a.nombre).join(' ')))}
+                        alt="" width={56} height={56} loading="lazy" />
                       <div className="rep-copy">
                         <h2 className="rep-title">{t.tienda_nombre}</h2>
                         <span className="rep-muted">Para {t.destino_nombre}</span>
