@@ -165,8 +165,13 @@ export function Donation({ request }: { request: PublicRequest }) {
         )
       } else if (
         http &&
-        [400, 404, 409, 413, 415, 422, 429].includes(http.status) &&
-        !body?.pagoId
+        !body?.pagoId &&
+        ([400, 404, 409, 413, 415, 422, 429].includes(http.status) ||
+          // Rechazos de configuración: ocurren antes de llamar a pey, no hay cobro.
+          (http.status === 503 &&
+            ['TIENDA_SIN_CUENTA', 'CONFIGURACION_INCOMPLETA'].includes(
+              body?.error?.codigo,
+            )))
       ) {
         setMessage(
           body?.error?.mensaje ||
