@@ -228,3 +228,36 @@ update public.pedidos set estado = 'listo'
 where solicitud_id = 'f9200000-0000-0000-0000-000000000001' and estado = 'preparando';
 commit;
 -- T10 FIN.
+
+-- T24 INICIO: feed de Inicio con publicaciones, me gusta y comentarios ficticios. Solo local/demo.
+-- Fechas escalonadas para que el feed mezcle publicaciones, solicitudes y jornadas.
+-- Los comentarios tienen más de 24 h para no consumir los límites de las cuentas demo.
+begin;
+insert into public.publicaciones (id, organizacion_id, texto, es_ejemplo, consentimiento, creada_en)
+values
+  ('f2400000-0000-0000-0000-000000000001', 'f5000000-0000-0000-0000-000000000001',
+   'Hoy llegaron garrafones de agua gracias a quienes donaron. Esta publicación es ficticia.', true, true, now() - interval '3 hours'),
+  ('f2400000-0000-0000-0000-000000000002', 'f2000000-0000-0000-0000-000000000001',
+   'Los abuelos prepararon una tarde de juegos de mesa. Esta publicación es ficticia.', true, true, now() - interval '1 day'),
+  ('f2400000-0000-0000-0000-000000000003', 'f5000000-0000-0000-0000-000000000003',
+   'Estamos organizando la bodega para recibir artículos de higiene. Esta publicación es ficticia.', true, true, now() - interval '2 days')
+on conflict (id) do nothing;
+insert into public.me_gusta (tipo, objetivo_id, usuario_id)
+values
+  ('publicacion', 'f2400000-0000-0000-0000-000000000001', 'f1000000-0000-0000-0000-000000000004'),
+  ('publicacion', 'f2400000-0000-0000-0000-000000000001', 'f1000000-0000-0000-0000-000000000003'),
+  ('publicacion', 'f2400000-0000-0000-0000-000000000002', 'f1000000-0000-0000-0000-000000000004'),
+  ('solicitud', 'f5200000-0000-0000-0000-000000000001', 'f1000000-0000-0000-0000-000000000004'),
+  ('jornada', 'f1800000-0000-0000-0000-000000000001', 'f1000000-0000-0000-0000-000000000003')
+on conflict do nothing;
+insert into public.comentarios (id, tipo, objetivo_id, usuario_id, texto, creado_en)
+values
+  ('f2410000-0000-0000-0000-000000000001', 'publicacion', 'f2400000-0000-0000-0000-000000000001',
+   'f1000000-0000-0000-0000-000000000004', '¡Qué gusto ver que llegó el agua!', now() - interval '26 hours'),
+  ('f2410000-0000-0000-0000-000000000002', 'publicacion', 'f2400000-0000-0000-0000-000000000002',
+   'f1000000-0000-0000-0000-000000000001', 'Gracias a todos los que nos apoyan.', now() - interval '25 hours'),
+  ('f2410000-0000-0000-0000-000000000003', 'jornada', 'f1800000-0000-0000-0000-000000000001',
+   'f1000000-0000-0000-0000-000000000003', 'Ahí estaré con dos amigos.', now() - interval '30 hours')
+on conflict (id) do nothing;
+commit;
+-- T24 FIN.
