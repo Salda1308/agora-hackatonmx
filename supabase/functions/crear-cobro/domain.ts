@@ -104,6 +104,7 @@ export interface Almacen {
   reservar(
     entrada: Entrada,
     validarConfiguracion: (ref: string) => void,
+    origen?: string,
   ): Promise<Reserva>;
   guardarResultado(reserva: Reserva, resultado: ResultadoPey): Promise<void>;
   marcarIntento(

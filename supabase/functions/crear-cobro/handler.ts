@@ -53,11 +53,47 @@ async function leerJson(req: Request): Promise<unknown> {
   }
 }
 
+// IP del cliente según el proxy de la plataforma. Es de mejor esfuerzo: un
+// cliente puede anteponer valores a x-forwarded-for, por eso se prefieren las
+// cabeceras que fija el proxy. Sin IP no se aplica el límite por origen.
+export function ipDe(req: Request): string | null {
+  const ip = req.headers.get("cf-connecting-ip") ??
+    req.headers.get("x-real-ip") ??
+    req.headers.get("x-forwarded-for")?.split(",")[0];
+  const limpia = ip?.trim().slice(0, 64);
+  return limpia ? limpia : null;
+}
+
+// HMAC de la IP: la tabla de conteo nunca guarda la dirección en claro.
+export function crearClaveOrigen(secreto: string) {
+  const llave = crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secreto),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  return async (req: Request): Promise<string | null> => {
+    const ip = ipDe(req);
+    if (!ip) return null;
+    const firma = await crypto.subtle.sign(
+      "HMAC",
+      await llave,
+      new TextEncoder().encode(`crear-cobro:${ip}`),
+    );
+    return Array.from(
+      new Uint8Array(firma),
+      (b) => b.toString(16).padStart(2, "0"),
+    ).join("");
+  };
+}
+
 export function crearHandler(
   almacen: Almacen,
   config: Configuracion,
   fetcher: typeof fetch = fetch,
   emitirSeguimiento?: (pagoId: string) => Promise<string>,
+  claveOrigen?: (req: Request) => Promise<string | null>,
 ) {
   return async (req: Request): Promise<Response> => {
     if (req.method === "OPTIONS") {
@@ -67,6 +103,7 @@ export function crearHandler(
       return responder({ error: { codigo: "METODO_NO_PERMITIDO" } }, 405);
     }
     try {
+      const origen = (await claveOrigen?.(req)) ?? undefined;
       const entrada = validarEntrada(await leerJson(req));
       if (entrada.metodo === "link") {
         validarUrl(config.successUrl);
@@ -74,7 +111,7 @@ export function crearHandler(
       }
       const reserva = await almacen.reservar(entrada, (ref) => {
         config.cuenta(ref, entrada.metodo);
-      });
+      }, origen);
       const resumen = {
         pagoId: reserva.id,
         ...(emitirSeguimiento

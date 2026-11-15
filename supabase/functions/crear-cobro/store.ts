@@ -1,6 +1,13 @@
 import postgres from "postgres";
 import { Almacen, ErrorCobro, Reserva } from "./domain.ts";
 
+// T20: límites de abuso. Un pago pendiente reserva unidades solo durante
+// RESERVA_MINUTOS (la caducidad de QR/push en pey es de 10 minutos).
+export const RESERVA_MINUTOS = 15;
+export const MAX_PENDIENTES_POR_SOLICITUD = 3;
+export const MAX_COBROS_POR_ORIGEN = 20;
+export const VENTANA_ORIGEN_SEGUNDOS = 600;
+
 export function conectar(url: string) {
   // prepare:false permite usar el pool transaccional de Supabase.
   return postgres(url, {
@@ -16,7 +23,34 @@ export function crearAlmacen(
   maximoCentavos: number,
 ): Almacen {
   return {
-    async reservar(entrada, validarConfiguracion) {
+    async reservar(entrada, validarConfiguracion, origen) {
+      if (origen) {
+        // Cuenta en su propia transacción: los intentos rechazados también suman.
+        const [cuenta] = await sql.begin(async (tx) => {
+          await tx`set local statement_timeout = '5s'`;
+          await tx`set local role service_role`;
+          await tx`
+            delete from privado.limites_cobro
+            where ventana < now() - interval '1 hour'
+          `;
+          return await tx`
+            insert into privado.limites_cobro (clave, ventana, intentos)
+            values (${origen}, to_timestamp(
+              floor(extract(epoch from now()) / ${VENTANA_ORIGEN_SEGUNDOS}) * ${VENTANA_ORIGEN_SEGUNDOS}
+            ), 1)
+            on conflict (clave, ventana)
+              do update set intentos = privado.limites_cobro.intentos + 1
+            returning intentos
+          `;
+        });
+        if (cuenta.intentos > MAX_COBROS_POR_ORIGEN) {
+          throw new ErrorCobro(
+            429,
+            "DEMASIADOS_INTENTOS",
+            "Demasiados intentos de pago. Espera unos minutos.",
+          );
+        }
+      }
       return await sql.begin(async (tx) => {
         // Todos los intentos de esta solicitud se serializan, incluso entre isolates.
         await tx`set local lock_timeout = '5s'`;
@@ -49,6 +83,18 @@ export function crearAlmacen(
           );
         }
         validarConfiguracion(solicitud.credencial_ref);
+        const [pendientes] = await tx`
+          select count(*)::integer as total from public.pagos
+          where solicitud_id = ${entrada.solicitudId} and estado = 'creado'
+            and creado_en > now() - make_interval(mins => ${RESERVA_MINUTOS})
+        `;
+        if (pendientes.total >= MAX_PENDIENTES_POR_SOLICITUD) {
+          throw new ErrorCobro(
+            429,
+            "DEMASIADOS_PAGOS_PENDIENTES",
+            "Hay varios pagos en curso para esta solicitud. Intenta en unos minutos.",
+          );
+        }
         const ids = entrada.articulos.map((a) => a.solicitudArticuloId);
         // También bloquea los contadores que actualizará el webhook.
         const filas = await tx`
@@ -64,11 +110,13 @@ export function crearAlmacen(
             "Los artículos deben pertenecer a la solicitud.",
           );
         }
-        // Sin caducidad automática: un link no vence y un push PENDING puede ser incierto.
+        // Solo reservan los pendientes recientes. Los viejos siguen en 'creado'
+        // para que el webhook aún pueda confirmarlos (ver README, T20).
         const reservas = await tx`
           select pa.solicitud_articulo_id as id, sum(pa.unidades)::integer as unidades
           from public.pago_articulos pa join public.pagos p on p.id = pa.pago_id
           where pa.solicitud_articulo_id in ${tx(ids)} and p.estado = 'creado'
+            and p.creado_en > now() - make_interval(mins => ${RESERVA_MINUTOS})
           group by pa.solicitud_articulo_id
         `;
         let montoCentavos = 0;
