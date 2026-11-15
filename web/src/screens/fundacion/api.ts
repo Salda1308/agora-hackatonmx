@@ -21,7 +21,7 @@ export interface MiSolicitud {
   publicada_en: string | null
   creada_en: string
   tienda: { nombre: string } | null
-  solicitud_articulos: { cantidad: number; unidades_pagadas: number; precio_centavos: number }[]
+  solicitud_articulos: { nombre: string; cantidad: number; unidades_pagadas: number; precio_centavos: number }[]
 }
 
 export interface Tienda {
@@ -56,7 +56,7 @@ export async function cargarMisSolicitudes(organizacionId: string): Promise<MiSo
   const { data, error } = await cliente()
     .from('solicitudes')
     .select(
-      'id, titulo, estado, publicada_en, creada_en, tienda:organizaciones!tienda_id(nombre), solicitud_articulos(cantidad, unidades_pagadas, precio_centavos)',
+      'id, titulo, estado, publicada_en, creada_en, tienda:organizaciones!tienda_id(nombre), solicitud_articulos(nombre, cantidad, unidades_pagadas, precio_centavos)',
     )
     .eq('organizacion_id', organizacionId)
     .order('creada_en', { ascending: false })

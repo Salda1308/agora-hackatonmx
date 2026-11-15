@@ -46,7 +46,8 @@ Guía corta para las tareas de frontend. Web móvil primero: una columna de hast
 | `Stepper` | Barra de pasos "Paso 1 de 3" con atrás y omitir opcionales. |
 | `Dock` | Navegación inferior flotante (barra superior en escritorio). Acción central opcional; en público, `SiteDock` con cinco destinos (ver D7). |
 | `EmptyState` | Estado vacío con Coco. |
-| `Modal` | Diálogo accesible sobre `<dialog>.showModal()`: foco atrapado y devuelto al cerrar, Escape, cierre al tocar fuera y botón Cerrar. Hoja inferior en móvil, centrado en escritorio. Props `open`, `onClose`, `title`, `description`, `footer`. Para formularios de D8. |
+| `Modal` | Diálogo accesible sobre `<dialog>.showModal()`: foco atrapado y devuelto al cerrar, Escape, cierre al tocar fuera y botón Cerrar. Hoja inferior en móvil, centrado en escritorio. Props `open`, `onClose`, `title`, `description`, `footer`, `className`. Los formularios usan `FormModal`. |
+| `FormModal`, `Field`, `describe` | Formulario en `Modal` (D8). Se monta solo abierto (cada apertura empieza limpia); pie fijo con un botón primario `lg` de 48 px que envía `formId` o llama `onSubmit`, deshabilitado mientras envía (sin doble envío); no cierra mientras envía; Escape, tocar fuera o Cerrar con cambios sin guardar piden confirmar ("Seguir editando" o "Descartar"). `Field` pone etiqueta, ayuda y error junto al control; `describe` (en `describe.ts`) enlaza ayuda y error con `aria-describedby`. Grupos con `fieldset.fm-group`, filas con `.fm-row`, avisos generales con `.fm-alert`. |
 | `FloatingChip` | Etiqueta blanca que flota sobre una imagen (categoría de la causa). |
 | `OrganizationAvatar` | Logo circular de la organización; si no hay logo seguro (http/https o ruta local) o falla, muestra iniciales. |
 | `WaveSection` | Sección de color con borde inferior en onda (SVG con `currentColor`). |
@@ -82,3 +83,11 @@ pública sigue disponible y no se ofrecen accesos demo.
 - Navegación: `SiteDock` con Inicio, Solicitudes, Voluntariado, Siguiendo y Cuenta (Cuenta apunta al área actual del rol, o a Siguiendo para quien compra). Dentro de las áreas de rol se conserva `RoleDock` para su navegación interna.
 - Tokens: `--radius-lg` 32 px y `--radius-xl` 40 px (tarjetas más redondeadas); crema base un poco más cálida (`--palette-cream-100`). Nombres sin cambios. Estilos nuevos en `src/styles/social.css` y `src/components/ui/modal.css`; `--color-photo-ground` es el fondo crema de las imágenes en ambos temas.
 - Las ilustraciones de insumos se marcan como "Ilustración de insumos" para no confundirlas con fotos de entrega.
+
+## D8: cuenta por rol y formularios en modal
+- `#/cuenta` es una ruta propia (no de rol). Cada vista sale de `vistaCuenta` (función pura en `screens/cuenta/vista.ts`): invitado, sin perfil (comprador demo o alta pendiente o rechazada de T23), fundación, tienda y repartidor. Solo muestra lo que el rol ya puede leer; si una lectura falla, la sección se omite.
+- Fundación: nombre, categoría, verificada o suspendida, publicaciones del feed, solicitudes por estado y jornadas próximas con inscripciones por revisar. Tienda: estado, pedidos recientes y catálogo visible u oculto (el estado de cobro de `tiendas_cobro` no es legible y no se muestra). Repartidor: límite de $500 hasta 3 entregas, entregas hechas y tarea actual. Invitado: comprobantes del dispositivo, invitación a `#/registro` y acceso demo con `SampleBadge`.
+- Dock: los roles conservan `RoleDock` con Cuenta al final; comprador e invitado usan `SiteDock`, cuya Cuenta lleva a `#/cuenta`. En escritorio la cuenta es una columna de 760 px.
+- Formularios en `FormModal`: publicar y editar post, nueva jornada, nueva solicitud (tres pasos con `Stepper`; `#/fundacion/publicar` abre el modal sobre la lista), artículo nuevo, cambiar precio, importar CSV, entrega con foto y código de recogida.
+- Listas: tarjetas con la ilustración de la categoría (`requestVisual(categoryFor(...))`), chips de estado, vacíos con Coco y acciones visibles. Las solicitudes no tienen imagen propia: agregarla requiere migración.
+

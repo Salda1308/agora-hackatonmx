@@ -4,6 +4,8 @@ import { Card } from '../../components/ui/Card'
 import { Coco } from '../../components/ui/Coco'
 import { CocoLoading } from '../../components/ui/CocoLoading'
 import { EmptyState } from '../../components/ui/EmptyState'
+import { Field, FormModal } from '../../components/ui/FormModal'
+import { describe } from '../../components/ui/describe'
 import { Stepper } from '../../components/ui/Stepper'
 import { paths } from '../../lib/router'
 import {
@@ -14,11 +16,19 @@ import {
   publicarSolicitud,
 } from './api'
 import type { ArticuloCatalogo, MiOrganizacion, Tienda } from './api'
-import { Marco } from './Marco'
 
 const MAX_UNIDADES = 999
+const FORM_ID = 'fund-nueva-solicitud'
 
-export function NuevaSolicitud({ organizacionId }: { organizacionId: string }) {
+/**
+ * Nueva solicitud en `FormModal` (D8). Mismos tres pasos, datos y llamada de T06;
+ * solo cambia dónde se presenta. Se monta al abrir, así cada apertura empieza limpia.
+ */
+export function NuevaSolicitud({ organizacionId, onClose, onPublicada }: {
+  organizacionId: string
+  onClose: () => void
+  onPublicada: () => void
+}) {
   const [paso, setPaso] = useState(1)
   const [org, setOrg] = useState<MiOrganizacion | null>(null)
   const [tiendas, setTiendas] = useState<Tienda[] | null>(null)
@@ -28,6 +38,7 @@ export function NuevaSolicitud({ organizacionId }: { organizacionId: string }) {
   const [titulo, setTitulo] = useState('')
   const [descripcion, setDescripcion] = useState('')
   const [cargaFallida, setCargaFallida] = useState(false)
+  const [intento, setIntento] = useState(0)
   const [publicando, setPublicando] = useState(false)
   const [errorPublicar, setErrorPublicar] = useState<string | null>(null)
   const [publicadaId, setPublicadaId] = useState<string | null>(null)
@@ -39,6 +50,7 @@ export function NuevaSolicitud({ organizacionId }: { organizacionId: string }) {
         if (!vigente) return
         setOrg(o)
         setTiendas(t)
+        setCargaFallida(false)
         if (t.length === 1) {
           setTienda(t[0])
           setPaso(2)
@@ -48,7 +60,7 @@ export function NuevaSolicitud({ organizacionId }: { organizacionId: string }) {
     return () => {
       vigente = false
     }
-  }, [organizacionId])
+  }, [organizacionId, intento])
 
   useEffect(() => {
     if (!tienda) return
@@ -59,7 +71,7 @@ export function NuevaSolicitud({ organizacionId }: { organizacionId: string }) {
     return () => {
       vigente = false
     }
-  }, [tienda])
+  }, [tienda, intento])
 
   const elegidos = useMemo(
     () => (catalogo ?? []).filter((a) => (cantidades[a.id] ?? 0) > 0),
@@ -96,6 +108,7 @@ export function NuevaSolicitud({ organizacionId }: { organizacionId: string }) {
         articulos: elegidos.map((a) => ({ articulo_id: a.id, cantidad: cantidades[a.id] })),
       })
       setPublicadaId(id)
+      onPublicada()
     } catch (e) {
       setErrorPublicar(e instanceof Error ? e.message : 'No se pudo publicar.')
     } finally {
@@ -103,62 +116,72 @@ export function NuevaSolicitud({ organizacionId }: { organizacionId: string }) {
     }
   }
 
+  const bloqueada = cargaFallida || (org !== null && !puedePublicar)
+  const comun = { open: true, onClose, title: 'Nueva solicitud', submitting: publicando }
+
   if (publicadaId) {
     return (
-      <Marco>
+      <FormModal {...comun} submitLabel="" hideFooter>
         <div className="fund-done">
-          <Coco size={140} />
-          <h1 className="page-title">¡Publicada!</h1>
+          <Coco size={120} />
+          <h3 className="page-title">¡Publicada!</h3>
           <p className="page-lead">Ya aparece en el directorio. Te avisamos cuando lleguen donaciones.</p>
           <div className="stack">
             <Button size="lg" block href={paths.request(publicadaId)}>Ver solicitud</Button>
-            <Button variant="ghost" block href={paths.fundacion}>Mis solicitudes</Button>
+            <Button variant="ghost" block onClick={onClose}>Mis solicitudes</Button>
           </div>
         </div>
-      </Marco>
+      </FormModal>
     )
   }
 
-  if (cargaFallida) {
+  if (bloqueada) {
     return (
-      <Marco>
-        <EmptyState
-          title="No se pudo cargar el catálogo"
-          action={<Button variant="ink" onClick={() => window.location.reload()}>Reintentar</Button>}
-        />
-      </Marco>
+      <FormModal {...comun} submitLabel="" hideFooter>
+        {cargaFallida ? (
+          <EmptyState
+            title="No se pudo cargar el catálogo"
+            action={<Button variant="ink" onClick={() => setIntento((n) => n + 1)}>Reintentar</Button>}
+          />
+        ) : (
+          <EmptyState
+            title={org?.suspendida ? 'Tu fundación está suspendida' : 'Verificación pendiente'}
+            description="Podrás publicar cuando el equipo de Ágora la active."
+            action={<Button variant="ink" onClick={onClose}>Mis solicitudes</Button>}
+          />
+        )}
+      </FormModal>
     )
   }
 
-  if (org && !puedePublicar) {
-    return (
-      <Marco>
-        <EmptyState
-          title={org.suspendida ? 'Tu fundación está suspendida' : 'Verificación pendiente'}
-          description="Podrás publicar cuando el equipo de Ágora la active."
-          action={<Button variant="ink" href={paths.fundacion}>Mis solicitudes</Button>}
-        />
-      </Marco>
-    )
-  }
+  const atras = paso === 1 || (paso === 2 && tiendas?.length === 1) ? undefined : () => setPaso(paso - 1)
+  const titulos = ['Elige la tienda', 'Elige artículos y cantidades', 'Revisa y publica']
 
-  const atras = () => {
-    if (paso === 1 || (paso === 2 && tiendas?.length === 1)) window.location.hash = paths.fundacion
-    else setPaso(paso - 1)
-  }
+  // Pie: el paso 1 avanza al tocar una tienda; el 2 continúa con el resumen; el 3 publica.
+  const pie =
+    paso === 2
+      ? {
+          submitLabel: unidades === 0 ? 'Elige artículos' : `Continuar · ${unidades} u · ${formatoPesos(total)}`,
+          canSubmit: unidades > 0,
+          onSubmit: () => setPaso(3),
+        }
+      : paso === 3
+        ? { submitLabel: 'Publicar', submittingLabel: 'Publicando…', canSubmit: Boolean(titulo.trim()), formId: FORM_ID }
+        : { submitLabel: 'Elige una tienda', canSubmit: false }
 
   return (
-    <Marco>
-      <Stepper
-        current={paso}
-        total={3}
-        title={paso === 1 ? 'Tienda' : paso === 2 ? 'Artículos' : 'Publicar'}
-        onBack={atras}
-      />
+    <FormModal
+      {...comun}
+      {...pie}
+      description={titulos[paso - 1]}
+      dirty={unidades > 0}
+      hideFooter={paso === 1}
+    >
+      <Stepper current={paso} total={3} title={tienda?.nombre ?? 'Tienda'} onBack={atras} />
 
       {paso === 1 ? (
-        <section className="stack" aria-labelledby="fund-paso-tienda">
-          <h1 id="fund-paso-tienda" className="page-title">¿En qué tienda?</h1>
+        <fieldset className="fm-group">
+          <legend>¿En qué tienda?</legend>
           {tiendas === null ? (
             <CocoLoading title="Cargando tiendas…" size={88} />
           ) : tiendas.length === 0 ? (
@@ -175,17 +198,14 @@ export function NuevaSolicitud({ organizacionId }: { organizacionId: string }) {
               </button>
             ))
           )}
-        </section>
+        </fieldset>
       ) : null}
 
       {paso === 2 ? (
-        <section className="stack" aria-labelledby="fund-paso-articulos">
-          <div>
-            <h1 id="fund-paso-articulos" className="page-title">¿Qué necesitas?</h1>
-            <p className="page-lead">{tienda?.nombre}</p>
-          </div>
+        <fieldset className="fm-group">
+          <legend>¿Qué necesitas?</legend>
           {catalogo === null ? (
-            <CocoLoading title="Cargando tiendas…" size={88} />
+            <CocoLoading title="Cargando catálogo…" size={88} />
           ) : catalogo.length === 0 ? (
             <EmptyState title="Catálogo vacío" description="Esta tienda aún no tiene artículos." />
           ) : (
@@ -226,59 +246,68 @@ export function NuevaSolicitud({ organizacionId }: { organizacionId: string }) {
               })}
             </ul>
           )}
-          <div className="fund-footer">
-            <Button size="lg" block disabled={unidades === 0} onClick={() => setPaso(3)}>
-              {unidades === 0 ? 'Elige artículos' : `Continuar · ${unidades} u · ${formatoPesos(total)}`}
-            </Button>
-          </div>
-        </section>
+        </fieldset>
       ) : null}
 
       {paso === 3 ? (
-        <section className="stack" aria-labelledby="fund-paso-publicar">
-          <h1 id="fund-paso-publicar" className="page-title">Revisa y publica</h1>
-          <label className="fund-field">
-            <span>Título</span>
-            <input
-              value={titulo}
-              maxLength={200}
-              placeholder="Ej. Pañales para noviembre"
-              onChange={(e) => setTitulo(e.target.value)}
-            />
-          </label>
-          <label className="fund-field">
-            <span>Para qué (opcional)</span>
-            <textarea value={descripcion} rows={3} maxLength={1000} onChange={(e) => setDescripcion(e.target.value)} />
-          </label>
-          <Card>
-            <ul className="fund-summary">
-              {elegidos.map((a) => (
-                <li key={a.id}>
-                  <span>
-                    {cantidades[a.id]} × {a.nombre}
-                  </span>
-                  <span>{formatoPesos(cantidades[a.id] * a.precio_centavos)}</span>
+        <form
+          id={FORM_ID}
+          className="fm-form"
+          noValidate
+          onSubmit={(e) => {
+            e.preventDefault()
+            if (titulo.trim()) void publicar()
+          }}
+        >
+          <fieldset className="fm-group">
+            <legend>Cuéntale a los donantes</legend>
+            <Field id="fund-titulo" label="Título" hint="Corto y concreto. Ej. Pañales para noviembre">
+              <input
+                {...describe('fund-titulo', 'ayuda')}
+                value={titulo}
+                maxLength={200}
+                required
+                autoFocus
+                onChange={(e) => setTitulo(e.target.value)}
+              />
+            </Field>
+            <Field id="fund-descripcion" label="Para qué (opcional)">
+              <textarea
+                id="fund-descripcion"
+                value={descripcion}
+                rows={3}
+                maxLength={1000}
+                onChange={(e) => setDescripcion(e.target.value)}
+              />
+            </Field>
+          </fieldset>
+          <fieldset className="fm-group">
+            <legend>Resumen</legend>
+            <Card>
+              <ul className="fund-summary">
+                {elegidos.map((a) => (
+                  <li key={a.id}>
+                    <span>
+                      {cantidades[a.id]} × {a.nombre}
+                    </span>
+                    <span>{formatoPesos(cantidades[a.id] * a.precio_centavos)}</span>
+                  </li>
+                ))}
+                <li className="fund-summary__total">
+                  <span>Total · {tienda?.nombre}</span>
+                  <span>{formatoPesos(total)}</span>
                 </li>
-              ))}
-              <li className="fund-summary__total">
-                <span>Total · {tienda?.nombre}</span>
-                <span>{formatoPesos(total)}</span>
-              </li>
-            </ul>
-          </Card>
-          <p className="fund-muted">El precio queda fijo al publicar. Los donantes pagan directo a la tienda.</p>
+              </ul>
+            </Card>
+            <p className="fm-hint">El precio queda fijo al publicar. Los donantes pagan directo a la tienda.</p>
+          </fieldset>
           {errorPublicar ? (
-            <p className="fund-error" role="alert">
+            <p className="fm-alert" role="alert">
               {errorPublicar}
             </p>
           ) : null}
-          <div className="fund-footer">
-            <Button size="lg" block disabled={!titulo.trim() || publicando} onClick={() => void publicar()}>
-              {publicando ? 'Publicando…' : 'Publicar'}
-            </Button>
-          </div>
-        </section>
+        </form>
       ) : null}
-    </Marco>
+    </FormModal>
   )
 }

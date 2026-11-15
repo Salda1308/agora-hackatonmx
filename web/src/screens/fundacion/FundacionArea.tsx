@@ -7,7 +7,6 @@ import { EmptyState } from '../../components/ui/EmptyState'
 import { paths } from '../../lib/router'
 import { Marco } from './Marco'
 import { MisSolicitudes } from './MisSolicitudes'
-import { NuevaSolicitud } from './NuevaSolicitud'
 import './fundacion.css'
 
 export type VistaFundacion = 'lista' | 'publicar'
@@ -89,9 +88,6 @@ function Puerta({ vista }: { vista: VistaFundacion }) {
     )
   }
 
-  return vista === 'publicar' ? (
-    <NuevaSolicitud organizacionId={organizationId} />
-  ) : (
-    <MisSolicitudes organizacionId={organizationId} />
-  )
+  // D8: la nueva solicitud se abre en modal sobre la lista; #/fundacion/publicar la abre.
+  return <MisSolicitudes organizacionId={organizationId} nueva={vista === 'publicar'} />
 }

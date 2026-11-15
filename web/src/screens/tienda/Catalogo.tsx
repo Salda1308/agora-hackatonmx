@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Button } from '../../components/ui/Button'
-import { Card } from '../../components/ui/Card'
+import { Chip } from '../../components/ui/Chip'
 import { CocoLoading } from '../../components/ui/CocoLoading'
 import { EmptyState } from '../../components/ui/EmptyState'
+import { Field, FormModal } from '../../components/ui/FormModal'
+import { describe } from '../../components/ui/describe'
 import { IconPlus } from '../../components/ui/icons'
 import { formatoPesos } from '../fundacion/api'
 import { Marco } from '../fundacion/Marco'
@@ -17,6 +19,7 @@ export function Catalogo({ tiendaId }: { tiendaId: string }) {
   const [error, setError] = useState(false)
   const [intento, setIntento] = useState(0)
   const [aviso, setAviso] = useState<string | null>(null)
+  const [modal, setModal] = useState<'nuevo' | 'csv' | null>(null)
   const recargar = () => setIntento((n) => n + 1)
 
   useEffect(() => {
@@ -47,111 +50,115 @@ export function Catalogo({ tiendaId }: { tiendaId: string }) {
 
       {aviso ? <p className="tda-ok" role="status">{aviso}</p> : null}
 
-      <NuevoArticulo tiendaId={tiendaId} onListo={listo} />
+      <div className="tda-actions">
+        <Button size="lg" icon={<IconPlus />} onClick={() => setModal('nuevo')}>Agregar artículo</Button>
+        <Button size="lg" variant="outline" onClick={() => setModal('csv')}>Subir CSV</Button>
+      </div>
 
       {error ? (
         <EmptyState title="No se pudo cargar" action={<Button variant="ink" onClick={recargar}>Reintentar</Button>} />
       ) : articulos === null ? (
         <CocoLoading title="Cargando catálogo…" size={88} />
       ) : articulos.length === 0 ? (
-        <EmptyState pose="caja-suministros" title="Tu catálogo está vacío" description="Agrega artículos uno por uno o sube un CSV." />
+        <EmptyState
+          pose="caja-suministros"
+          title="Tu catálogo está vacío"
+          description="Agrega artículos uno por uno o sube un CSV."
+          action={<Button icon={<IconPlus />} onClick={() => setModal('nuevo')}>Agregar artículo</Button>}
+        />
       ) : (
         <ul className="stack tda-list">
           {articulos.map((a) => <li key={a.id}><FilaArticulo articulo={a} onListo={listo} /></li>)}
         </ul>
       )}
 
-      <ImportarCsv tiendaId={tiendaId} existentes={articulos ?? []} onListo={listo} />
+      {modal === 'nuevo' ? (
+        <NuevoArticulo tiendaId={tiendaId} onClose={() => setModal(null)} onListo={(t) => { setModal(null); listo(t) }} />
+      ) : null}
+      {modal === 'csv' ? (
+        <ImportarCsv
+          tiendaId={tiendaId}
+          existentes={articulos ?? []}
+          onClose={() => setModal(null)}
+          onListo={(t) => { setModal(null); listo(t) }}
+        />
+      ) : null}
     </Marco>
   )
 }
 
-function NuevoArticulo({ tiendaId, onListo }: { tiendaId: string; onListo: (t: string) => void }) {
-  const [abierto, setAbierto] = useState(false)
+/** Agregar artículo en `FormModal` (D8): misma validación y llamada de T21. */
+function NuevoArticulo({ tiendaId, onClose, onListo }: {
+  tiendaId: string
+  onClose: () => void
+  onListo: (t: string) => void
+}) {
   const [nombre, setNombre] = useState('')
   const [unidad, setUnidad] = useState('pieza')
   const [precio, setPrecio] = useState('')
   const [guardando, setGuardando] = useState(false)
+  const [errorNombre, setErrorNombre] = useState<string | null>(null)
+  const [errorPrecio, setErrorPrecio] = useState<string | null>(null)
   const [fallo, setFallo] = useState<string | null>(null)
-
-  if (!abierto) {
-    return <Button size="lg" block icon={<IconPlus />} onClick={() => setAbierto(true)}>Agregar artículo</Button>
-  }
 
   const enviar = async (e: FormEvent) => {
     e.preventDefault()
+    if (guardando) return
     const centavos = precioACentavos(precio)
-    if (!nombre.trim() || centavos === null) {
-      setFallo('Escribe un nombre y un precio válido.')
-      return
-    }
+    setErrorNombre(nombre.trim() ? null : 'Escribe un nombre.')
+    setErrorPrecio(centavos === null ? 'Escribe un precio válido, por ejemplo 25.50.' : null)
+    if (!nombre.trim() || centavos === null) return
     setGuardando(true)
     setFallo(null)
     try {
       await agregarArticulos(tiendaId, [{ nombre: nombre.trim(), unidad: unidad.trim() || 'pieza', precio_centavos: centavos }])
-      setNombre('')
-      setPrecio('')
-      setAbierto(false)
       onListo('Artículo agregado.')
     } catch (err) {
       setFallo(err instanceof Error ? err.message : 'No se pudo guardar.')
-    } finally {
       setGuardando(false)
     }
   }
 
   return (
-    <Card>
-      <form className="stack" onSubmit={(e) => void enviar(e)}>
-        <label className="tda-field">Nombre
-          <input value={nombre} onChange={(e) => setNombre(e.target.value)} maxLength={200} required autoFocus />
-        </label>
-        <div className="tda-row">
-          <label className="tda-field">Precio ($)
-            <input value={precio} onChange={(e) => setPrecio(e.target.value)} inputMode="decimal" placeholder="0.00" required />
-          </label>
-          <label className="tda-field">Unidad
-            <input value={unidad} onChange={(e) => setUnidad(e.target.value)} maxLength={40} />
-          </label>
-        </div>
-        {fallo ? <p className="tda-error" role="alert">{fallo}</p> : null}
-        <div className="wrap-row">
-          <Button type="submit" disabled={guardando}>{guardando ? 'Guardando…' : 'Guardar'}</Button>
-          <Button type="button" variant="ghost" onClick={() => setAbierto(false)}>Cancelar</Button>
-        </div>
+    <FormModal open onClose={onClose} title="Agregar artículo" description="Las fundaciones lo verán al armar sus solicitudes."
+      submitLabel="Guardar artículo" submitting={guardando} formId="tda-nuevo">
+      <form id="tda-nuevo" className="fm-form" noValidate onSubmit={(e) => void enviar(e)}>
+        <fieldset className="fm-group">
+          <legend>Artículo</legend>
+          <Field id="tda-nombre" label="Nombre" error={errorNombre}>
+            <input {...describe('tda-nombre', undefined, errorNombre)} value={nombre} onChange={(e) => setNombre(e.target.value)} maxLength={200} required autoFocus />
+          </Field>
+          <div className="fm-row">
+            <Field id="tda-precio" label="Precio ($)" hint="Con centavos: 25.50" error={errorPrecio}>
+              <input {...describe('tda-precio', 'ayuda', errorPrecio)} value={precio} onChange={(e) => setPrecio(e.target.value)} inputMode="decimal" placeholder="0.00" required />
+            </Field>
+            <Field id="tda-unidad" label="Unidad" hint="pieza, paquete, litro">
+              <input {...describe('tda-unidad', 'ayuda')} value={unidad} onChange={(e) => setUnidad(e.target.value)} maxLength={40} />
+            </Field>
+          </div>
+        </fieldset>
+        {fallo ? <p className="fm-alert" role="alert">{fallo}</p> : null}
       </form>
-    </Card>
+    </FormModal>
   )
 }
 
 function FilaArticulo({ articulo, onListo }: { articulo: Articulo; onListo: (t: string) => void }) {
   const [editando, setEditando] = useState(false)
-  const [precio, setPrecio] = useState((articulo.precio_centavos / 100).toFixed(2))
   const [guardando, setGuardando] = useState(false)
   const [fallo, setFallo] = useState<string | null>(null)
 
-  const guardar = async (cambios: Parameters<typeof actualizarArticulo>[1], texto: string) => {
+  const alternar = async () => {
     setGuardando(true)
     setFallo(null)
     try {
-      await actualizarArticulo(articulo.id, cambios)
-      setEditando(false)
-      onListo(texto)
+      await actualizarArticulo(articulo.id, { activo: !articulo.activo })
+      onListo(articulo.activo ? `${articulo.nombre} ya no se puede pedir.` : `${articulo.nombre} vuelve al catálogo.`)
     } catch (err) {
       setFallo(err instanceof Error ? err.message : 'No se pudo guardar.')
     } finally {
       setGuardando(false)
     }
-  }
-
-  const enviarPrecio = (e: FormEvent) => {
-    e.preventDefault()
-    const centavos = precioACentavos(precio)
-    if (centavos === null) {
-      setFallo('Precio inválido.')
-      return
-    }
-    void guardar({ precio_centavos: centavos }, `Nuevo precio de ${articulo.nombre}.`)
   }
 
   return (
@@ -159,37 +166,74 @@ function FilaArticulo({ articulo, onListo }: { articulo: Articulo; onListo: (t: 
       <div className="tda-article__head">
         <div className="tda-item__copy">
           <span className="tda-article__name">{articulo.nombre}</span>
-          <span className="tda-muted">{formatoPesos(articulo.precio_centavos)} / {articulo.unidad}{articulo.activo ? '' : ' · oculto'}</span>
+          <span className="tda-muted">{formatoPesos(articulo.precio_centavos)} / {articulo.unidad}</span>
         </div>
+        <Chip tone={articulo.activo ? 'lime' : 'outline'}>{articulo.activo ? 'Visible' : 'Oculto'}</Chip>
       </div>
-      {editando ? (
-        <form className="tda-row" onSubmit={enviarPrecio}>
-          <label className="tda-field">Precio ($)
-            <input value={precio} onChange={(e) => setPrecio(e.target.value)} inputMode="decimal" autoFocus />
-          </label>
-          <div className="wrap-row tda-row__end">
-            <Button type="submit" disabled={guardando}>Guardar</Button>
-            <Button type="button" variant="ghost" onClick={() => setEditando(false)}>Cancelar</Button>
-          </div>
-        </form>
-      ) : (
-        <div className="wrap-row">
-          <Button variant="outline" onClick={() => setEditando(true)}>Cambiar precio</Button>
-          <Button variant="ghost" disabled={guardando}
-            onClick={() => void guardar({ activo: !articulo.activo },
-              articulo.activo ? `${articulo.nombre} ya no se puede pedir.` : `${articulo.nombre} vuelve al catálogo.`)}>
-            {articulo.activo ? 'Ocultar' : 'Mostrar'}
-          </Button>
-        </div>
-      )}
+      <div className="wrap-row">
+        <Button variant="outline" onClick={() => setEditando(true)}>Cambiar precio</Button>
+        <Button variant="ghost" disabled={guardando} onClick={() => void alternar()}>
+          {articulo.activo ? 'Ocultar' : 'Mostrar'}
+        </Button>
+      </div>
       {fallo ? <p className="tda-error" role="alert">{fallo}</p> : null}
+      {editando ? (
+        <CambiarPrecio articulo={articulo} onClose={() => setEditando(false)}
+          onListo={(t) => { setEditando(false); onListo(t) }} />
+      ) : null}
     </div>
   )
 }
 
-function ImportarCsv({ tiendaId, existentes, onListo }: {
+/** Cambiar precio en `FormModal` (D8). */
+function CambiarPrecio({ articulo, onClose, onListo }: {
+  articulo: Articulo
+  onClose: () => void
+  onListo: (t: string) => void
+}) {
+  const [precio, setPrecio] = useState((articulo.precio_centavos / 100).toFixed(2))
+  const [guardando, setGuardando] = useState(false)
+  const [errorPrecio, setErrorPrecio] = useState<string | null>(null)
+  const [fallo, setFallo] = useState<string | null>(null)
+
+  const enviar = async (e: FormEvent) => {
+    e.preventDefault()
+    if (guardando) return
+    const centavos = precioACentavos(precio)
+    if (centavos === null) {
+      setErrorPrecio('Precio inválido.')
+      return
+    }
+    setErrorPrecio(null)
+    setGuardando(true)
+    setFallo(null)
+    try {
+      await actualizarArticulo(articulo.id, { precio_centavos: centavos })
+      onListo(`Nuevo precio de ${articulo.nombre}.`)
+    } catch (err) {
+      setFallo(err instanceof Error ? err.message : 'No se pudo guardar.')
+      setGuardando(false)
+    }
+  }
+
+  return (
+    <FormModal open onClose={onClose} title="Cambiar precio" description={`${articulo.nombre} · por ${articulo.unidad}`}
+      submitLabel="Guardar precio" submitting={guardando} formId="tda-precio-form">
+      <form id="tda-precio-form" className="fm-form" noValidate onSubmit={(e) => void enviar(e)}>
+        <Field id="tda-precio-nuevo" label="Precio ($)" hint="Las solicitudes ya publicadas conservan su precio." error={errorPrecio}>
+          <input {...describe('tda-precio-nuevo', 'ayuda', errorPrecio)} value={precio} onChange={(e) => setPrecio(e.target.value)} inputMode="decimal" autoFocus />
+        </Field>
+        {fallo ? <p className="fm-alert" role="alert">{fallo}</p> : null}
+      </form>
+    </FormModal>
+  )
+}
+
+/** Importar CSV en `FormModal` (D8): misma lectura y llamada de T21. */
+function ImportarCsv({ tiendaId, existentes, onClose, onListo }: {
   tiendaId: string
   existentes: Articulo[]
+  onClose: () => void
   onListo: (t: string) => void
 }) {
   const [csv, setCsv] = useState<ResultadoCsv | null>(null)
@@ -202,39 +246,36 @@ function ImportarCsv({ tiendaId, existentes, onListo }: {
   }
 
   const importar = async () => {
-    if (!csv) return
+    if (!csv || importando) return
     setImportando(true)
     setFallo(null)
     try {
       const r = await importarCatalogo(tiendaId, csv.filas, existentes)
-      setCsv(null)
       onListo(`CSV importado: ${r.nuevos} nuevos, ${r.actualizados} actualizados.`)
     } catch (err) {
       setFallo(err instanceof Error ? err.message : 'No se pudo importar.')
-    } finally {
       setImportando(false)
     }
   }
 
   return (
-    <Card className="stack">
-      <strong>Subir CSV</strong>
-      <p className="tda-muted">Columnas: nombre, precio, unidad. Si el nombre ya existe, se actualiza.</p>
-      <label className="tda-file">
-        <input type="file" accept=".csv,text/csv" onChange={(e) => void leer(e.target.files?.[0])} />
-      </label>
+    <FormModal open onClose={onClose} title="Subir CSV" description="Columnas: nombre, precio, unidad. Si el nombre ya existe, se actualiza."
+      submitLabel={csv ? `Importar ${csv.filas.length}` : 'Elige un archivo'} submittingLabel="Importando…"
+      submitting={importando} canSubmit={Boolean(csv && csv.filas.length > 0)} onSubmit={() => void importar()}>
+      <Field id="tda-csv" label="Archivo CSV" hint="Ejemplo: Arroz 1 kg, 32.50, paquete"
+        error={csv && csv.errores.length ? `${csv.errores.length} filas con error; no se importan.` : null}>
+        <input {...describe('tda-csv', 'ayuda', csv && csv.errores.length ? 'x' : null)} type="file" accept=".csv,text/csv"
+          onChange={(e) => void leer(e.target.files?.[0])} />
+      </Field>
       {csv ? (
-        <>
-          <p>{csv.filas.length} artículos listos{csv.errores.length ? ` · ${csv.errores.length} con error` : ''}</p>
+        <div className="stack">
+          <p><strong>{csv.filas.length}</strong> artículos listos para importar.</p>
           {csv.errores.length ? (
             <ul className="tda-errors">{csv.errores.slice(0, 5).map((e) => <li key={e}>{e}</li>)}</ul>
           ) : null}
-          <Button block disabled={importando || csv.filas.length === 0} onClick={() => void importar()}>
-            {importando ? 'Importando…' : `Importar ${csv.filas.length}`}
-          </Button>
-        </>
+        </div>
       ) : null}
-      {fallo ? <p className="tda-error" role="alert">{fallo}</p> : null}
-    </Card>
+      {fallo ? <p className="fm-alert" role="alert">{fallo}</p> : null}
+    </FormModal>
   )
 }

@@ -1,7 +1,9 @@
 import { Dock } from '../components/ui/Dock'
-import { IconBookmark, IconBox, IconHome, IconList, IconPin, IconPlus } from '../components/ui/icons'
+import type { DockItem } from '../components/ui/Dock'
+import { IconBookmark, IconBox, IconHome, IconList, IconPin, IconPlus, IconUser } from '../components/ui/icons'
 import { roleLabels, roleNavigation } from './roles'
 import { useSession } from './useSession'
+import { paths } from '../lib/router'
 import type { Route } from '../lib/router'
 
 const icons = {
@@ -17,9 +19,11 @@ export function RoleDock({ route }: { route: Route }) {
   const dockRole = status === 'ready' && role ? role : 'comprador'
   const active = route.name === 'role' && route.role === dockRole ? route.page
     : route.name === 'request' ? 'directory' : route.name
-  const entries = roleNavigation[dockRole].map((entry) => ({
+  const entries: DockItem[] = roleNavigation[dockRole].map((entry) => ({
     key: entry.id, label: entry.label, href: `#${entry.path}`, icon: icons[entry.id],
   }))
+  // D8: Cuenta al final de cada dock de rol. No va en roleNavigation para no crear una ruta de rol.
+  if (dockRole !== 'comprador') entries.push({ key: 'cuenta', label: 'Cuenta', href: paths.cuenta, icon: <IconUser /> })
   // Solo Publicar crea una acción; el resto son destinos normales, como en D3.
   const action = dockRole === 'fundacion' ? entries.find((entry) => entry.key === 'publicar') : undefined
   const items = entries.filter((entry) => entry !== action)

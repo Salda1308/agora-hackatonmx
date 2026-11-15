@@ -1,0 +1,39 @@
+/* Página de cuenta (D8). Solo tokens semánticos; móvil primero. */
+.cta-page { gap: var(--space-5); }
+/* En escritorio, columna de lectura como el panel de sesión (760px), centrada. */
+@media (min-width: 1024px) { .cta-page { width: 100%; max-width: 760px; margin-inline: auto; } }
+.cta-muted { color: var(--color-text-muted); font-size: var(--text-sm); }
+.cta-error { margin: 0; color: var(--color-primary-strong); font-weight: var(--font-weight-bold); }
+
+.cta-hero { display: grid; gap: var(--space-4); }
+.cta-hero p { margin: 0; }
+.cta-hero__row { display: flex; align-items: center; gap: var(--space-4); min-width: 0; }
+.cta-hero__copy { display: grid; gap: var(--space-2); min-width: 0; }
+.cta-hero__name { margin: 0; font-size: var(--text-xl); line-height: var(--leading-snug); overflow-wrap: anywhere; }
+
+.cta-shortcuts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
+  gap: var(--space-3);
+}
+/* Etiquetas en una línea aun a 360 px: menos relleno lateral, texto centrado. */
+.cta-shortcuts > * { padding-inline: var(--space-3); justify-content: center; text-align: center; white-space: nowrap; }
+
+.cta-section { display: grid; gap: var(--space-3); min-width: 0; }
+.cta-section__head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; }
+.cta-section__head .section-title { margin: 0; }
+
+.cta-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr)); gap: var(--space-3); }
+.cta-stat { display: grid; gap: var(--space-1); }
+.cta-stat strong { font-size: var(--text-2xl); font-weight: var(--font-weight-black); font-variant-numeric: tabular-nums; }
+.cta-stat span { color: var(--color-text-muted); font-size: var(--text-sm); }
+
+.cta-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-3); }
+.cta-row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); min-height: var(--tap-min); }
+.cta-row__copy { display: grid; gap: var(--space-1); min-width: 0; overflow-wrap: anywhere; }
+
+.cta-level { display: grid; gap: var(--space-3); }
+.cta-level p { margin: 0; }
+.cta-invite { display: grid; gap: var(--space-4); justify-items: start; }
+.cta-invite p { margin: 0; }
+.cta-invite .cta-shortcuts { width: 100%; }

@@ -9,6 +9,8 @@ import { Chip, SampleBadge } from '../../components/ui/Chip'
 import { Coco } from '../../components/ui/Coco'
 import { CocoLoading } from '../../components/ui/CocoLoading'
 import { EmptyState } from '../../components/ui/EmptyState'
+import { Field, FormModal } from '../../components/ui/FormModal'
+import { describe } from '../../components/ui/describe'
 import { supabase } from '../../lib/supabase'
 import { paths } from '../../lib/router'
 import { cleanImage, videoEmbed } from './media'
@@ -42,6 +44,7 @@ function Page({ slug, organizationId, own = false }: { slug?: string; organizati
   const [notice, setNotice] = useState('')
   const [editing, setEditing] = useState<string | null>(null)
   const [report, setReport] = useState<string | null>(null)
+  const [composing, setComposing] = useState(false)
   useEffect(() => {
     let active = true
     const client = supabase
@@ -107,7 +110,7 @@ function Page({ slug, organizationId, own = false }: { slug?: string; organizati
       }
       if (video) media.push({ publicacion_id: postId!, tipo: 'video', url: video, orden: 1 })
       if (media.length) { const result = await client.from('publicacion_medios').insert(media); if (result.error) throw new Error('No pudimos guardar los medios.') }
-      form.reset(); setNotice('Tu actualización ya está publicada.'); refresh(n => n + 1)
+      form.reset(); setComposing(false); setNotice('Tu actualización ya está publicada.'); refresh(n => n + 1)
     } catch (failure) {
       if (postId) await client.from('publicaciones').delete().eq('id', postId)
       if (imagePath) await client.storage.from('publicaciones').remove([imagePath])
@@ -149,18 +152,34 @@ function Page({ slug, organizationId, own = false }: { slug?: string; organizati
     <section className="stack"><h2 className="section-title">Necesidades abiertas</h2>
       {needs.length ? needs.map(n => <Card href={paths.request(n.id)} key={n.id}>{n.es_ejemplo && <SampleBadge />}<h3>{n.titulo}</h3><span>Ver unidades y ayudar →</span></Card>) : <p className="org-muted">Por ahora no hay necesidades abiertas.</p>}
     </section>
-    {own && <Card><form className="org-form" onSubmit={publish}><h2 className="section-title">Comparte una actualización</h2>
-      <label>¿Qué está pasando?<textarea name="texto" required maxLength={5000} placeholder="Cuenta cómo avanza la ayuda…" /></label>
-      <label>Imagen opcional<input name="imagen" type="file" accept="image/jpeg,image/png,image/webp" /></label><p className="org-muted">Hasta 5 MB. Quitamos los metadatos y la ubicación al procesar la imagen.</p>
-      <label>Video opcional<input name="video" type="url" placeholder="https://www.youtube.com/watch?v=…" /></label><p className="org-muted">YouTube o Vimeo. Se incrusta el enlace; no subimos archivos de video.</p>
-      <label className="org-consent"><input name="consentimiento" type="checkbox" required />Declaro tener consentimiento de las personas que aparecen. No muestro menores de edad.</label>
-      <Button type="submit" disabled={busy}>{busy ? 'Publicando…' : 'Publicar actualización'}</Button>
-    </form></Card>}
+    {own && <Button size="lg" block onClick={() => { setNotice(''); setComposing(true) }}>Comparte una actualización</Button>}
+    {/* D8: publicar y editar en FormModal; misma lógica y llamadas. */}
+    <FormModal open={composing} onClose={() => setComposing(false)} title="Comparte una actualización" description="Se publica en tu página y en el feed."
+      submitLabel="Publicar actualización" submittingLabel="Publicando…" submitting={busy} formId="org-publicar">
+      <form id="org-publicar" className="fm-form" onSubmit={publish}>
+        <fieldset className="fm-group"><legend>Mensaje</legend>
+          <Field id="org-texto" label="¿Qué está pasando?"><textarea id="org-texto" name="texto" required maxLength={5000} placeholder="Cuenta cómo avanza la ayuda…" autoFocus /></Field>
+        </fieldset>
+        <fieldset className="fm-group"><legend>Medios opcionales</legend>
+          <Field id="org-imagen" label="Imagen" hint="Hasta 5 MB. Quitamos los metadatos y la ubicación al procesar la imagen."><input {...describe('org-imagen', 'ayuda')} name="imagen" type="file" accept="image/jpeg,image/png,image/webp" /></Field>
+          <Field id="org-video" label="Video" hint="YouTube o Vimeo. Se incrusta el enlace; no subimos archivos de video."><input {...describe('org-video', 'ayuda')} name="video" type="url" placeholder="https://www.youtube.com/watch?v=…" /></Field>
+        </fieldset>
+        <label className="fm-check"><input name="consentimiento" type="checkbox" required />Declaro tener consentimiento de las personas que aparecen. No muestro menores de edad.</label>
+        {notice && <p className="fm-alert" role="alert">{notice}</p>}
+      </form>
+    </FormModal>
     <section className="stack"><h2 className="section-title">Desde la organización</h2>
       {!posts.length && <EmptyState title="Aquí comienza su historia" description="Las actualizaciones de la organización aparecerán aquí." />}
       {posts.map(p => <Card key={p.id} className="org-post">{p.es_ejemplo && <SampleBadge />}<time dateTime={p.creada_en}>{new Date(p.creada_en).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })}</time>
         <p className="org-post__text">{p.texto}</p>{p.publicacion_medios.map((m, i) => m.tipo === 'imagen' ? (m.src ? <img key={i} src={m.src} alt="Imagen compartida por la organización" loading="lazy" /> : <p key={i} className="org-muted">Imagen no disponible</p>) : videoEmbed(m.url) ? <iframe key={i} title={`Video de ${org.nombre}`} src={videoEmbed(m.url)!} loading="lazy" sandbox="allow-scripts allow-same-origin allow-presentation" allowFullScreen referrerPolicy="no-referrer" /> : null)}
-        {own && (editing === p.id ? <form className="org-form" onSubmit={e => void editPost(e, p.id)}><label>Actualización<textarea name="texto" defaultValue={p.texto ?? ''} required maxLength={5000} /></label><label className="org-consent"><input type="checkbox" required />Confirmo el consentimiento y que no aparecen menores.</label><div className="org-actions"><Button type="submit" disabled={busy}>Guardar cambios</Button><Button type="button" variant="ghost" onClick={() => setEditing(null)}>Cancelar</Button></div></form> : <Button variant="outline" onClick={() => setEditing(p.id)}>Editar texto</Button>)}
+        {own && <Button variant="outline" onClick={() => { setNotice(''); setEditing(p.id) }}>Editar texto</Button>}
+        {own && <FormModal open={editing === p.id} onClose={() => setEditing(null)} title="Editar publicación" submitLabel="Guardar cambios" submittingLabel="Guardando…" submitting={busy} formId={`org-editar-${p.id}`}>
+          <form id={`org-editar-${p.id}`} className="fm-form" onSubmit={e => void editPost(e, p.id)}>
+            <Field id={`org-editar-texto-${p.id}`} label="Actualización"><textarea id={`org-editar-texto-${p.id}`} name="texto" defaultValue={p.texto ?? ''} required maxLength={5000} autoFocus /></Field>
+            <label className="fm-check"><input type="checkbox" required />Confirmo el consentimiento y que no aparecen menores.</label>
+            {notice && <p className="fm-alert" role="alert">{notice}</p>}
+          </form>
+        </FormModal>}
         <Button variant="ghost" onClick={() => setReport(p.id)}>Reportar publicación</Button>
         {report === p.id && <form className="org-form" onSubmit={sendReport}><label>¿Qué debemos revisar?<textarea name="motivo" required maxLength={1000} /></label><div className="org-actions"><Button type="submit" disabled={busy}>Enviar reporte</Button><Button variant="ghost" type="button" onClick={() => setReport(null)}>Cancelar</Button></div></form>}
       </Card>)}

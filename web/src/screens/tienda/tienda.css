@@ -166,3 +166,24 @@
   text-align: center;
   text-transform: uppercase;
 }
+
+/* D8: acciones principales del catálogo, lado a lado cuando caben. */
+.tda-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+  gap: var(--space-3);
+}
+.tda-item__img {
+  width: 56px;
+  height: 56px;
+  flex: none;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-2);
+  object-fit: cover;
+}
+.tda-item__head > .tda-item__copy { flex: 1; }
+.fm-field input.tda-recogida__input {
+  font-size: var(--text-xl);
+  letter-spacing: 0.2em;
+  text-align: center;
+}

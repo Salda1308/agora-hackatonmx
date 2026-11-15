@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { RoleDock } from './auth/RoleDock'
 import { SiteDock } from './components/SiteDock'
+import { CuentaDock } from './screens/cuenta/CuentaDock'
 import { RoleScreen } from './auth/RoleScreen'
 import { SessionControls } from './auth/SessionControls'
 import { useTrasConfirmar } from './auth/useTrasConfirmar'
@@ -26,6 +27,8 @@ const JornadasArea = lazy(() => import('./screens/jornadas/JornadasArea'))
 const JornadasFundacion = lazy(() => import('./screens/jornadas/JornadasFundacion'))
 // Tareas del repartidor (T09); "Mis entregas" y "Reconocimiento" siguen en RoleScreen.
 const RepartidorArea = lazy(() => import('./screens/repartidor/RepartidorArea'))
+// Cuenta por rol (D8).
+const Cuenta = lazy(() => import('./screens/cuenta/Cuenta'))
 // Entrar, crear cuenta y solicitud de alta por rol (T23).
 const RegistroArea = lazy(() => import('./screens/registro/RegistroArea'))
 
@@ -53,6 +56,9 @@ function App() {
       break
     case 'panel':
       screen = <Panel />
+      break
+    case 'cuenta':
+      screen = <Suspense fallback={<CocoLoading />}><Cuenta /></Suspense>
       break
     case 'fundacion':
     case 'fundacion-publicar':
@@ -123,7 +129,8 @@ function App() {
       <SessionControls />
       <div key={route.name} className="coco-screen">{screen}</div>
       {/* Las áreas de rol conservan su navegación interna; lo público usa el dock social. */}
-      {['role', 'fundacion', 'fundacion-publicar'].includes(route.name) ? <RoleDock route={route} /> : <SiteDock route={route} />}
+      {['role', 'fundacion', 'fundacion-publicar'].includes(route.name) ? <RoleDock route={route} />
+        : route.name === 'cuenta' ? <CuentaDock route={route} /> : <SiteDock route={route} />}
     </div>
   )
 }

@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Button } from '../../components/ui/Button'
+import { Field, FormModal } from '../../components/ui/FormModal'
+import { describe } from '../../components/ui/describe'
 import { IconCheck } from '../../components/ui/icons'
 import { confirmarRecogida } from './api'
 import type { Pedido } from './api'
@@ -15,6 +17,7 @@ export function Recogida({ pedido, onConfirmada }: { pedido: Pedido; onConfirmad
   const [aviso, setAviso] = useState<string | null>(null)
   const [restantes, setRestantes] = useState(pedido.intentos_restantes)
   const [bloqueada, setBloqueada] = useState(pedido.bloqueada)
+  const [abierto, setAbierto] = useState(false)
 
   if (pedido.estado !== 'listo' || !pedido.tarea_id) return null
 
@@ -33,18 +36,22 @@ export function Recogida({ pedido, onConfirmada }: { pedido: Pedido; onConfirmad
   const tarea = pedido.tarea_id
   const enviar = async (ev: FormEvent) => {
     ev.preventDefault()
-    if (codigo.trim().length === 0) return
+    if (codigo.trim().length === 0 || enviando) return
     setAviso(null)
     setEnviando(true)
     try {
       const r = await confirmarRecogida(tarea, codigo)
       if (r.resultado === 'confirmada') {
+        setAbierto(false)
         onConfirmada()
         return
       }
       setCodigo('')
       setRestantes(r.intentos_restantes)
-      if (r.resultado === 'bloqueada') setBloqueada(true)
+      if (r.resultado === 'bloqueada') {
+        setAbierto(false)
+        setBloqueada(true)
+      }
       else setAviso(`Código incorrecto. Quedan ${r.intentos_restantes} intentos.`)
     } catch (e) {
       setAviso(e instanceof Error ? e.message : 'No se pudo confirmar.')
@@ -54,25 +61,48 @@ export function Recogida({ pedido, onConfirmada }: { pedido: Pedido; onConfirmad
   }
 
   return (
-    <form className="tda-recogida" onSubmit={(ev) => void enviar(ev)}>
-      <label className="tda-field">
-        Código que te muestra el voluntario
-        <input
-          value={codigo}
-          onChange={(ev) => setCodigo(ev.target.value.toUpperCase())}
-          maxLength={6}
-          autoComplete="off"
-          autoCapitalize="characters"
-          spellCheck={false}
-          inputMode="text"
-          className="tda-recogida__input"
-        />
-      </label>
-      <Button type="submit" size="lg" block icon={<IconCheck />} disabled={enviando || codigo.trim().length === 0}>
-        {enviando ? 'Confirmando…' : 'Confirmar recogida'}
+    <>
+      <Button size="lg" block icon={<IconCheck />} onClick={() => setAbierto(true)}>
+        Confirmar recogida
       </Button>
-      {aviso ? <p className="tda-error" role="alert">{aviso}</p> : null}
-      {!aviso && restantes < 5 ? <p className="tda-muted">Quedan {restantes} intentos.</p> : null}
-    </form>
+      {restantes < 5 ? <p className="tda-muted">Quedan {restantes} intentos.</p> : null}
+      <FormModal
+        open={abierto}
+        onClose={() => {
+          setAbierto(false)
+          setCodigo('')
+          setAviso(null)
+        }}
+        title="Confirmar recogida"
+        description={`${pedido.organizacion_nombre} · ${pedido.solicitud_titulo}`}
+        submitLabel="Confirmar recogida"
+        submittingLabel="Confirmando…"
+        submitting={enviando}
+        canSubmit={codigo.trim().length > 0}
+        formId="tda-recogida-form"
+      >
+        <form id="tda-recogida-form" className="fm-form" onSubmit={(ev) => void enviar(ev)}>
+          <Field
+            id="tda-codigo"
+            label="Código que te muestra el voluntario"
+            hint={`6 letras o números. Quedan ${restantes} intentos.`}
+            error={aviso}
+          >
+            <input
+              {...describe('tda-codigo', 'ayuda', aviso)}
+              value={codigo}
+              onChange={(ev) => setCodigo(ev.target.value.toUpperCase())}
+              maxLength={6}
+              autoComplete="off"
+              autoCapitalize="characters"
+              spellCheck={false}
+              inputMode="text"
+              autoFocus
+              className="tda-recogida__input"
+            />
+          </Field>
+        </form>
+      </FormModal>
+    </>
   )
 }

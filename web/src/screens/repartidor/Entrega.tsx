@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { ChangeEvent } from 'react'
 import { Button } from '../../components/ui/Button'
+import { FormModal } from '../../components/ui/FormModal'
 import { IconCheck } from '../../components/ui/icons'
 import { cargarMiTarea } from './api'
 import type { MiTarea } from './api'
@@ -18,6 +19,7 @@ export function PasosEntrega({ tarea, onCambio }: { tarea: MiTarea; onCambio: ()
   const [foto, setFoto] = useState<{ blob: Blob; url: string } | null>(null)
   const [ocupado, setOcupado] = useState(false)
   const [fallo, setFallo] = useState<string | null>(null)
+  const [abierto, setAbierto] = useState(false)
   const avisar = useRef(onCambio)
 
   useEffect(() => {
@@ -95,12 +97,13 @@ export function PasosEntrega({ tarea, onCambio }: { tarea: MiTarea; onCambio: ()
   }
 
   const entregar = async () => {
-    if (!foto) return
+    if (!foto || ocupado) return
     setFallo(null)
     setOcupado(true)
     try {
       await registrarEntrega(tarea.id, foto.blob)
       setFoto(null)
+      setAbierto(false)
       setEntrega(await cargarMiEntrega())
     } catch (e) {
       setFallo(e instanceof Error ? e.message : 'No se pudo marcar entregado.')
@@ -109,7 +112,6 @@ export function PasosEntrega({ tarea, onCambio }: { tarea: MiTarea; onCambio: ()
     }
   }
 
-  const error = fallo ? <p className="rep-error" role="alert">{fallo}</p> : null
 
   if (tarea.estado === 'asignada') {
     return (
@@ -145,16 +147,38 @@ export function PasosEntrega({ tarea, onCambio }: { tarea: MiTarea; onCambio: ()
 
   return (
     <div className="rep-stack">
-      <p className="rep-muted">Toma una foto de lo que entregas. Sin rostros, documentos ni placas.</p>
-      {foto ? <img className="ent-foto" src={foto.url} alt="Foto de la entrega" /> : null}
-      <label className="ui-button ui-button--outline ui-button--md ui-button--block ent-file">
-        <input type="file" accept="image/*" capture="environment" onChange={(e) => void elegirFoto(e)} />
-        <span>{foto ? 'Cambiar foto' : 'Tomar foto'}</span>
-      </label>
-      <Button size="lg" block icon={<IconCheck />} disabled={!foto || ocupado} onClick={() => void entregar()}>
-        {ocupado ? 'Enviando…' : 'Marcar entregado'}
+      <p className="rep-muted">Al llegar, registra la entrega con una foto de lo que entregas.</p>
+      <Button size="lg" block icon={<IconCheck />} onClick={() => setAbierto(true)}>
+        Registrar entrega
       </Button>
-      {error}
+      <FormModal
+        open={abierto}
+        onClose={() => {
+          setAbierto(false)
+          setFoto(null)
+          setFallo(null)
+        }}
+        title="Registrar entrega"
+        description={`Para ${tarea.destino_nombre}`}
+        submitLabel="Marcar entregado"
+        submittingLabel="Enviando…"
+        submitting={ocupado}
+        canSubmit={Boolean(foto)}
+        dirty={Boolean(foto)}
+        onSubmit={() => void entregar()}
+      >
+        <fieldset className="fm-group">
+          <legend>Foto de la entrega</legend>
+          <p className="fm-hint">Sin rostros, documentos ni placas. Solo lo que entregas.</p>
+          {foto ? <img className="fm-preview" src={foto.url} alt="Foto de la entrega" /> : null}
+          <label className="ui-button ui-button--outline ui-button--md ui-button--block ent-file">
+            <input type="file" accept="image/*" capture="environment" onChange={(e) => void elegirFoto(e)}
+              aria-describedby={fallo ? 'ent-foto-error' : undefined} />
+            <span>{foto ? 'Cambiar foto' : 'Tomar foto'}</span>
+          </label>
+          {fallo ? <p id="ent-foto-error" className="fm-error" role="alert">{fallo}</p> : null}
+        </fieldset>
+      </FormModal>
     </div>
   )
 }

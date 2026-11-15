@@ -1,16 +1,13 @@
-import { useSession } from '../auth/useSession'
 import { Dock } from './ui/Dock'
 import { IconBookmark, IconHeart, IconHome, IconList, IconUser } from './ui/icons'
 import { paths, type Route } from '../lib/router'
 
 /** Destinos actuales; D8 puede cambiar la cuenta sin tocar la navegación pública. */
 export function SiteDock({ route }: { route: Route }) {
-  const { role, status } = useSession()
-  const account = status === 'ready' && role === 'fundacion' ? '#/fundacion'
-    : status === 'ready' && role === 'tienda' ? '#/tienda'
-    : status === 'ready' && role === 'repartidor' ? '#/repartidor' : paths.following
+  // D8: Cuenta lleva a #/cuenta para todos; ahí cada rol ve lo suyo.
+  const account = paths.cuenta
   const active = route.name === 'request' ? 'directory' : ['jornada', 'folio'].includes(route.name) ? 'jornadas'
-    : ['role', 'fundacion', 'fundacion-publicar'].includes(route.name) ? 'account' : route.name
+    : ['role', 'fundacion', 'fundacion-publicar', 'cuenta'].includes(route.name) ? 'account' : route.name
   const entries = [
     { key: 'home', label: 'Inicio', href: paths.home, icon: <IconHome /> },
     { key: 'directory', label: 'Solicitudes', href: paths.directory, icon: <IconList /> },
