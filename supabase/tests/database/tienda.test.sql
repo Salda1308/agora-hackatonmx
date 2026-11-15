@@ -4,7 +4,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(21);
+select plan(23);
 
 -- Fixtures (como postgres, sin RLS) ------------------------------------------
 
@@ -98,8 +98,11 @@ select is((select organizacion_nombre from public.pedidos_de_mi_tienda() where t
   'Asilo T08', 'el panel muestra fundación y total');
 select throws_ok($$select public.marcar_pedido_listo('e8600000-0000-0000-0000-000000000003')$$,
   '23514', 'El pedido no está pagado', 'un pedido sin artículos no se marca listo');
-select ok((select public.marcar_pedido_listo(id) from public.pedidos_de_mi_tienda() where total_centavos = 50000)
-  ~ '^[A-HJKMNP-Z2-9]{6}$', 'marcar listo devuelve un código de recogida');
+select lives_ok(format('select public.marcar_pedido_listo(%L)',
+    (select id from public.pedidos_de_mi_tienda() where total_centavos = 50000)),
+  'la tienda marca listo su pedido pagado');
+select throws_ok($$select codigo_recogida from public.pedidos$$, '42501', null,
+  'la tienda no lee el código de recogida (lo teclea al confirmar la recogida, T21)');
 select is((select estado::text from public.pedidos_de_mi_tienda() where total_centavos = 50000), 'listo',
   'el pedido pagado pasa a listo');
 select isnt((select listo_en from public.pedidos_de_mi_tienda() where total_centavos = 50000), null,
@@ -115,9 +118,11 @@ select is((select precio_centavos from public.catalogo_articulos where id = 'e82
 select is((select precio_centavos from public.solicitud_articulos where id = 'e8400000-0000-0000-0000-000000000001'),
   25000, 'la solicitud publicada conserva su precio');
 
--- Fundación: ve el código pero no marca pedidos.
+-- Fundación: no ve el código ni marca pedidos.
 select set_config('request.jwt.claims',
   '{"sub":"e8000000-0000-0000-0000-0000000000f1","role":"authenticated"}', true);
+select throws_ok($$select codigo_recogida from public.pedidos$$, '42501', null,
+  'la fundación no lee el código de recogida');
 select throws_ok($$select public.marcar_pedido_listo('e8600000-0000-0000-0000-000000000003')$$,
   '42501', null, 'una fundación no marca pedidos listos');
 

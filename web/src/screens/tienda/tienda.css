@@ -154,3 +154,15 @@
   width: 100%;
   font: inherit;
 }
+
+/* Recogida con código (T21) */
+.tda-recogida {
+  display: grid;
+  gap: var(--space-3);
+}
+.tda-recogida__input {
+  font-size: var(--text-xl);
+  letter-spacing: 0.2em;
+  text-align: center;
+  text-transform: uppercase;
+}

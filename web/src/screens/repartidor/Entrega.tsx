@@ -2,14 +2,16 @@ import { useEffect, useRef, useState } from 'react'
 import type { ChangeEvent } from 'react'
 import { Button } from '../../components/ui/Button'
 import { IconCheck } from '../../components/ui/icons'
+import { cargarMiTarea } from './api'
 import type { MiTarea } from './api'
-import { cargarMiEntrega, marcarRecogida, prepararFoto, registrarEntrega } from './entrega-api'
+import { cargarMiEntrega, prepararFoto, registrarEntrega } from './entrega-api'
 import type { MiEntrega } from './entrega-api'
 import './entrega.css'
 
 /**
  * Pasos de la entrega (T10): recoger, foto y marcar entregado, y el código que
- * confirma quien recibe. Mientras espera la confirmación consulta cada 5 s.
+ * confirma quien recibe. La recogida la confirma la tienda con el código (T21).
+ * Mientras espera una confirmación consulta cada 5 s.
  */
 export function PasosEntrega({ tarea, onCambio }: { tarea: MiTarea; onCambio: () => void }) {
   const [entrega, setEntrega] = useState<MiEntrega | null | undefined>(undefined)
@@ -21,6 +23,32 @@ export function PasosEntrega({ tarea, onCambio }: { tarea: MiTarea; onCambio: ()
   useEffect(() => {
     avisar.current = onCambio
   }, [onCambio])
+
+  // Por recoger: la tienda teclea el código; al confirmarlo la tarea pasa a recogida.
+  useEffect(() => {
+    if (tarea.estado !== 'asignada') return
+    let vigente = true
+    let reloj: number | undefined
+    const consultar = () => {
+      cargarMiTarea()
+        .then((t) => {
+          if (!vigente) return
+          if (t?.id !== tarea.id || t.estado !== 'asignada') {
+            avisar.current()
+            return
+          }
+          reloj = window.setTimeout(consultar, 5000)
+        })
+        .catch(() => {
+          if (vigente) reloj = window.setTimeout(consultar, 5000)
+        })
+    }
+    reloj = window.setTimeout(consultar, 5000)
+    return () => {
+      vigente = false
+      window.clearTimeout(reloj)
+    }
+  }, [tarea.estado, tarea.id])
 
   useEffect(() => {
     if (tarea.estado !== 'recogida') return
@@ -52,19 +80,6 @@ export function PasosEntrega({ tarea, onCambio }: { tarea: MiTarea; onCambio: ()
   useEffect(() => () => {
     if (foto) URL.revokeObjectURL(foto.url)
   }, [foto])
-
-  const recoger = async () => {
-    setFallo(null)
-    setOcupado(true)
-    try {
-      await marcarRecogida(tarea.id)
-      onCambio()
-    } catch (e) {
-      setFallo(e instanceof Error ? e.message : 'No se pudo marcar.')
-    } finally {
-      setOcupado(false)
-    }
-  }
 
   const elegirFoto = async (ev: ChangeEvent<HTMLInputElement>) => {
     const archivo = ev.target.files?.[0]
@@ -98,12 +113,9 @@ export function PasosEntrega({ tarea, onCambio }: { tarea: MiTarea; onCambio: ()
 
   if (tarea.estado === 'asignada') {
     return (
-      <div className="rep-stack">
-        <Button size="lg" block icon={<IconCheck />} disabled={ocupado} onClick={() => void recoger()}>
-          {ocupado ? 'Marcando…' : 'Ya lo recogí'}
-        </Button>
-        {error}
-      </div>
+      <p className="rep-muted" role="status">
+        En la tienda, muestra tu código de recogida. Cuando lo confirmen, sigue la entrega aquí.
+      </p>
     )
   }
 

@@ -16,13 +16,17 @@ export interface MiTienda {
 export interface Pedido {
   id: string
   estado: 'preparando' | 'listo' | 'recogido' | 'entregado'
-  codigo_recogida: string | null
   creado_en: string
   listo_en: string | null
   solicitud_titulo: string
   organizacion_nombre: string
   total_centavos: number
   articulos: { nombre: string; unidades: number; precio_centavos: number }[]
+  /** Recogida (T21): la tienda teclea el código que le muestra el repartidor. */
+  tarea_id: string | null
+  tarea_estado: 'abierta' | 'asignada' | 'recogida' | 'entregada' | 'cancelada' | null
+  intentos_restantes: number
+  bloqueada: boolean
 }
 
 export interface Articulo {
@@ -49,13 +53,27 @@ export async function cargarPedidos(): Promise<Pedido[]> {
   return ((data ?? []) as Pedido[]).map((p) => ({ ...p, total_centavos: Number(p.total_centavos) }))
 }
 
-export async function marcarListo(pedidoId: string): Promise<string> {
-  const { data, error } = await cliente().rpc('marcar_pedido_listo', { p_pedido: pedidoId })
+export async function marcarListo(pedidoId: string) {
+  const { error } = await cliente().rpc('marcar_pedido_listo', { p_pedido: pedidoId })
   if (error) {
     const conocidos = ['El pedido no está pagado', 'La tienda está suspendida', 'Pedido no encontrado o ya estaba listo']
     throw new Error(conocidos.find((m) => error.message.includes(m)) ?? 'No se pudo marcar. Vuelve a intentar.')
   }
-  return data as string
+}
+
+export type ResultadoRecogida = 'confirmada' | 'incorrecto' | 'bloqueada'
+
+/** La tienda confirma la recogida con el código; el servidor compara y cuenta intentos. */
+export async function confirmarRecogida(tarea: string, codigo: string) {
+  const { data, error } = await cliente().rpc('confirmar_recogida', { p_tarea: tarea, p_codigo: codigo })
+  if (error) {
+    throw new Error(error.message.includes('No hay una recogida por confirmar')
+      ? 'Esta recogida ya no está pendiente.'
+      : 'No se pudo confirmar. Vuelve a intentar.')
+  }
+  const fila = ((data ?? []) as { resultado: ResultadoRecogida; intentos_restantes: number }[])[0]
+  if (!fila) throw new Error('No se pudo confirmar. Vuelve a intentar.')
+  return fila
 }
 
 export async function cargarCatalogo(tiendaId: string): Promise<Articulo[]> {
