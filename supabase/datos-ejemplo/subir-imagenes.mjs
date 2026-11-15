@@ -30,6 +30,8 @@ const IMAGENES = [
   ['publicacion-lectura.jpg', ORG.abuela, 14],
   ['publicacion-refugio-perrito.jpg', ORG.huellitas, 15],
   ['publicacion-mural.jpg', ORG.semillas, 16],
+  ['solicitud-despensa-verduras.jpg', ORG.abuela, 17],
+  ['solicitud-higiene-jabones.jpg', ORG.abuela, 18],
 ];
 
 const url = process.env.SUPABASE_URL?.replace(/\/+$/, '');

@@ -86,6 +86,10 @@ from (values
    'Las residentes de Hogar Los Girasoles se bañan con ayuda todos los días y los artículos de higiene se acaban rápido. Un jabón y un shampoo les dan comodidad y dignidad.'),
   ('f8200000-0000-0000-0000-000000000001'::uuid, 'Despensa de noviembre para la Casa de la Abuela',
    'Preparamos tres comidas al día para 28 abuelos. Con arroz y pañales cubrimos la cocina y los cuidados del mes, y lo que llega se nota en cada plato.'),
+  ('0ceb4ba0-07da-4f81-a1e6-5e1163fa44d6'::uuid, 'Arroz para la despensa de la semana',
+   'El arroz rinde para todo: sopa, guisados y el arroz con leche de los domingos. Con unas bolsas más, la cocina de la Casa de la Abuela llega tranquila al fin de mes.'),
+  ('f9cc1cd9-0308-49dc-8b3f-c4876b016cd6'::uuid, 'Agua, arroz y jabón para Los Laureles',
+   'Un ancianato cercano nos pidió ayuda con lo básico de cada semana: agua para tomar, arroz para la comida y jabón para el baño diario. Es poco para ti y mucho para ellos.'),
   ('f9200000-0000-0000-0000-000000000001'::uuid, 'Leche y pañales para la semana',
    'La leche acompaña el desayuno y la merienda de los abuelos. Los pañales son lo que más gastamos y lo que más falta hace.')
 ) as v(id, titulo, descripcion)
@@ -121,7 +125,8 @@ on conflict (id) do update set titulo = excluded.titulo, descripcion = excluded.
 
 -- Artículos: nunca se actualizan si ya existen (los contadores se respetan).
 insert into public.solicitud_articulos (id, solicitud_id, articulo_id, cantidad, unidades_pagadas)
-values
+select v.id::uuid, v.solicitud_id::uuid, v.articulo_id::uuid, v.cantidad, v.unidades_pagadas
+from (values
   -- Existentes: se agregan artículos con precio real o de prueba.
   ('e2730000-0000-0000-0000-000000000001', 'f5200000-0000-0000-0000-000000000001', 'e2710000-0000-0000-0000-000000000019', 24, 9),
   ('e2730000-0000-0000-0000-000000000002', 'f5200000-0000-0000-0000-000000000002', 'e2710000-0000-0000-0000-000000000020', 30, 12),
@@ -150,6 +155,8 @@ values
   ('e2730000-0000-0000-0000-000000000061', 'e2720000-0000-0000-0000-000000000006', 'e2710000-0000-0000-0000-000000000007', 60, 6),
   ('e2730000-0000-0000-0000-000000000062', 'e2720000-0000-0000-0000-000000000006', 'e2710000-0000-0000-0000-000000000008', 60, 4),
   ('e2730000-0000-0000-0000-000000000063', 'e2720000-0000-0000-0000-000000000006', 'e2710000-0000-0000-0000-000000000015', 200, 0)
+) as v(id, solicitud_id, articulo_id, cantidad, unidades_pagadas)
+where exists (select 1 from public.solicitudes s where s.id = v.solicitud_id::uuid)
 on conflict do nothing;
 
 -- Nombres limpios en las copias de artículos existentes (solo el texto copiado).
@@ -229,6 +236,8 @@ insert into t27_imagenes values
   ('solicitud', 'e2720000-0000-0000-0000-000000000004', 'f5000000-0000-0000-0000-000000000003/e2780000-0000-0000-0000-000000000008.jpg'),
   ('solicitud', 'e2720000-0000-0000-0000-000000000005', 'e2700000-0000-0000-0000-000000000001/e2780000-0000-0000-0000-000000000009.jpg'),
   ('solicitud', 'e2720000-0000-0000-0000-000000000006', 'f5000000-0000-0000-0000-000000000001/e2780000-0000-0000-0000-000000000010.jpg'),
+  ('solicitud', '0ceb4ba0-07da-4f81-a1e6-5e1163fa44d6', 'f2000000-0000-0000-0000-000000000001/e2780000-0000-0000-0000-000000000017.jpg'),
+  ('solicitud', 'f9cc1cd9-0308-49dc-8b3f-c4876b016cd6', 'f2000000-0000-0000-0000-000000000001/e2780000-0000-0000-0000-000000000018.jpg'),
   ('publicacion', 'f2400000-0000-0000-0000-000000000001', 'f5000000-0000-0000-0000-000000000001/e2780000-0000-0000-0000-000000000011.jpg'),
   ('publicacion', 'f2400000-0000-0000-0000-000000000002', 'f2000000-0000-0000-0000-000000000001/e2780000-0000-0000-0000-000000000012.jpg'),
   ('publicacion', 'f2400000-0000-0000-0000-000000000003', 'f5000000-0000-0000-0000-000000000003/e2780000-0000-0000-0000-000000000013.jpg'),
