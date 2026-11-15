@@ -62,7 +62,7 @@ try {
                 articulos: [
                   {
                     solicitudArticuloId: articleId,
-                    nombre: 'Garrafón de agua — prueba',
+                    nombre: 'Garrafón de agua, precio de prueba $0.01',
                     unidades: 1,
                   },
                 ],
@@ -73,11 +73,11 @@ try {
     )
     await page.goto(`${base}/#/solicitudes`)
     await page
-      .getByRole('heading', { name: 'Agua para el albergue — ejemplo' })
+      .getByRole('heading', { name: 'Agua purificada para el albergue' })
       .waitFor()
-    assert.equal(await page.locator('.request-card').count(), 2)
+    assert.equal(await page.locator('.request-card').count(), 10)
     await page
-      .getByRole('heading', { name: 'Agua para el albergue — ejemplo' })
+      .getByRole('heading', { name: 'Agua purificada para el albergue' })
       .click()
     await page.getByRole('spinbutton').fill('1')
     await page
