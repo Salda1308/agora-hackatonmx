@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useSession } from '../auth/useSession'
+import { LegalFooter } from '../components/LegalLinks'
 import { Button } from '../components/ui/Button'
 import { Chip } from '../components/ui/Chip'
 import { Coco } from '../components/ui/Coco'
@@ -89,6 +90,7 @@ function FeedTimeline() {
         {!loading && visible.length > 0 && !next && <p className="feed-end">Estás al día. Gracias por estar aquí.</p>}
       </section>
     </div>
+    <LegalFooter className="feed-end" />
     {comments && <CommentsSheet key={`${comments.tipo}-${comments.id}`} item={comments} onClose={() => setComments(null)}
       onCountChange={delta => setItems(current => current.map(row => row.tipo === comments.tipo && row.id === comments.id ? { ...row, comentarios: Math.max(0, row.comentarios + delta) } : row))} />}
   </main>

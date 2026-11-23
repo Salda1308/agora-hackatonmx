@@ -6,6 +6,7 @@ import { registroPaths } from '../../auth/registro-routes'
 import { roleLabels } from '../../auth/roles'
 import type { ProfileRole } from '../../auth/roles'
 import { useSession } from '../../auth/useSession'
+import { LegalLinks } from '../../components/LegalLinks'
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { CocoLoading } from '../../components/ui/CocoLoading'
@@ -157,6 +158,7 @@ function Formulario({ rol, motivo, orgNombre }: { rol: ProfileRole; motivo: stri
             <input type="checkbox" checked={acepto} onChange={(e) => setAcepto(e.target.checked)} />
             <span>Confirmo que los datos son reales. El equipo los revisará y no se publica nada hasta aprobar la solicitud.</span>
           </label>
+          <LegalLinks className="reg-muted" lead="Usaremos tu nombre, teléfono y demás datos para revisar tu solicitud. Lee el" />
           <Button type="submit" size="lg" block disabled={enviando}>{enviando ? 'Enviando…' : 'Enviar solicitud'}</Button>
           {fallo ? <p className="reg-error" role="alert">{fallo}</p> : null}
         </form>

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { supabase } from '../../lib/supabase'
+import { LegalLinks } from '../../components/LegalLinks'
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { formatMXN, type PublicRequest } from './data'
@@ -430,6 +431,7 @@ export function Donation({ request }: { request: PublicRequest }) {
         >
           {busy ? 'Creando cobro…' : `Pagar ${formatMXN(total / 100)}`}
         </Button>
+        <LegalLinks className="detail-cta__note" lead="Al pagar, aceptas el uso de tus datos como dice el" />
         <p className="detail-cta__note">
           Crear el cobro no significa que esté pagado. La disponibilidad se
           confirma al crear el cobro.

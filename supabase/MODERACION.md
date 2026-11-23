@@ -166,3 +166,135 @@ delete from public.usuarios_bloqueados where usuario_id = '<auth.users.id>';
 ```
 
 Buscar la cuenta por correo: `select id from auth.users where email = '<correo>';`. La interfaz nunca muestra el correo: el autor aparece con `perfiles.nombre_visible` o como "Vecino XXXX".
+
+## Derechos ARCO (acceso, rectificación, cancelación y oposición)
+
+Procedimiento interno para atender las solicitudes que llegan al correo ARCO del aviso de privacidad (`web/public/privacidad.html`, sección 7). El correo y el domicilio del responsable están por confirmar en ese aviso; esta sección no los inventa. Los plazos de respuesta de abajo (20 días hábiles para responder, 15 más para ejecutar) vienen de la ley anterior y quedan por confirmar con la revisión legal contra la LFPDPPP vigente (DOF 2025-03-20). Todo esto es operativo, no asesoría legal.
+
+Correr como `postgres` o `service_role`. Registrar cada paso en `acciones_moderacion` (ver el final de la sección).
+
+### 1. Verificar a la persona y ubicar la cuenta
+
+Antes de entregar o tocar nada, confirmar que quien escribe es la titular: la solicitud debe llegar desde el correo de la cuenta, o pedir un dato que solo ella conozca (ciudad y fecha aproximada del alta). Pedir identificación solo si no queda otra forma, y no guardarla. No pedir ni guardar más datos de los que ya existen.
+
+```sql
+select id, email, created_at, email_confirmed_at from auth.users where email = '<correo>';
+```
+
+Usar ese `id` como `<uid>` en todo lo demás. Una persona que solo se inscribió a una jornada o pagó una donación puede no tener cuenta: ver el punto 2, partes C y D.
+
+### 2. Acceso: reunir todo lo que se tiene de la persona
+
+```sql
+-- A. Perfil, solicitud de alta y organización asociada.
+select * from public.perfiles where id = '<uid>';
+select * from public.solicitudes_alta where usuario_id = '<uid>';
+select o.id, o.tipo, o.nombre, o.slug, t.titular_nombre, t.rfc, t.clabe_ultimos4
+from public.perfiles p
+join public.organizaciones o on o.id = p.organizacion_id
+left join public.tiendas_cobro t on t.organizacion_id = o.id
+where p.id = '<uid>';
+
+-- B. Actividad social.
+select id, tipo, objetivo_id, texto, oculto, borrado_en, creado_en from public.comentarios where usuario_id = '<uid>';
+select tipo, objetivo_id from public.me_gusta where usuario_id = '<uid>';
+select comentario_id, motivo, estado from public.reportes_comentario where usuario_id = '<uid>';
+select * from public.usuarios_bloqueados where usuario_id = '<uid>';
+
+-- C. Reparto (si fue repartidor): tareas, eventos y fotos de entrega.
+select t.id as tarea_id, t.estado, t.creada_en, e.id as entrega_id, e.foto_path, e.entregada_en, e.confirmada_en
+from public.tareas t
+left join public.entregas e on e.tarea_id = t.id
+where t.repartidor_id = '<uid>';
+select tarea_id, tipo, actor_rol, creado_en from public.eventos_tarea where actor_id = '<uid>';
+
+-- D. Inscripciones a jornadas: no tienen enlace a la cuenta, se buscan por el texto que la persona dio.
+select i.id, j.titulo, i.nombre_contacto, i.contacto, i.asistentes, i.estado, i.creada_en
+from public.inscripciones_jornada i
+join public.jornadas j on j.id = i.jornada_id
+where i.contacto ilike '%<correo o teléfono>%' or i.nombre_contacto ilike '%<nombre>%';
+
+-- E. Archivos en Storage a su nombre (fotos de entrega).
+select bucket_id, name, created_at from storage.objects
+where bucket_id = 'entregas' and owner = '<uid>';
+```
+
+Entregar la información en un archivo legible (texto o CSV) por el mismo correo, sin datos de terceras personas: los comentarios de otras cuentas, los datos de quien recibió una entrega y las fotos donde salgan otras personas no se incluyen. Los pagos no llevan datos de quien pagó (se descartaron los datos bancarios y el teléfono de cobro no se guarda), así que no hay nada que buscar por persona en `pagos` ni en `privado.limites_cobro`.
+
+### 3. Rectificación
+
+```sql
+-- Nombre público que aparece en comentarios.
+update public.perfiles set nombre_visible = '<nombre corregido>' where id = '<uid>';
+
+-- Datos de la solicitud de alta (solo con service_role; el cliente no puede editarla después de enviarla).
+update public.solicitudes_alta
+set nombre_contacto = '<nombre>', telefono = '<10 dígitos>', ciudad = '<ciudad>'
+where id = '<solicitud_alta_id>';
+
+-- Inscripción a jornada.
+update public.inscripciones_jornada set nombre_contacto = '<nombre>', contacto = '<contacto>' where id = '<inscripcion_id>';
+```
+
+El correo se cambia desde el panel de Auth (Authentication, Users), no con SQL. Si el dato corregido es el de una organización (nombre, descripción, dirección), es información de la organización y se corrige con el flujo de "Dar de alta y verificar a mano".
+
+### 4. Cancelación (borrar la cuenta y sus datos)
+
+Antes de borrar, revisar lo que debe conservarse por obligación o interés legítimo y decirlo en la respuesta: los pagos y pedidos se conservan sin datos personales (ya no llevan a la persona), y los registros de `acciones_moderacion` también. Si es la única cuenta de una organización, decidir con moderación qué pasa con la organización (la cancelación de la cuenta no la borra).
+
+Orden obligatorio, porque lo que se borra al final deja de ser localizable:
+
+```sql
+-- 1. Fotos de entrega: anotar las rutas ANTES de borrar la cuenta.
+select e.foto_path from public.entregas e
+join public.tareas t on t.id = e.tarea_id
+where t.repartidor_id = '<uid>' and e.foto_path is not null;
+```
+
+2. Borrar esos archivos del bucket `entregas` con la API de Storage y `service_role` (o desde el panel de Storage). No borrar filas de `storage.objects` con SQL: deja el archivo huérfano.
+
+```sql
+-- 3. Inscripciones a jornadas (no se borran solas porque no tienen enlace a la cuenta).
+delete from public.inscripciones_jornada
+where id in ('<inscripcion_id>', '<inscripcion_id>');
+
+-- 4. Anotar la acción (el id borrado queda como evidencia, sin datos personales).
+insert into public.acciones_moderacion (moderador, accion, objetivo_tabla, objetivo_id, motivo)
+values ('<quien>', 'arco_cancelacion', 'auth.users', '<uid>', 'Solicitud ARCO de cancelación, folio <folio>');
+
+-- 5. Borrar la cuenta. Es en cascada: perfiles, solicitudes_alta, comentarios, me_gusta,
+--    reportes_comentario y usuarios_bloqueados desaparecen; tareas.repartidor_id y
+--    eventos_tarea.actor_id quedan en null.
+delete from auth.users where id = '<uid>';
+```
+
+Notas:
+
+- Si la cuenta estaba bloqueada (`usuarios_bloqueados`), el bloqueo se pierde con el borrado y la persona podría crear otra cuenta. Si hay motivos de seguridad para recordarlo, anotarlo en `acciones_moderacion` antes de borrar y decidirlo con moderación.
+- `privado.eventos_me_gusta` guarda solo el id y la hora para el límite de me gusta, se purga en cada acción y no tiene enlace a la cuenta: borrar a mano si quedaron filas (`delete from privado.eventos_me_gusta where usuario_id = '<uid>';`).
+- Los comentarios de otras personas que respondan o mencionen a la cuenta no se tocan.
+
+### 5. Oposición y revocación del consentimiento
+
+Si la persona se opone a un uso concreto (por ejemplo, que se le muestre en comentarios) o revoca su consentimiento sin pedir el borrado:
+
+```sql
+-- Dejar de mostrar su nombre y sus comentarios sin borrar la cuenta.
+update public.perfiles set nombre_visible = null where id = '<uid>';
+update public.comentarios set oculto = true, oculto_en = now() where usuario_id = '<uid>';
+
+-- Impedir que comente, dé me gusta o reporte (reversible).
+insert into public.usuarios_bloqueados (usuario_id, motivo, bloqueado_por)
+values ('<uid>', 'Oposición ARCO, folio <folio>', '<quien>');
+```
+
+Si la revocación impide seguir prestando el servicio (por ejemplo, una repartidora que ya no quiere que se guarde su teléfono), se explica en la respuesta y se pasa al punto 4.
+
+### 6. Responder, plazos y registro
+
+- Acusar recibo de la solicitud el mismo día y asignar un folio.
+- Responder dentro del plazo (20 días hábiles, por confirmar) con el resultado: qué se entregó, rectificó, canceló o por qué no procede.
+- Ejecutar lo procedente dentro de los 15 días hábiles siguientes a la respuesta (por confirmar).
+- Fotos de entrega: conservarlas el tiempo que defina el aviso (propuesta: 12 meses, por confirmar) y borrarlas después con la misma regla de Storage del punto 4. Las solicitudes de alta rechazadas y las inscripciones a jornadas, igual (propuesta: 12 meses, por confirmar).
+- Guardar en `acciones_moderacion` una fila por solicitud con folio, derecho ejercido y resultado. No copiar los datos personales entregados en el motivo.
+- No guardar la identificación recibida: verla, confirmar y borrar el correo.
