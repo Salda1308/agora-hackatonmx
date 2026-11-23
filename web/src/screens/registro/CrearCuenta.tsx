@@ -6,6 +6,7 @@ import { registroPaths } from '../../auth/registro-routes'
 import { useSession } from '../../auth/useSession'
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
+import { LegalLinks } from '../../components/LegalLinks'
 import { Coco } from '../../components/ui/Coco'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { Marco } from '../fundacion/Marco'
@@ -76,6 +77,7 @@ function FormularioCrear() {
           </Campo>
           <CampoContrasena valor={contrasena} onCambio={setContrasena} error={errores.contrasena}
             autoComplete="new-password" conMedidor />
+          <LegalLinks className="reg-muted" lead="Al crear tu cuenta, lees y aceptas el" />
           <Button type="submit" size="lg" block disabled={enviando}>
             {enviando ? 'Creando…' : 'Crear cuenta'}
           </Button>

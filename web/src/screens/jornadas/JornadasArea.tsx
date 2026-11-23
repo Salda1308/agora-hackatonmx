@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { FormEvent, ReactNode } from 'react'
+import { LegalLinks } from '../../components/LegalLinks'
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { Chip, SampleBadge } from '../../components/ui/Chip'
@@ -268,6 +269,7 @@ function FormularioInscripcion({
         />
       </label>
       <p className="jor-muted">Solo la fundación ve tu nombre y contacto.</p>
+      <LegalLinks className="jor-muted" lead="Antes de inscribirte, lee el" />
       {fallo ? <p className="jor-error" role="alert">{fallo}</p> : null}
       <Button type="submit" size="lg" block disabled={enviando}>
         {enviando ? 'Enviando…' : 'Inscribirme'}
