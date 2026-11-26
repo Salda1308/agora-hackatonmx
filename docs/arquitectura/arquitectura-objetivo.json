@@ -1,0 +1,469 @@
+{
+  "esquema": "agora.arquitectura-objetivo.publico/1",
+  "fecha": "2026-11-26",
+  "como_leer": "Fuente corta para IAs, version publica. Cada decision tiene id (D1..D13) y estado. Lo no verificado esta en por_confirmar. La version para personas es docs/arquitectura/arquitectura-objetivo.md. Seguridad y permisos no estan aqui: ver el documento de modelo de datos y permisos.",
+  "relacion_con_otros_documentos": {
+    "inventario": "docs/arquitectura/inventario.md: que piezas existen hoy",
+    "arquitectura_objetivo": "este documento: donde vive cada pieza, como se conectan, como se opera, limites y fase posterior",
+    "modelo_datos_y_permisos": "quien puede ver y hacer que, diagrama de tablas y riesgos de seguridad (docs/arquitectura/modelo-datos.md, se publica con AGO-26)"
+  },
+  "arquitectura": {
+    "resumen": "Web estatica en Render gratis con agoramx.app, hablando con una sola base Supabase Free (Postgres con RLS, Auth, Storage, Realtime y 4 funciones). pey cobra y avisa por webhook firmado. Correo de confirmacion por Gmail SMTP provisional. Un moderador o admin (1 o 2 personas) opera con consola SQL y llave de servicio, registra cada accion en acciones_moderacion y sigue recordatorios de calendario.",
+    "piezas": [
+      "web (Render, agoramx.app)",
+      "supabase (postgres, auth, storage, realtime)",
+      "funciones (crear-cobro, pey-webhook, estado-pago, t17-imagen)",
+      "pey (CoDi)",
+      "correo (Gmail SMTP provisional)",
+      "moderador o admin",
+      "recordatorios de calendario"
+    ],
+    "no_existe_en_la_entrega": [
+      "segundo ambiente",
+      "alertas automaticas",
+      "correo propio del dominio",
+      "respaldos automaticos",
+      "app Android"
+    ],
+    "flujos": {
+      "dinero": "donante elige articulos -> crear-cobro aparta 15 min y crea cobro en pey con la credencial de la tienda (monto calculado en servidor) -> pey cobra y avisa a pey-webhook -> verifica firma, confirma con pey, aplica una sola vez, emite folio -> donante ve estado con enlace de seguimiento (estado-pago); tienda ve pedido en panel; fundacion ve barra en vivo",
+      "entrega": "tienda marca listo y recogida se cierra con codigo -> repartidor sube foto -> fundacion teclea codigo y cierra (doble confirmacion)",
+      "operacion": "revision diaria de A1 a A8 por moderador o admin; visita a Supabase cada 2 o 3 dias (D1); cada accion en acciones_moderacion (D8)"
+    }
+  },
+  "alcance": {
+    "web": "solo web; sin app Android ni Google Play (por tiempo)",
+    "hosting": "Render gratis, dominio agoramx.app",
+    "base": "Supabase plan Free, una sola base alojada, sin ambiente de pruebas, sin respaldos automaticos",
+    "pagos": "pey (CoDi); tope 20000 centavos por cobro; la tienda es la titular del cobro"
+  },
+  "linea_base": [
+    {
+      "decision": "Supabase como base, cuentas, archivos, tiempo real y funciones Edge",
+      "evidencia": [
+        "docs/arquitectura/inventario.md",
+        "supabase/config.toml",
+        "supabase/migrations/"
+      ]
+    },
+    {
+      "decision": "La tienda es titular del cobro (el dinero cae en su cuenta)",
+      "evidencia": [
+        "docs/piloto/carta.md",
+        "supabase/functions/crear-cobro/README.md",
+        "supabase/functions/crear-cobro/store.ts"
+      ]
+    },
+    {
+      "decision": "Webhook de pey idempotente",
+      "evidencia": [
+        "supabase/functions/pey-webhook/README.md"
+      ]
+    },
+    {
+      "decision": "Reservas atomicas de 15 minutos",
+      "evidencia": [
+        "supabase/functions/crear-cobro/README.md"
+      ]
+    },
+    {
+      "decision": "Doble confirmacion de entrega",
+      "evidencia": [
+        "supabase/migrations/20261114180000_entrega_doble_confirmacion.sql"
+      ]
+    }
+  ],
+  "glosario": {
+    "webhook_idempotente": "pey avisa a Agora cuando alguien pago; si el mismo aviso llega dos veces no se registran dos pagos ni dos pedidos; ademas se verifica la firma y se pregunta a pey si el cobro es real",
+    "reserva_atomica": "las unidades que alguien va a pagar se apartan 15 minutos, completas o nada; dos personas a la vez no apartan de mas; si no paga se liberan",
+    "doble_confirmacion": "el repartidor sube la foto y marca entregado; la fundacion cierra la entrega con un codigo (doble confirmacion)"
+  },
+  "capas": [
+    {
+      "capa": "web",
+      "hoy": "Vite, React, build estatico en Render, redespliegue en cada push a main",
+      "objetivo": "misma web en Render gratis con agoramx.app y avisos legales por enlace"
+    },
+    {
+      "capa": "android",
+      "hoy": "no existe android/ ni Capacitor en el repo",
+      "objetivo": "fuera de alcance"
+    },
+    {
+      "capa": "supabase",
+      "hoy": "Free: pausa tras 7 dias sin actividad, sin respaldos, registros de 1 dia, 500 MB base, 1 GB archivos, 5 GB trafico; auditoria parcial en acciones_moderacion y eventos_tarea",
+      "objetivo": "igual, con correo provisional por Gmail (D13), regla de no borrar (D10) y moderacion con registro (D8)"
+    },
+    {
+      "capa": "funciones",
+      "hoy": "crear-cobro, pey-webhook, estado-pago, t17-imagen; CORS abierto",
+      "objetivo": "igual; la evidencia util son los datos de pagos, no los registros"
+    },
+    {
+      "capa": "pey",
+      "hoy": "metodos qr, push, link; reserva 15 min; telefono opcional enviado a pey y no guardado",
+      "objetivo": "igual; regla si pey falla (D12)"
+    },
+    {
+      "capa": "moderacion_alertas_notificaciones",
+      "hoy": "SQL manual con llave de servicio; sin sistema de notificaciones",
+      "objetivo": "rol moderador o admin con revision diaria; avisos en pantalla y panel"
+    }
+  ],
+  "decisiones": [
+    {
+      "id": "D1",
+      "tema": "Mantener activo Supabase Free",
+      "estado": "decidido",
+      "decision": "Visita manual (opcion D) con recordatorio periodico en el calendario del equipo (evento repetido cada 2 o 3 dias, con nombre de quien lo hace); recomendado cada 2 o 3 dias y siempre en los dias de la hackaton; a cargo del moderador o admin",
+      "descartado": [
+        "monitor externo gratuito",
+        "tarea programada en la base",
+        "flujo programado en GitHub"
+      ],
+      "consecuencias": "una visita semanal deja casi cero margen; si se pausa se reactiva desde el panel de Supabase; monitor externo queda para despues"
+    },
+    {
+      "id": "D2",
+      "tema": "Respaldo de la base",
+      "estado": "decidido",
+      "decision": "Sin respaldo (opcion A); limite declarado",
+      "descartado": [
+        "exportacion manual con supabase db dump",
+        "Pro solo el mes del piloto"
+      ],
+      "consecuencias": "un borrado o fallo pierde datos sin vuelta atras; fotos tampoco tienen respaldo"
+    },
+    {
+      "id": "D3",
+      "tema": "Dominio y hosting de la web",
+      "estado": "decidido",
+      "decision": "Render gratis con agoramx.app",
+      "descartado": [
+        "Cloudflare Pages",
+        "Netlify"
+      ],
+      "consecuencias": "configuracion pequena: dominio en Render, DNS, Supabase Auth y textos legales; dueno, precio y DNS del dominio por confirmar"
+    },
+    {
+      "id": "D4",
+      "tema": "Patron para generar y entregar alertas",
+      "estado": "decidido",
+      "decision": "Patrones de diseno: revision manual diaria con consultas guardadas (G1) entregada en una lista que el equipo abre (E1)",
+      "descartado": [
+        "revision programada",
+        "tabla de eventos con correo (queda para despues)",
+        "alertas por registros"
+      ],
+      "consecuencias": "un problema puede tardar hasta un dia en verse"
+    },
+    {
+      "id": "D5",
+      "tema": "Tipos de alertas",
+      "estado": "decidido",
+      "decision": "A1 a A8 a cargo del rol moderador o admin (ver alertas)",
+      "descartado": [],
+      "consecuencias": "quien actua y con que mensaje se define en AGO-28"
+    },
+    {
+      "id": "D6",
+      "tema": "Notificaciones de pago en Agora solo web",
+      "estado": "decidido",
+      "decision": "Donante sin cuenta y sin inicio de sesion; aviso en pantalla con folio y enlace de seguimiento; tienda y fundacion se enteran en su panel; la fundacion ademas con la barra en vivo; correo a la tienda como mejora cuando haya correo propio",
+      "descartado": [
+        "cuenta de donante",
+        "sesion anonima de Supabase (pide CAPTCHA y no avisa con la pagina cerrada)",
+        "notificaciones del navegador (en iPhone solo con la web agregada a la pantalla de inicio)",
+        "SMS o WhatsApp"
+      ],
+      "consecuencias": "el donante pierde el seguimiento si cierra la pantalla sin guardar el enlace; la tienda se entera al abrir su panel"
+    },
+    {
+      "id": "D7",
+      "tema": "Claves UUID",
+      "estado": "decidido",
+      "decision": "Mantener UUID v4 (gen_random_uuid) y la regla: un identificador, UUID o folio, nunca es el unico permiso; el folio AGORA-0000000 sigue secuencial",
+      "descartado": [
+        "UUID v7",
+        "folio no secuencial"
+      ],
+      "consecuencias": "sin brecha confirmada por claves predecibles; falta barrer las consultas publicas que reciben solo un identificador"
+    },
+    {
+      "id": "D8",
+      "tema": "Rol de moderador y administracion",
+      "estado": "decidido",
+      "decision": "Manual con una o dos personas nombradas con la llave de servicio, cada accion anotada en acciones_moderacion; el rol lleva la revision de D5, la visita de D1 y la revision semanal de A6 y A8; al salir alguien se quita acceso y se rotan secretos; panel de administracion despues",
+      "descartado": [
+        "panel de administracion en la app",
+        "servicio externo"
+      ],
+      "consecuencias": "la llave de servicio concentra el poder"
+    },
+    {
+      "id": "D9",
+      "tema": "Reembolsos y disputas",
+      "estado": "decidido",
+      "decision": "Sin reembolsos en la plataforma (acuerdo de uso, borrador por revisar legalmente); canal de contacto visible; ante A3 el moderador contacta a la tienda y a quien pago y anota el caso",
+      "descartado": [
+        "reembolso por pey (por confirmar si existe)",
+        "reembolso solo por error del sistema"
+      ],
+      "consecuencias": "el tope de 200 pesos por cobro limita la exposicion"
+    },
+    {
+      "id": "D10",
+      "tema": "Retencion y borrado",
+      "estado": "decidido",
+      "decision": "Borrar los datos de prueba una sola vez por consola (cuentas demo, organizaciones de ejemplo, pagos de prueba, con conteo antes y despues y nota en acciones_moderacion); desde entonces nada se borra, se inhabilita; confirmado cambiar el procedimiento ARCO que hoy borra cuentas",
+      "descartado": [
+        "borrado automatico por plazo",
+        "borrado a peticion"
+      ],
+      "consecuencias": "el esquema tiene borrados en cascada y permisos de borrado que hay que cerrar; si inhabilitar cumple la cancelacion ARCO: por confirmar con asesoria legal; las fotos se conservan mientras dure el piloto y se revisan al cierre"
+    },
+    {
+      "id": "D11",
+      "tema": "Ambiente de pruebas separado",
+      "estado": "decidido",
+      "decision": "No hay; si se necesita se hace despues",
+      "descartado": [
+        "segundo proyecto de Supabase",
+        "ramas"
+      ],
+      "consecuencias": "pruebas riesgosas solo en local; sin respaldos un error en la base alojada no se deshace"
+    },
+    {
+      "id": "D12",
+      "tema": "Que hacer si pey falla",
+      "estado": "decidido",
+      "decision": "Mantener el aviso actual de la web, detectar con A1 y A2 en la revision diaria; si hay varios cobros atascados en un dia, el moderador deja de publicar solicitudes con cobro y avisa a las tiendas",
+      "descartado": [
+        "segundo metodo de pago"
+      ],
+      "consecuencias": "reintentos de pey por confirmar"
+    },
+    {
+      "id": "D13",
+      "tema": "Correo de las cuentas (confirmacion de correo al registrarse)",
+      "estado": "decidido",
+      "decision": "Puente provisional: SMTP de una cuenta de Gmail del equipo con contrasena de aplicacion, configurado solo en el panel de Supabase (nunca en el repo). Para un piloto pequeno. Despues se pasa a un proveedor de la lista oficial con remitente de agoramx.app",
+      "descartado": [
+        "servicio incluido de Supabase (solo envia a miembros del equipo y con limite muy bajo)",
+        "agregar el Gmail como miembro del equipo (sirve solo para pruebas del equipo)"
+      ],
+      "consecuencias": "Gmail no esta en la lista de Supabase; el remitente es un Gmail personal; Google limita los envios diarios y puede bloquearlos hasta 24 horas (cifra para cuentas personales por confirmar); los correos pueden caer en spam (por confirmar); la contrasena de aplicacion se guarda solo en el panel de Supabase, nunca en el repo; si el piloto crece o el correo falla, se pasa al proveedor propio"
+    }
+  ],
+  "alertas": [
+    {
+      "id": "A1",
+      "tipo": "Pago no confirmado",
+      "deteccion": "consulta sobre pagos.estado y hora de creacion pasada la reserva de 15 minutos",
+      "gravedad": "media",
+      "riesgo": [
+        "dinero",
+        "confianza"
+      ]
+    },
+    {
+      "id": "A2",
+      "tipo": "Webhook caido o sin llegar",
+      "deteccion": "consulta de A1 (cobros atascados en creado); reintentos de pey por confirmar",
+      "gravedad": "alta",
+      "riesgo": [
+        "dinero"
+      ]
+    },
+    {
+      "id": "A3",
+      "tipo": "Pago sin pedido",
+      "deteccion": "pagos pagados sin pedido y pagos.metadata.pedido_omitido (tienda suspendida)",
+      "gravedad": "alta",
+      "riesgo": [
+        "dinero",
+        "confianza"
+      ]
+    },
+    {
+      "id": "A4",
+      "tipo": "Anomalia del webhook",
+      "deteccion": "pagos.metadata.anomalias",
+      "gravedad": "alta",
+      "riesgo": [
+        "dinero",
+        "seguridad"
+      ]
+    },
+    {
+      "id": "A5",
+      "tipo": "Base pausada o caida",
+      "deteccion": "se nota en la visita de D1: la web no carga datos",
+      "gravedad": "critica",
+      "riesgo": [
+        "dinero",
+        "confianza"
+      ]
+    },
+    {
+      "id": "A6",
+      "tipo": "Secretos (filtrados, caducados o por rotar)",
+      "deteccion": "recordatorio de calendario; cambiar el secreto del seguimiento invalida los enlaces anteriores",
+      "gravedad": "alta",
+      "riesgo": [
+        "seguridad"
+      ]
+    },
+    {
+      "id": "A7",
+      "tipo": "Entrega sin cerrar",
+      "deteccion": "eventos_tarea y tareas abiertas o bloqueadas por codigos incorrectos",
+      "gravedad": "media",
+      "riesgo": [
+        "confianza"
+      ]
+    },
+    {
+      "id": "A8",
+      "tipo": "Limites del plan Free",
+      "deteccion": "revision semanal del panel de Supabase",
+      "gravedad": "baja",
+      "riesgo": [
+        "datos",
+        "confianza"
+      ]
+    }
+  ],
+  "limites_declarados": [
+    "El piloto corre sin respaldos automaticos de la base ni de las fotos.",
+    "La base esta en el plan gratuito de Supabase y se mantiene activa con una visita manual; si se olvida, podria pausarse.",
+    "Una sola base alojada, sin ambiente de pruebas separado.",
+    "Las alertas son una revision diaria hecha por una persona; un problema puede tardar hasta un dia en verse.",
+    "Los pagos no se reembolsan desde la plataforma; la devolucion se resuelve entre quien pago y la tienda.",
+    "El donante no recibe correo ni mensaje: ve la confirmacion en pantalla y guarda su enlace de seguimiento.",
+    "Agora es solo web; no hay app en Google Play.",
+    "La web esta en el plan gratuito de Render con el dominio agoramx.app."
+  ],
+  "deuda_para_fase_posterior": [
+    {
+      "que": "Supabase Free con pausa por inactividad",
+      "por_que": "costo y decision del equipo",
+      "despues": "pasar a Pro (desde 25 dolares al mes, precio oficial 2026-11-24) o al menos un monitor externo diario gratuito",
+      "cuando": "antes de tener usuarios reales de forma continua"
+    },
+    {
+      "que": "sin respaldos",
+      "por_que": "Free no los incluye; D2",
+      "despues": "Pro con respaldos diarios de 7 dias, o exportacion manual con supabase db dump guardada cifrada fuera del repo, con patron en .gitignore y una restauracion probada en local; las fotos no entran en el respaldo",
+      "cuando": "antes del primer dinero real que no se quiera perder"
+    },
+    {
+      "que": "sin ambiente de pruebas",
+      "por_que": "costo y D11",
+      "despues": "segundo proyecto de Supabase (calculo propio: unos 35 dolares al mes con Pro) o ramas",
+      "cuando": "cuando un cambio a la base ya no se pueda probar solo en local"
+    },
+    {
+      "que": "alertas manuales",
+      "por_que": "sin infraestructura de avisos",
+      "despues": "tabla de alertas con eventos y correo al equipo; monitor externo para base y webhook",
+      "cuando": "cuando haya mas tiendas o cobros de los que una persona revise a diario"
+    },
+    {
+      "que": "correo de cuentas por Gmail personal",
+      "por_que": "puente provisional, limites diarios de Google y remitente personal",
+      "despues": "pasar de Gmail a un proveedor de correo de la lista oficial con dominio verificado (D13)",
+      "cuando": "si el piloto crece, si el correo falla o antes de usuarios reales continuos"
+    },
+    {
+      "que": "Render gratuito",
+      "por_que": "costo",
+      "despues": "revisar limites, encabezados de seguridad y alertas de despliegue; comparar de nuevo con Cloudflare Pages o Netlify",
+      "cuando": "si el trafico o la seguridad lo piden"
+    },
+    {
+      "que": "moderacion por SQL manual",
+      "por_que": "sin panel de administracion",
+      "despues": "panel con rol admin y registro obligatorio",
+      "cuando": "cuando haya mas de dos personas moderando"
+    },
+    {
+      "que": "borrado y ARCO",
+      "por_que": "la regla de inhabilitar no esta aplicada en la base",
+      "despues": "quitar cascadas y permisos de borrado; actualizar el procedimiento ARCO con revision legal",
+      "cuando": "antes de operar con datos de mas personas"
+    },
+    {
+      "que": "notificaciones solo en pantalla",
+      "por_que": "sin cuentas de donante ni correo propio",
+      "despues": "correo a tienda y fundacion; opcionalmente cuenta de donante o notificaciones del navegador",
+      "cuando": "cuando las tiendas pierdan pedidos por no abrir su panel"
+    },
+    {
+      "que": "sin reembolsos",
+      "por_que": "CoDi no los permite (por confirmar con pey)",
+      "despues": "regla de devolucion entre tienda y donante, o reembolso por pey si lo ofrece",
+      "cuando": "cuando haya disputas reales"
+    },
+    {
+      "que": "barrido de consultas publicas con identificador",
+      "por_que": "no cabe antes del 2026-12-10 si no se pide",
+      "despues": "auditar cada consulta publica",
+      "cuando": "en la revision de seguridad"
+    },
+    {
+      "que": "Android y Google Play",
+      "por_que": "no alcanza el tiempo",
+      "despues": "retomar Capacitor con el plan de AGO-54 a AGO-58",
+      "cuando": "si el piloto funciona y se quiere app"
+    }
+  ],
+  "por_confirmar": [
+    "que cuenta como actividad para Supabase Free y como se reactiva un proyecto pausado",
+    "si la base alojada ya tiene correo propio y con que proveedor; capa gratuita de proveedores de correo",
+    "limite diario de envio de Gmail para cuentas personales",
+    "politica de reintentos del webhook de pey y si pey permite devoluciones",
+    "si el panel de la tienda se refresca solo",
+    "si la cancelacion ARCO se cumple inhabilitando y quitando datos personales sin borrar el registro (asesoria legal)",
+    "si el aviso de privacidad ya dice un plazo de conservacion",
+    "nombres exactos de columnas para las consultas de alertas"
+  ],
+  "fuentes": {
+    "repo": [
+      "docs/arquitectura/inventario.md",
+      "supabase/migrations/",
+      "supabase/config.toml",
+      "supabase/functions/pey-webhook/README.md",
+      "supabase/functions/crear-cobro/README.md",
+      "supabase/MODERACION.md",
+      "docs/piloto/acuerdo-de-uso.md",
+      "docs/piloto/carta.md"
+    ],
+    "oficiales_consultadas": [
+      {
+        "tema": "precios y limites de Supabase, Render, Cloudflare y Netlify",
+        "fecha": "2026-11-24"
+      },
+      {
+        "tema": "Supabase: inicio de sesion anonimo y correo propio (SMTP)",
+        "fecha": "2026-11-26",
+        "url": "supabase.com/docs/guides/auth/auth-anonymous y supabase.com/docs/guides/auth/auth-smtp"
+      },
+      {
+        "tema": "MDN Push API",
+        "fecha": "2026-11-26",
+        "url": "developer.mozilla.org/en-US/docs/Web/API/Push_API"
+      },
+      {
+        "tema": "WebKit: Web Push en iOS y iPadOS",
+        "fecha": "2026-11-26",
+        "url": "webkit.org/blog/13878/web-push-for-web-apps-on-ios-and-ipados/"
+      },
+      {
+        "tema": "Google Workspace: limites de envio de Gmail",
+        "fecha": "2026-11-26",
+        "url": "support.google.com/a/answer/166852"
+      }
+    ]
+  }
+}
