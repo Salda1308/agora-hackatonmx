@@ -1,0 +1,165 @@
+{
+  "esquema": "agora.modelo-datos.publico/1",
+  "fecha": "2026-11-26",
+  "como_leer": "Fuente corta para IAs, version publica. Describe el diseno acordado (como debe quedar Agora), no que partes ya estan construidas. Decisiones con id MD1..MD8. Permisos en matriz: si, no, na, o texto con la condicion. La version para personas es docs/arquitectura/modelo-datos.md.",
+  "relacion_con_otros_documentos": {
+    "inventario": "docs/arquitectura/inventario.md: que piezas existen hoy",
+    "arquitectura_objetivo": "docs/arquitectura/arquitectura-objetivo.md: donde vive cada pieza y como se opera",
+    "modelo_datos_y_permisos": "este documento: roles, quien ve y hace que, reglas del flujo y tablas"
+  },
+  "roles": [
+    {
+      "id": "donante",
+      "persona_con_cuenta": true,
+      "quien": "persona con cuenta y correo confirmado",
+      "hace": "dona, ve sus comprobantes, comenta, se inscribe a jornadas, envia PQR"
+    },
+    {
+      "id": "fundacion",
+      "persona_con_cuenta": true,
+      "quien": "organizacion verificada",
+      "hace": "publica solicitudes con fecha limite, recoge su pedido en la tienda con su codigo, publica en el feed, organiza jornadas"
+    },
+    {
+      "id": "tienda",
+      "persona_con_cuenta": true,
+      "quien": "cuenta de acceso ligada a un negocio verificado",
+      "hace": "mantiene catalogo con stock, prepara pedidos, marca listo con meta cumplida, confirma la recogida"
+    },
+    {
+      "id": "moderador",
+      "persona_con_cuenta": true,
+      "quien": "persona del equipo de Agora, en su propia area",
+      "hace": "valida altas, atiende PQR y reportes de fallos, modera contenido, bloquea cuentas, suspende organizaciones, da de baja cuentas"
+    },
+    {
+      "id": "administracion",
+      "persona_con_cuenta": true,
+      "quien": "1 o 2 personas del equipo de Agora",
+      "hace": "ve informes, asigna tareas a moderadores, alta y baja de moderadores, habilita cobro de tiendas, parte tecnica"
+    },
+    {
+      "id": "visitante",
+      "persona_con_cuenta": false,
+      "quien": "cualquiera sin sesion",
+      "hace": "mira solicitudes, feed y panel publico; reporta publicaciones"
+    },
+    {
+      "id": "service_role",
+      "persona_con_cuenta": false,
+      "quien": "llave del servidor",
+      "hace": "solo en funciones del servidor; nunca en la web ni en chats"
+    }
+  ],
+  "roles_retirados": [
+    {
+      "id": "repartidor",
+      "motivo": "la fundacion recoge su pedido en la tienda (MD7)"
+    }
+  ],
+  "matriz": {
+    "columnas": ["visitante", "donante", "fundacion", "tienda", "moderador", "administracion"],
+    "publico_y_donacion": [
+      {"accion": "ver solicitudes, feed y panel publico", "permisos": ["si", "si", "si", "si", "si", "si"]},
+      {"accion": "donar", "permisos": ["no", "si", "no", "no", "no", "no"]},
+      {"accion": "ver comprobantes y donaciones", "permisos": ["no", "solo los suyos", "no", "no", "no", "si"]},
+      {"accion": "comentar, me gusta, reportar comentario", "permisos": ["no", "si", "si", "si", "si", "si"]},
+      {"accion": "reportar publicacion", "permisos": ["si", "si", "si", "si", "si", "si"]},
+      {"accion": "inscribirse a jornada", "permisos": ["no", "si", "si", "si", "na", "na"]},
+      {"accion": "enviar PQR o reporte de fallo", "permisos": ["no", "si", "si", "si", "na", "na"]},
+      {"accion": "pedir alta como fundacion o tienda", "permisos": ["no", "si, con correo confirmado", "na", "na", "na", "na"]}
+    ],
+    "fundacion": [
+      {"accion": "publicar solicitud", "permisos": ["no", "no", "si, verificada", "no", "no", "no"]},
+      {"accion": "cancelar su solicitud", "permisos": ["no", "no", "solo sin pagos ni reservas", "no", "si, con motivo", "si"]},
+      {"accion": "editar titulo y descripcion tras la primera donacion", "permisos": ["no", "no", "no", "no", "no", "no"]},
+      {"accion": "editar su ficha publica", "permisos": ["no", "no", "si, revisable", "na", "si", "si"]},
+      {"accion": "publicar en el feed con consentimiento", "permisos": ["no", "no", "si", "no", "no", "no"]},
+      {"accion": "ver pagos y pedidos de sus solicitudes", "permisos": ["no", "no", "si, solo lo necesario", "no", "si", "si"]},
+      {"accion": "ver codigo de recogida de su pedido listo", "permisos": ["no", "no", "si", "no", "no", "si"]},
+      {"accion": "gestionar sus jornadas e inscritos", "permisos": ["no", "no", "si", "no", "no", "no"]}
+    ],
+    "tienda": [
+      {"accion": "gestionar catalogo y stock (incluye CSV)", "permisos": ["no", "no", "no", "si", "no", "no"]},
+      {"accion": "marcar pedido listo", "permisos": ["no", "no", "no", "solo con meta cumplida o fecha limite vencida", "no", "no"]},
+      {"accion": "confirmar recogida tecleando el codigo de la fundacion", "permisos": ["no", "no", "no", "si", "no", "no"]},
+      {"accion": "cancelar una solicitud", "permisos": ["no", "no", "no", "no", "si, con motivo", "si"]},
+      {"accion": "cambiar datos fiscales o de cobro", "permisos": ["no", "no", "no", "pide el cambio", "valida", "si"]},
+      {"accion": "ver codigo de recogida", "permisos": ["no", "no", "no", "no", "no", "si"]}
+    ],
+    "moderacion_y_administracion": [
+      {"accion": "aprobar o rechazar altas", "permisos": ["no", "no", "no", "no", "si", "si"]},
+      {"accion": "atender PQR y reportes de fallos", "permisos": ["no", "no", "no", "no", "si", "si"]},
+      {"accion": "suspender o invalidar organizacion", "permisos": ["no", "no", "no", "no", "si, con motivo", "si"]},
+      {"accion": "retirar contenido, ocultar o restaurar comentarios", "permisos": ["no", "no", "no", "no", "si", "si"]},
+      {"accion": "bloquear o desbloquear cuentas", "permisos": ["no", "no", "no", "no", "si", "si"]},
+      {"accion": "dar de baja una cuenta (baja logica)", "permisos": ["no", "la pide", "la pide", "la pide", "si, con motivo", "si"]},
+      {"accion": "ver datos de contacto de otras personas", "permisos": ["no", "no", "solo inscritos a sus jornadas", "no", "solo lo necesario, con registro", "solo lo necesario, con registro"]},
+      {"accion": "ver informes y asignar tareas a moderadores", "permisos": ["no", "no", "no", "no", "no", "si"]},
+      {"accion": "alta o baja de moderadores", "permisos": ["no", "no", "no", "no", "no", "si"]},
+      {"accion": "habilitar cobro de una tienda", "permisos": ["no", "no", "no", "no", "valida", "si"]},
+      {"accion": "rotar llaves y borrar archivos de forma definitiva", "permisos": ["no", "no", "no", "no", "no", "si"]}
+    ],
+    "reglas_generales": [
+      "cada accion de moderacion y administracion queda registrada con la cuenta y el motivo",
+      "un bloqueo corta toda la actividad de la cuenta: donar, publicar y operar"
+    ]
+  },
+  "flujos": {
+    "solicitud": [
+      {"momento": "borrador", "cancela": "fundacion", "listo": "na"},
+      {"momento": "publicada sin pagos ni reservas", "cancela": "fundacion", "listo": "no"},
+      {"momento": "publicada con al menos un pago", "cancela": "solo moderacion, con motivo", "listo": "no"},
+      {"momento": "meta cumplida", "cancela": "solo moderacion, con motivo", "listo": "si; la solicitud se cierra sola"},
+      {"momento": "fecha limite vencida sin meta", "cancela": "se cierra sola", "listo": "si, solo con lo pagado"}
+    ],
+    "dinero": "al vencer o al cancelar con pagos, la tienda entrega lo pagado; sin reembolsos (AGO-25 D9); si una tienda cobra y no entrega, moderacion invalida su cuenta y Agora no responde por ese dinero",
+    "recogida": "pedido listo -> la fundacion ve el codigo en su panel -> una persona de la fundacion lo muestra en la tienda -> la tienda lo teclea y se cierra la entrega; varios intentos fallidos bloquean el codigo; sin foto de entrega ni segundo codigo",
+    "inventario": "stock declarado por articulo en catalogo y CSV; cada solicitud pide como maximo un porcentaje del stock; lo pedido en solicitudes abiertas se resta; la tienda confirma que tiene todo antes de marcar listo; una tienda por solicitud",
+    "registro_tienda": "paso 1: cuenta y correo confirmado; paso 2: negocio, con datos publicos aparte de datos fiscales y de cobro (solo los ven moderacion y administracion)"
+  },
+  "fotos": {
+    "donde": "Supabase Storage, espacios privados, enlaces temporales; nunca en una carpeta publica de la web",
+    "limpieza": "se quitan los metadatos (incluida la ubicacion) antes de guardar",
+    "topes": {"por_publicacion": 4, "por_organizacion_al_dia": 10},
+    "foto_de_entrega": "no existe",
+    "borrado_del_archivo": [
+      {"foto": "portada de solicitud", "plazo": "1 semana despues de entregado el pedido; la solicitud queda sin foto"},
+      {"foto": "retirada por falta de consentimiento o por reporte", "plazo": "30 dias"},
+      {"foto": "inhabilitada por otro motivo", "plazo": "12 meses"}
+    ],
+    "nota": "plazos por confirmar con la revision legal (AGO-45)"
+  },
+  "borrado": "nada se borra, se inhabilita con fecha y motivo (AGO-25 D10); pagos y pedidos nunca se borran; los archivos de fotos si se borran de verdad segun fotos.borrado_del_archivo",
+  "datos_personales": [
+    "ninguna organizacion ve datos de contacto de otra ni del donante",
+    "la fundacion ve los datos de los inscritos a sus jornadas",
+    "moderacion y administracion ven solo lo necesario para un alta, un reporte o un PQR, con registro de cada consulta",
+    "la cuenta del donante guarda lo minimo para donar y ver comprobantes; el aviso de privacidad se actualiza en AGO-45"
+  ],
+  "tablas": [
+    {"grupo": "cuentas y organizaciones", "tablas": ["perfiles", "organizaciones", "tiendas_cobro", "solicitudes_alta", "usuarios_bloqueados"], "nota": "cuenta separada del negocio y de sus datos de cobro"},
+    {"grupo": "dinero y pedidos", "tablas": ["catalogo_articulos", "solicitudes", "solicitud_articulos", "pagos", "pago_articulos", "pedidos", "pedido_articulos"], "nota": "catalogo suma stock; solicitudes suman fecha limite; pagos ligados a la cuenta del donante"},
+    {"grupo": "contenido", "tablas": ["publicaciones", "publicacion_medios", "reportes", "comentarios", "reportes_comentario", "me_gusta", "jornadas", "inscripciones_jornada"], "nota": "inscripciones ligadas a una cuenta"},
+    {"grupo": "moderacion", "tablas": ["acciones_moderacion", "moderadores", "pqr (nueva)"], "nota": ""},
+    {"grupo": "se retiran con el repartidor", "tablas": ["tareas", "entregas", "eventos_tarea", "espacio de fotos de entrega"], "nota": "la recogida queda en pedidos"}
+  ],
+  "decisiones": [
+    {"id": "MD1", "tema": "datos de contacto", "estado": "decidido", "decision": "solo moderacion y administracion, solo lo necesario, con registro de cada consulta", "cambia": ""},
+    {"id": "MD2", "tema": "cuenta del donante", "estado": "decidido", "decision": "cuenta obligatoria para donar, antes del 12 dic", "cambia": "reemplaza AGO-25 D6 (donante sin cuenta)"},
+    {"id": "MD3", "tema": "inscripcion a jornadas", "estado": "decidido", "decision": "con la misma cuenta del donante", "cambia": ""},
+    {"id": "MD4", "tema": "inventario", "estado": "decidido", "decision": "stock en el CSV, tope por porcentaje del stock, resta de lo ya pedido, la tienda confirma al cumplirse la meta", "cambia": "despues de la hackaton: API con la tienda y solicitudes con varias tiendas"},
+    {"id": "MD5", "tema": "meta y fecha limite", "estado": "decidido", "decision": "fecha limite por solicitud; al vencer o al cancelar con pagos, la tienda entrega lo pagado; sin reembolsos", "cambia": ""},
+    {"id": "MD6", "tema": "fotos", "estado": "decidido", "decision": "sin foto de entrega; 4 por publicacion y 10 por organizacion al dia; borrado del archivo por plazos", "cambia": "plazos por confirmar con AGO-45"},
+    {"id": "MD7", "tema": "repartidor", "estado": "decidido", "decision": "se retira; la fundacion recoge con su codigo", "cambia": "flujo de entrega de AGO-25"},
+    {"id": "MD8", "tema": "registro de tienda", "estado": "decidido", "decision": "en dos pasos: cuenta, luego negocio", "cambia": ""}
+  ],
+  "valores_por_fijar": [
+    {"que": "porcentaje maximo del stock por solicitud", "decision": "MD4", "quien": "equipo de Agora"},
+    {"que": "plazo maximo de la fecha limite", "decision": "MD5", "quien": "equipo de Agora"}
+  ],
+  "despues_de_la_hackaton": [
+    "conexion por API con el sistema de la tienda para stock en vivo",
+    "solicitud repartida entre varias tiendas"
+  ]
+}
