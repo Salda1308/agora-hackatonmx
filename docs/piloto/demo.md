@@ -12,7 +12,7 @@
 1. El directorio y una solicitud de ejemplo con su barra de avance.
 2. Cómo se eligen unidades y se paga con CoDi (QR, notificación al celular o enlace de pago).
 3. Cómo sube la barra en vivo cuando se confirma el pago, y el comprobante con su folio.
-4. El panel de la tienda: pedidos pagados, catálogo con precios y marcar un pedido como listo.
+4. El panel de la tienda: pedidos pagados, catálogo con precios y el aviso de pedido listo. Ese aviso se ofrecerá solo cuando se cumpla la meta de la solicitud; la demo actual puede no reflejarlo todavía.
 5. El cambio de rol con cuentas de prueba etiquetadas.
 
 ## Qué es real y qué es ejemplo

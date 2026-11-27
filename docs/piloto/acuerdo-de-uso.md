@@ -6,12 +6,13 @@
 
 ## 1. Qué es Ágora y qué no
 
-Ágora es una plataforma independiente donde una fundación publica unidades de un catálogo, cualquiera las paga con CoDi y la tienda las prepara. **Ágora no es un producto oficial de pey ni de CoDi** y no está afiliado a ellos. El Equipo no recibe, guarda ni transfiere dinero.
+Ágora es una plataforma independiente donde una fundación publica unidades de un catálogo, cualquier persona con cuenta las paga con CoDi y la tienda las prepara. **Ágora no es un producto oficial de pey ni de CoDi** y no está afiliado a ellos. El Equipo no recibe, guarda ni transfiere dinero.
 
 ## 2. Roles
 
 - **La Fundación** elige unidades del catálogo, publica su solicitud, recoge lo pagado y confirma lo recibido.
-- **La Tienda** mantiene su catálogo y sus precios, cobra con sus propias credenciales de pey, prepara lo pagado y lo marca listo.
+- **La Tienda** mantiene su catálogo y sus precios, cobra con sus propias credenciales de pey y prepara lo pagado. Marca el pedido como listo solo cuando se cumplió la meta de la solicitud; antes de eso la plataforma no ofrece esa opción.
+- **Quien dona** se registra con una cuenta en Ágora (no hay donación anónima) y paga las unidades que elige. No es parte de este acuerdo.
 - **El Equipo** verifica a la Fundación y a la Tienda y da soporte. Ninguna de las partes maneja dinero ajeno.
 
 ## 3. Dinero
