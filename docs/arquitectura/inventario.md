@@ -2,7 +2,7 @@
 
 Lista de cada pieza que hoy corre (web, Supabase, funciones, Render, pey), su ruta en el repo y cómo se conectan. Es la base de nombres para el resto de los tickets de arquitectura. Describe lo que está en el repo, no decisiones ni motivos (AGO-25), tablas y RLS (AGO-26), secuencias (AGO-27), despliegue (AGO-28) ni riesgos (AGO-29).
 
-Referencia del repo: rama docs/AGO-11-inventario-arquitectura, commit `7df71a1`. Los conteos (16 migraciones, 4 funciones, 15 archivos pgTAP) son sobre esa punta.
+Referencia del repo: punta de `main`, commit `183c018`. Los conteos (16 migraciones, 4 funciones, 15 archivos pgTAP) son sobre ese commit.
 
 Las rutas son relativas a la raíz del repositorio.
 
@@ -13,7 +13,7 @@ Aplicación Vite, React y TypeScript en `web/` (`react ^19.3.1`, `vite ^8.3.6`, 
 | Componente | Ruta | Qué hace | Quién lo llama |
 | --- | --- | --- | --- |
 | Punto de entrada | `web/src/main.tsx`, `web/src/App.tsx` | Monta la aplicación y resuelve la pantalla según la ruta | El navegador al cargar `web/index.html` |
-| Ruteo por hash | `web/src/lib/router.ts` | Rutas ancla (`#/`, `#/solicitudes`, `#/solicitudes/:id`, `#/siguiendo`, `#/organizaciones/:slug`, `#/sistema`); se apoya en `web/src/auth/role-routes.ts` y `web/src/auth/registro-routes.ts` | `web/src/App.tsx` |
+| Ruteo por hash | `web/src/lib/router.ts` | Rutas definidas en el archivo (`#/`, `#/solicitudes`, `#/solicitudes/:id`, `#/siguiendo`, `#/organizaciones/:slug`, `#/sistema`, `#/panel`, `#/cuenta`, `#/fundacion`, `#/fundacion/publicar`, `#/jornadas`, `#/jornadas/:id`, `#/jornadas/folio/:id`); se apoya en `web/src/auth/role-routes.ts` y `web/src/auth/registro-routes.ts` | `web/src/App.tsx` |
 | Cliente de Supabase | `web/src/lib/supabase.ts` | Crea el cliente único con `VITE_SUPABASE_URL` y `VITE_SUPABASE_PUBLISHABLE_KEY`; sin esas variables queda en `null` y la navegación pública sigue funcionando | Toda la app (pantallas, features, auth) |
 | Sesión y roles | `web/src/auth/` | Proveedor de sesión, control de acceso por rol (`RequireRole.tsx`), acceso de demostración (`demo.ts`), alta y registro | `web/src/App.tsx` y las pantallas |
 | Pantallas públicas | `web/src/screens/Home.tsx`, `Directory.tsx`, `RequestDetail.tsx`, `Following.tsx`, `SystemGallery.tsx` | Portada, directorio, detalle de solicitud, seguimiento de causas, galería del sistema | Ruteo por hash |
@@ -22,14 +22,16 @@ Aplicación Vite, React y TypeScript en `web/` (`react ^19.3.1`, `vite ^8.3.6`, 
 | Pantallas de repartidor | `web/src/screens/repartidor/` | Tareas y entrega (vista parcial según el README del repo) | Ruteo por rol |
 | Pantallas de registro | `web/src/screens/registro/` | Alta, inicio de sesión y registro por rol | Ruteo de registro |
 | Página de organización | `web/src/screens/organizacion/` | Página pública de la organización con publicaciones (texto, imagen, video) | Ruteo por hash (`#/organizaciones/:slug`) |
+| Mi cuenta | `web/src/screens/cuenta/` | Pantalla de cuenta de la persona con sesión (solicitudes, jornadas y tarea según su rol) | Ruteo por hash (`#/cuenta`) |
 | Jornadas | `web/src/screens/jornadas/` | Jornadas de voluntariado (vista de fundación e inscripción) | Ruteo por rol |
 | Panel público | `web/src/screens/panel/`, `web/src/screens/Panel.tsx` | Barra en vivo y datos del panel | Ruteo |
 | Feature de donación | `web/src/features/requests/Donation.tsx` | Inicia el cobro; invoca la función `crear-cobro` | `RequestDetail.tsx` y el flujo de pago |
 | Estado de pago | `web/src/features/requests/PaymentStatus.tsx` | Consulta el estado del pago con un token firmado; invoca `estado-pago` | Flujo de donación |
 | Feed de actividad | `web/src/features/feed/` | Lista de eventos de la portada | `Home.tsx` |
-| Componentes y UI | `web/src/components/` | Tarjeta e imagen de solicitud, dock del sitio, componentes en `web/src/components/ui/` | Pantallas y features |
+| Componentes y UI | `web/src/components/` | Tarjeta e imagen de solicitud, dock del sitio, enlaces legales (`web/src/components/LegalLinks.tsx`), componentes en `web/src/components/ui/` | Pantallas y features |
+| Páginas legales | `web/public/privacidad.html`, `web/public/terminos.html` | Aviso de privacidad y términos de uso, páginas estáticas fuera del ruteo por hash | Enlaces de `web/src/components/LegalLinks.tsx` (formularios y pie) |
 | Datos de ejemplo del cliente | `web/src/data/sample.ts` | Datos de muestra para la interfaz | Pantallas |
-| Pruebas del cliente | `web/tests/` | Pruebas de `auth` con `node --test` | Verificación local |
+| Pruebas del cliente | `web/tests/` | Pruebas de `auth`, `cuenta`, `feed`, `organizacion` y `tienda` (archivos `*.test.ts` con `node --test`) y flujos `.mjs` sueltos en la misma carpeta | Verificación local |
 
 El monto de cada cobro lo calcula el backend; el cliente no lo envía. Las credenciales de pey y la llave `service_role` no llegan al cliente.
 
@@ -91,7 +93,7 @@ Notas de las funciones de pago:
 | Componente | Ruta en el repo | Qué hace | Cómo se conecta |
 | --- | --- | --- | --- |
 | pey (CoDi) | Integración en `supabase/functions/crear-cobro/` y `supabase/functions/pey-webhook/` | API de cobro CoDi: QR, push y enlace de pago; webhook firmado; consulta `GET /transaction/:id` | `crear-cobro` llama a la API de pey por HTTPS; pey envía el webhook firmado a `pey-webhook`; `pey-webhook` confirma cada pago con `GET /transaction/:id` |
-| Render (hosting de la web) | Sin archivo en el repo (no hay `render.yaml`) | Sirve la web publicada | URL pública `https://agora-hackatonmx.onrender.com/` (del `README.md`) |
+| Render | Sin archivo en el repo (no hay `render.yaml`) | Servicio donde está publicada la web hoy | URL pública `https://agora-hackatonmx.onrender.com/` (del `README.md`) |
 
 Detalles de Render que no están en el repo (por confirmar con el usuario, requieren acceso al panel de Render):
 
@@ -105,7 +107,7 @@ Detalles de Render que no están en el repo (por confirmar con el usuario, requi
 ```mermaid
 flowchart LR
   navegador["Navegador (usuario)"]
-  render["Render<br/>agora-hackatonmx.onrender.com<br/>sirve la web (Vite/React)"]
+  render["Render<br/>agora-hackatonmx.onrender.com<br/>donde está la web hoy (Vite/React)"]
   pey["pey (CoDi)<br/>QR, push, enlace de pago"]
 
   subgraph supabase["Supabase"]
