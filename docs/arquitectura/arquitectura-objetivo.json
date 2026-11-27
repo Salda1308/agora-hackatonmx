@@ -1,7 +1,7 @@
 {
   "esquema": "agora.arquitectura-objetivo.publico/1",
   "fecha": "2026-11-26",
-  "como_leer": "Fuente corta para IAs, version publica. Cada decision tiene id (D1..D13) y estado. Lo no verificado esta en por_confirmar. La version para personas es docs/arquitectura/arquitectura-objetivo.md. Seguridad y permisos no estan aqui: ver el documento de modelo de datos y permisos.",
+  "como_leer": "Fuente corta para IAs, version publica. Ajustada el 2026-11-26 por AGO-26: D6 reemplazada y entrega sin repartidor (ver docs/arquitectura/modelo-datos.md, MD2 y MD7). Cada decision tiene id (D1..D13) y estado. Lo no verificado esta en por_confirmar. La version para personas es docs/arquitectura/arquitectura-objetivo.md. Seguridad y permisos no estan aqui: ver el documento de modelo de datos y permisos.",
   "relacion_con_otros_documentos": {
     "inventario": "docs/arquitectura/inventario.md: que piezas existen hoy",
     "arquitectura_objetivo": "este documento: donde vive cada pieza, como se conectan, como se opera, limites y fase posterior",
@@ -26,8 +26,8 @@
       "app Android"
     ],
     "flujos": {
-      "dinero": "donante elige articulos -> crear-cobro aparta 15 min y crea cobro en pey con la credencial de la tienda (monto calculado en servidor) -> pey cobra y avisa a pey-webhook -> verifica firma, confirma con pey, aplica una sola vez, emite folio -> donante ve estado con enlace de seguimiento (estado-pago); tienda ve pedido en panel; fundacion ve barra en vivo",
-      "entrega": "tienda marca listo y recogida se cierra con codigo -> repartidor sube foto -> fundacion teclea codigo y cierra (doble confirmacion)",
+      "dinero": "donante elige articulos -> crear-cobro aparta 15 min y crea cobro en pey con la credencial de la tienda (monto calculado en servidor) -> pey cobra y avisa a pey-webhook -> verifica firma, confirma con pey, aplica una sola vez, emite folio -> donante, con su cuenta, ve estado en pantalla con folio y despues en mis donaciones; tienda ve pedido en panel; fundacion ve barra en vivo",
+      "entrega": "tienda marca listo con la meta cumplida -> persona de la fundacion va a la tienda con su codigo de recogida -> tienda teclea el codigo y se cierra la entrega; sin repartidor ni foto de entrega (MD7, AGO-26)",
       "operacion": "revision diaria de A1 a A8 por moderador o admin; visita a Supabase cada 2 o 3 dias (D1); cada accion en acciones_moderacion (D8)"
     }
   },
@@ -67,16 +67,17 @@
       ]
     },
     {
-      "decision": "Doble confirmacion de entrega",
+      "decision": "Entrega cerrada con el codigo de recogida de la fundacion (reemplaza la doble confirmacion con repartidor, por AGO-26)",
       "evidencia": [
-        "supabase/migrations/20261114180000_entrega_doble_confirmacion.sql"
+        "supabase/migrations/20261114210000_recogida_con_codigo.sql",
+        "docs/arquitectura/modelo-datos.md (MD7)"
       ]
     }
   ],
   "glosario": {
     "webhook_idempotente": "pey avisa a Agora cuando alguien pago; si el mismo aviso llega dos veces no se registran dos pagos ni dos pedidos; ademas se verifica la firma y se pregunta a pey si el cobro es real",
     "reserva_atomica": "las unidades que alguien va a pagar se apartan 15 minutos, completas o nada; dos personas a la vez no apartan de mas; si no paga se liberan",
-    "doble_confirmacion": "el repartidor sube la foto y marca entregado; la fundacion cierra la entrega con un codigo (doble confirmacion)"
+    "codigo_de_recogida": "la fundacion ve en su panel un codigo; una persona de la fundacion lo muestra en la tienda y la tienda lo teclea para cerrar la entrega; varios intentos fallidos bloquean el codigo"
   },
   "capas": [
     {
@@ -168,15 +169,15 @@
     {
       "id": "D6",
       "tema": "Notificaciones de pago en Agora solo web",
-      "estado": "decidido",
-      "decision": "Donante sin cuenta y sin inicio de sesion; aviso en pantalla con folio y enlace de seguimiento; tienda y fundacion se enteran en su panel; la fundacion ademas con la barra en vivo; correo a la tienda como mejora cuando haya correo propio",
+      "estado": "reemplazada",
+      "reemplazada_por": "MD2 de docs/arquitectura/modelo-datos.md (AGO-26): donar exige cuenta con correo confirmado",
+      "decision": "Donante con cuenta; aviso en pantalla con folio y seguimiento en mis donaciones; tienda y fundacion se enteran en su panel; la fundacion ademas con la barra en vivo; correo a la tienda como mejora cuando haya correo propio",
       "descartado": [
-        "cuenta de donante",
         "sesion anonima de Supabase (pide CAPTCHA y no avisa con la pagina cerrada)",
         "notificaciones del navegador (en iPhone solo con la web agregada a la pantalla de inicio)",
         "SMS o WhatsApp"
       ],
-      "consecuencias": "el donante pierde el seguimiento si cierra la pantalla sin guardar el enlace; la tienda se entera al abrir su panel"
+      "consecuencias": "el donante recupera el seguimiento al iniciar sesion; la tienda se entera al abrir su panel"
     },
     {
       "id": "D7",
@@ -340,7 +341,7 @@
     "Una sola base alojada, sin ambiente de pruebas separado.",
     "Las alertas son una revision diaria hecha por una persona; un problema puede tardar hasta un dia en verse.",
     "Los pagos no se reembolsan desde la plataforma; la devolucion se resuelve entre quien pago y la tienda.",
-    "El donante no recibe correo ni mensaje: ve la confirmacion en pantalla y guarda su enlace de seguimiento.",
+    "El donante no recibe correo ni mensaje: ve la confirmacion en pantalla y en mis donaciones.",
     "Agora es solo web; no hay app en Google Play.",
     "La web esta en el plan gratuito de Render con el dominio agoramx.app."
   ],
@@ -395,8 +396,8 @@
     },
     {
       "que": "notificaciones solo en pantalla",
-      "por_que": "sin cuentas de donante ni correo propio",
-      "despues": "correo a tienda y fundacion; opcionalmente cuenta de donante o notificaciones del navegador",
+      "por_que": "sin correo propio",
+      "despues": "correo a tienda, fundacion y donante; opcionalmente notificaciones del navegador",
       "cuando": "cuando las tiendas pierdan pedidos por no abrir su panel"
     },
     {
